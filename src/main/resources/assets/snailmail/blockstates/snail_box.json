@@ -1,0 +1,7 @@
+{
+	"variants": {
+		"": {
+			"model": "snailmail:block/snail_box"
+		}
+	}
+}

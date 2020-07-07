@@ -1,0 +1,20 @@
+{
+    "itemGroup.snailmail": "Snail Mail",
+    "container.snailmail.snail_box": "Snailbox",
+    "container.snailmail.envelope_open": "Envelope (Open)",
+    "container.snailmail.envelope_closed": "Envelope (Closed)",
+    "container.snailmail.envelope.textfield.to": "Address To",
+    "container.snailmail.envelope.textfield.from": "Address From",
+    "block.snailmail.snail_box": "Snail Box",
+    "item.snailmail.envelope_open": "Envelope (Open)",
+    "item.snailmail.envelope_closed": "Envelope (Closed)",
+    "item.snailmail.stamp": "Stamp",
+    "tooltip.snailmail.to": "Addressed To: %s",
+    "tooltip.snailmail.from": "From: %s",
+    "tooltip.snailmail.stamped": "Stamped",
+    "modal.snailmail.nouuid": "Could not find a user matching addressed name: %s",
+    "modal.snailmail.nobox": "%s does not have any snailboxes",
+    "modal.snailmail.selectbox": "Select which box to send mail to",
+    "modal.snailmail.located": "Located at: %s",
+    "message.snailmail.noperm": "This isn't your snailbox! Access denied."
+}
