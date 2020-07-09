@@ -4,6 +4,8 @@ import dev.itsmeow.imdlib.client.IMDLibClient;
 import dev.itsmeow.imdlib.client.render.RenderFactory;
 import dev.itsmeow.snailmail.SnailMail;
 import dev.itsmeow.snailmail.client.model.SnailManModel;
+import dev.itsmeow.snailmail.client.screen.EnvelopeScreen;
+import dev.itsmeow.snailmail.client.screen.SnailBoxScreen;
 import dev.itsmeow.snailmail.init.ModContainers;
 import dev.itsmeow.snailmail.init.ModEntities;
 import net.minecraft.client.gui.ScreenManager;
@@ -20,7 +22,7 @@ public class SnailMailClient {
     @SubscribeEvent
     public static void clientSetup(final FMLClientSetupEvent event) {
         ScreenManager.registerFactory(ModContainers.SNAIL_BOX, SnailBoxScreen::new);
-        ScreenManager.registerFactory(ModContainers.ENVELOPE_OPEN, EnvelopeScreen::new);
+        ScreenManager.registerFactory(ModContainers.ENVELOPE, EnvelopeScreen::new);
         H.addRender(ModEntities.SNAIL_MAN.entityType, 1F, r -> r.tSingle("snail_man").mSingle(new SnailManModel()));
     }
 

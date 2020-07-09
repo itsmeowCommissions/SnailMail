@@ -1,5 +1,7 @@
 package dev.itsmeow.snailmail;
 
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
 
@@ -11,8 +13,11 @@ import dev.itsmeow.snailmail.init.ModContainers;
 import dev.itsmeow.snailmail.init.ModEntities;
 import dev.itsmeow.snailmail.init.ModItems;
 import dev.itsmeow.snailmail.item.NamedBlockItem;
+import dev.itsmeow.snailmail.network.SendEnvelopePacket;
 import dev.itsmeow.snailmail.network.SetEnvelopeNamePacket;
+import dev.itsmeow.snailmail.network.SetSnailBoxNamePacket;
 import dev.itsmeow.snailmail.util.BiMultiMap;
+import dev.itsmeow.snailmail.util.Location;
 import net.minecraft.block.Block;
 import net.minecraft.entity.EntityType;
 import net.minecraft.inventory.container.ContainerType;
@@ -20,13 +25,15 @@ import net.minecraft.item.Item;
 import net.minecraft.item.ItemGroup;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.CompoundNBT;
-import net.minecraft.nbt.IntArrayNBT;
 import net.minecraft.nbt.ListNBT;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.tileentity.TileEntityType;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.world.IWorld;
 import net.minecraft.world.dimension.DimensionType;
+import net.minecraft.world.server.ServerWorld;
+import net.minecraft.world.storage.DimensionSavedDataManager;
 import net.minecraft.world.storage.WorldSavedData;
 import net.minecraftforge.common.ForgeConfigSpec;
 import net.minecraftforge.common.util.Constants;
@@ -67,6 +74,8 @@ public class SnailMail {
     @SubscribeEvent
     public static void setup(final FMLCommonSetupEvent event) {
         HANDLER.registerMessage(packets++, SetEnvelopeNamePacket.class, SetEnvelopeNamePacket::encode, SetEnvelopeNamePacket::decode, SetEnvelopeNamePacket.Handler::handle);
+        HANDLER.registerMessage(packets++, SendEnvelopePacket.class, SendEnvelopePacket::encode, SendEnvelopePacket::decode, SendEnvelopePacket.Handler::handle);
+        HANDLER.registerMessage(packets++, SetSnailBoxNamePacket.class, SetSnailBoxNamePacket::encode, SetSnailBoxNamePacket::decode, SetSnailBoxNamePacket.Handler::handle);
     }
 
     @SubscribeEvent
@@ -97,7 +106,7 @@ public class SnailMail {
     public static void registerContainerTypes(final RegistryEvent.Register<ContainerType<?>> event) {
         event.getRegistry().registerAll(
         ModContainers.SNAIL_BOX,
-        ModContainers.ENVELOPE_OPEN);
+        ModContainers.ENVELOPE);
     }
 
     @SubscribeEvent
@@ -107,31 +116,60 @@ public class SnailMail {
 
     public static class SnailBoxData extends WorldSavedData {
 
-        private final BiMultiMap<UUID, BlockPos> snailBoxes = new BiMultiMap<>();
+        private final BiMultiMap<UUID, Location> snailBoxes = new BiMultiMap<>();
+        private final Map<Location, String> names = new HashMap<>();
 
         public SnailBoxData() {
             super("SNAIL_BOXES");
         }
 
-        public void addBox(UUID owner, BlockPos pos) {
+        public void addBox(UUID owner, IWorld world, BlockPos pos, String name) {
+            addBox(owner, new Location(world.getDimension().getType(), pos), name);
+        }
+
+        public void addBox(UUID owner, Location pos, String name) {
             snailBoxes.put(owner, pos);
+            names.put(pos, name);
             this.markDirty();
         }
 
-        public void removeBox(UUID owner, BlockPos pos) {
+        public String removeBox(UUID owner, IWorld world, BlockPos pos) {
+            return removeBox(owner, new Location(world.getDimension().getType(), pos));
+        }
+
+        public String removeBox(UUID owner, Location pos) {
             snailBoxes.remove(owner, pos);
+            String name = names.remove(pos);
+            this.markDirty();
+            return name;
         }
 
-        public void removeBoxRaw(BlockPos pos) {
+        public void removeBoxRaw(IWorld world, BlockPos pos) {
+            removeBoxRaw(new Location(world, pos));
+        }
+
+        public void removeBoxRaw(Location pos) {
             snailBoxes.removeValueFromAll(pos);
+            names.remove(pos);
+            this.markDirty();
         }
 
-        public Set<BlockPos> getBoxes(UUID owner) {
+        public Set<Location> getBoxes(UUID owner) {
             return snailBoxes.getValues(owner);
         }
 
-        public Set<BlockPos> getAllBoxes() {
+        public Set<Location> getAllBoxes() {
             return snailBoxes.getValuesToKeys().keySet();
+        }
+
+        public String getNameForPos(Location pos) {
+            return names.get(pos);
+        }
+
+
+        public void setNameForPos(Location pos, String name) {
+            names.put(pos, name);
+            this.markDirty();
         }
 
         @Override
@@ -139,14 +177,17 @@ public class SnailMail {
             for(String key : nbt.keySet()) {
                 UUID uuid = UUID.fromString(key);
                 if(uuid != null && nbt.contains(key, Constants.NBT.TAG_LIST)) {
-                    ListNBT list = nbt.getList(key, Constants.NBT.TAG_INT_ARRAY);
+                    ListNBT list = nbt.getList(key, Constants.NBT.TAG_COMPOUND);
                     for(int i = 0; i < list.size(); i++) {
-                        int[] arr = list.getIntArray(i);
+                        CompoundNBT comp = list.getCompound(i);
+                        int[] arr = comp.getIntArray("pos");
                         if(arr.length == 3) {
                             int x = arr[0];
                             int y = arr[1];
                             int z = arr[2];
-                            snailBoxes.put(uuid, new BlockPos(x, y, z));
+                            Location pos = new Location(DimensionType.byName(new ResourceLocation(comp.getString("dim"))), x, y, z);
+                            snailBoxes.put(uuid, pos);
+                            names.put(pos, comp.getString("name"));
                         }
                     }
                 }
@@ -158,7 +199,11 @@ public class SnailMail {
             snailBoxes.getKeysToValues().keySet().forEach(key -> {
                 ListNBT list = new ListNBT();
                 snailBoxes.getValues(key).forEach(pos -> {
-                    list.add(new IntArrayNBT(new int[] { pos.getX(), pos.getY(), pos.getZ() }));
+                    CompoundNBT comp = new CompoundNBT();
+                    comp.putIntArray("pos", new int[] { pos.getX(), pos.getY(), pos.getZ() });
+                    comp.putString("name", names.get(pos));
+                    comp.putString("dim", pos.getDimension().getRegistryName().toString());
+                    list.add(comp);
                 });
                 compound.put(key.toString(), list);
             });
@@ -166,9 +211,12 @@ public class SnailMail {
         }
 
         public static SnailBoxData getData(MinecraftServer server) {
-            server.getWorld(DimensionType.OVERWORLD).getSavedData().getOrCreate(SnailBoxData::new, "SNAIL_BOXES");
-            return null;
+            ServerWorld world = server.getWorld(DimensionType.OVERWORLD);
+            DimensionSavedDataManager data = world.getSavedData();
+            SnailBoxData a = data.getOrCreate(SnailBoxData::new, "SNAIL_BOXES");
+            return a;
         }
+
     }
 
     public static class Configuration {

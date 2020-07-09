@@ -52,7 +52,7 @@ public class SetEnvelopeNamePacket {
                             hand = Hand.OFF_HAND;
                         }
                         if(hand != null) {
-                            String s = RandomUtil.filterAllowedCharacters(msg.name);
+                            String s = RandomUtil.filterAllowedCharacters(msg.name, false);
                             if(s.length() <= 35) {
                                 ItemStack stack = sender.getHeldItem(hand);
                                 if(msg.type == Type.TO) {

@@ -7,7 +7,6 @@ import dev.itsmeow.snailmail.SnailMail;
 import dev.itsmeow.snailmail.init.ModContainers;
 import dev.itsmeow.snailmail.init.ModItems;
 import dev.itsmeow.snailmail.util.NoItemCapSlot;
-import dev.itsmeow.snailmail.util.RandomUtil;
 import dev.itsmeow.snailmail.util.StampSlot;
 import net.minecraft.client.util.ITooltipFlag;
 import net.minecraft.entity.player.PlayerEntity;
@@ -44,7 +43,7 @@ import net.minecraftforge.items.ItemStackHandler;
 public class EnvelopeItem extends Item {
 
     private final boolean isOpen;
-    private static final ITextComponent title = new TranslationTextComponent("container.snailmail.envelope_open");
+    private static final ITextComponent title = new TranslationTextComponent("container.snailmail.envelope");
 
     public EnvelopeItem(String name, boolean isOpen) {
         super(new Item.Properties().group(SnailMail.ITEM_GROUP).maxStackSize(1));
@@ -71,6 +70,17 @@ public class EnvelopeItem extends Item {
         }
     }
 
+    public static boolean isStamped(ItemStack stack) {
+        LazyOptional<IItemHandler> cap = stack.getCapability(CapabilityItemHandler.ITEM_HANDLER_CAPABILITY);
+        if(cap.isPresent()) {
+            ItemStack stampSlot = cap.orElse(null).getStackInSlot(27);
+            if(!stampSlot.isEmpty() && stampSlot.getItem() == ModItems.STAMP) {
+                return true;
+            }
+        }
+        return false;
+    }
+
     public static void setToName(PlayerEntity player, Hand hand, ItemStack stack, String s) {
         putStringChecked(stack, "AddressedTo", s);
         player.setHeldItem(hand, stack);
@@ -79,6 +89,13 @@ public class EnvelopeItem extends Item {
     public static void setFromName(PlayerEntity player, Hand hand, ItemStack stack, String s) {
         putStringChecked(stack, "AddressedFrom", s);
         player.setHeldItem(hand, stack);
+    }
+
+    public static String getString(ItemStack stack, String key) {
+        if(stack.hasTag()) {
+            return stack.getTag().getString(key);
+        }
+        return "";
     }
 
     protected static void putStringChecked(ItemStack stack, String key, String value) {
@@ -131,7 +148,7 @@ public class EnvelopeItem extends Item {
         ItemStack stack = playerIn.getHeldItem(handIn);
         if(!stack.isEmpty() && stack.getCapability(CapabilityItemHandler.ITEM_HANDLER_CAPABILITY) != null && playerIn instanceof ServerPlayerEntity) {
             if(stack.getItem() == ModItems.ENVELOPE_OPEN) {
-                this.openGUI((ServerPlayerEntity) playerIn, stack);
+                openGUI((ServerPlayerEntity) playerIn, stack);
                 return ActionResult.resultSuccess(stack);
             } else if(stack.getItem() == ModItems.ENVELOPE_CLOSED) {
                 Optional<ItemStack> open = convert(stack);
@@ -148,13 +165,13 @@ public class EnvelopeItem extends Item {
         return isOpen;
     }
 
-    public EnvelopeContainer getClientContainer(int id, PlayerInventory playerInventory, PacketBuffer extra) {
+    public static EnvelopeContainer getClientContainer(int id, PlayerInventory playerInventory, PacketBuffer extra) {
         if(extra.readableBytes() > 0) {
             try {
-                String toName = RandomUtil.readString(extra);
+                String toName = extra.readString();
                 String fromName = "";
                 if(extra.readableBytes() > 0) {
-                    fromName = RandomUtil.readString(extra);
+                    fromName = extra.readString();
                 }
                 return new EnvelopeContainer(id, playerInventory, new ItemStackHandler(28), toName, fromName);
             } catch(IndexOutOfBoundsException e) {
@@ -163,20 +180,20 @@ public class EnvelopeItem extends Item {
         return new EnvelopeContainer(id, playerInventory, new ItemStackHandler(28));
     }
 
-    public IContainerProvider getServerContainerProvider(ItemStack stack) {
+    public static IContainerProvider getServerContainerProvider(ItemStack stack) {
         return (id, playerInventory, serverPlayer) -> new EnvelopeContainer(id, playerInventory, stack.getCapability(CapabilityItemHandler.ITEM_HANDLER_CAPABILITY).orElse(null));
     }
 
-    public void openGUI(ServerPlayerEntity player, ItemStack stack) {
-        IContainerProvider provider = this.getServerContainerProvider(stack);
+    public static void openGUI(ServerPlayerEntity player, ItemStack stack) {
+        IContainerProvider provider = getServerContainerProvider(stack);
         INamedContainerProvider namedProvider = new SimpleNamedContainerProvider(provider, title);
         NetworkHooks.openGui(player, namedProvider, buf -> {
             if(stack.hasTag()) {
                 if(stack.getTag().contains("AddressedTo", Constants.NBT.TAG_STRING)) {
-                    RandomUtil.writeString(buf, stack.getTag().getString("AddressedTo"));
+                    buf.writeString(stack.getTag().getString("AddressedTo"));
                 }
                 if(stack.getTag().contains("AddressedFrom", Constants.NBT.TAG_STRING)) {
-                    RandomUtil.writeString(buf, stack.getTag().getString("AddressedFrom"));
+                    buf.writeString(stack.getTag().getString("AddressedFrom"));
                 }
             }
         });
@@ -199,7 +216,7 @@ public class EnvelopeItem extends Item {
         }
 
         public EnvelopeContainer(int id, IInventory playerInventory, IItemHandler items, String toName, String fromName) {
-            super(ModContainers.ENVELOPE_OPEN, id);
+            super(ModContainers.ENVELOPE, id);
             this.clientStartToName = toName;
             this.clientStartFromName = fromName;
             this.items = items;
@@ -244,7 +261,9 @@ public class EnvelopeItem extends Item {
                 ItemStack itemstack1 = slot.getStack();
                 itemstack = itemstack1.copy();
 
-                if(index < SLOT_COUNT) {
+                if(itemstack1.getItem() == ModItems.STAMP && index >= SLOT_COUNT && !this.mergeItemStack(itemstack1, 27, 28, false)) {
+                    return ItemStack.EMPTY;
+                } else if(index < SLOT_COUNT) {
                     if(!this.mergeItemStack(itemstack1, SLOT_COUNT, this.inventorySlots.size(), true)) {
                         return ItemStack.EMPTY;
                     }
@@ -264,7 +283,15 @@ public class EnvelopeItem extends Item {
 
         @Override
         public boolean canInteractWith(PlayerEntity player) {
-            return true;
+            if(player.getHeldItemMainhand().getItem() == ModItems.ENVELOPE_OPEN || player.getHeldItemOffhand().getItem() == ModItems.ENVELOPE_OPEN) {
+                if(player.getHeldItemMainhand().getCapability(CapabilityItemHandler.ITEM_HANDLER_CAPABILITY).orElse(null) == this.items) {
+                    return true;
+                } else if(player.getHeldItemOffhand().getCapability(CapabilityItemHandler.ITEM_HANDLER_CAPABILITY).orElse(null) == this.items) {
+                    return true;
+                }
+                return false;
+            }
+            return false;
         }
 
     }
@@ -286,7 +313,7 @@ public class EnvelopeItem extends Item {
             if(cap == CapabilityItemHandler.ITEM_HANDLER_CAPABILITY && !stack.isEmpty()) {
                 return handlerOptional.cast();
             }
-            return null;
+            return LazyOptional.empty();
         }
 
         @Override

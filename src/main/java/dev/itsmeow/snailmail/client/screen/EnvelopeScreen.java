@@ -1,4 +1,4 @@
-package dev.itsmeow.snailmail.client;
+package dev.itsmeow.snailmail.client.screen;
 
 import dev.itsmeow.snailmail.SnailMail;
 import dev.itsmeow.snailmail.item.EnvelopeItem.EnvelopeContainer;
@@ -23,6 +23,7 @@ public class EnvelopeScreen extends ContainerScreen<EnvelopeContainer> {
         this.ySize = 178;
     }
 
+    @Override
     protected void init() {
         super.init();
         this.minecraft.keyboardListener.enableRepeatEvents(true);
@@ -34,7 +35,7 @@ public class EnvelopeScreen extends ContainerScreen<EnvelopeContainer> {
             public boolean charTyped(char c, int p_charTyped_2_) {
                 if(!this.canWrite()) {
                     return false;
-                } else if(RandomUtil.isAllowedCharacter(c)) {
+                } else if(RandomUtil.isAllowedCharacter(c, false)) {
                     this.writeText(Character.toString(c));
 
                     return true;
@@ -54,14 +55,14 @@ public class EnvelopeScreen extends ContainerScreen<EnvelopeContainer> {
             SnailMail.HANDLER.sendToServer(new SetEnvelopeNamePacket(SetEnvelopeNamePacket.Type.TO, newText));
         });
         this.children.add(this.toField);
-        
+
         this.fromField = new TextFieldWidget(this.font, i + 111, j + 84, 58, 10, I18n.format("container.snailmail.envelope.textfield.from")) {
 
             @Override
             public boolean charTyped(char c, int p_charTyped_2_) {
                 if(!this.canWrite()) {
                     return false;
-                } else if(RandomUtil.isAllowedCharacter(c)) {
+                } else if(RandomUtil.isAllowedCharacter(c, false)) {
                     this.writeText(Character.toString(c));
 
                     return true;
@@ -86,10 +87,16 @@ public class EnvelopeScreen extends ContainerScreen<EnvelopeContainer> {
     @Override
     public void resize(Minecraft mc, int x, int y) {
         String s = this.toField.getText();
-        String s2  = this.fromField.getText();
+        String s2 = this.fromField.getText();
         this.init(mc, x, y);
         this.toField.setText(s);
         this.fromField.setText(s2);
+    }
+
+    @Override
+    public void tick() {
+        this.toField.tick();
+        this.fromField.tick();
     }
 
     @Override

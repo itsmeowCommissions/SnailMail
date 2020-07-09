@@ -1,31 +1,26 @@
 package dev.itsmeow.snailmail.util;
 
-import java.nio.charset.StandardCharsets;
-
-import net.minecraft.network.PacketBuffer;
+import net.minecraft.util.SharedConstants;
 
 public class RandomUtil {
 
-    public static String filterAllowedCharacters(String input) {
+    public static String filterAllowedCharacters(String input, boolean mode) {
         StringBuilder sb = new StringBuilder();
         for(char c : input.toCharArray()) {
-            if(RandomUtil.isAllowedCharacter(c)) {
+            if(RandomUtil.isAllowedCharacter(c, mode)) {
                 sb.append(c);
             }
         }
         return sb.toString();
     }
 
-    public static boolean isAllowedCharacter(char c) {
-        return Character.isAlphabetic(c) || Character.isDigit(c) || c == '_';
+    public static boolean isAllowedCharacter(char c, boolean mode) {
+        boolean off = Character.isAlphabetic(c) || Character.isDigit(c) || c == '_';
+        if(!mode) {
+            return off;
+        } else {
+            return SharedConstants.isAllowedCharacter(c);
+        }
     }
 
-    public static void writeString(PacketBuffer buf, String value) {
-        buf.writeInt(value.length());
-        buf.writeCharSequence(value, StandardCharsets.UTF_8);
-    }
-
-    public static String readString(PacketBuffer buf) {
-        return String.valueOf(buf.readCharSequence(buf.readInt(), StandardCharsets.UTF_8));
-    }
 }
