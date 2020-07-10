@@ -42,7 +42,7 @@ public class SnailBoxModalScreen extends Screen implements IEnvelopePacketReceiv
         int modalYStart = (this.height - modalYSize) / 2;
         this.minecraft.getTextureManager().bindTexture(MODAL_TEXTURE);
         this.blit(modalXStart, modalYStart, 0, 0, modalXSize, modalYSize);
-        if(type != Type.TO_SERVER) {
+        if(type != Type.TO_SERVER && type != Type.WAIT) {
             String arg = "";
             if(type == Type.INVALID_ADDRESS || type == Type.NO_BOXES) {
                 ItemStack stack = parent.getContainer().getSlot(27).getStack();

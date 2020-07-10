@@ -371,4 +371,8 @@ public class SnailBoxBlockEntity extends TileEntity {
         }
     }
 
+    public Location getLocation() {
+        return new Location(this.getWorld(), this.getPos());
+    }
+
 }

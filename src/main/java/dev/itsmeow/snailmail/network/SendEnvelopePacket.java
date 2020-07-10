@@ -11,16 +11,24 @@ import com.mojang.authlib.GameProfile;
 
 import dev.itsmeow.snailmail.SnailMail;
 import dev.itsmeow.snailmail.SnailMail.SnailBoxData;
+import dev.itsmeow.snailmail.block.entity.SnailBoxBlockEntity;
 import dev.itsmeow.snailmail.block.entity.SnailBoxBlockEntity.SnailBoxContainer;
 import dev.itsmeow.snailmail.client.screen.IEnvelopePacketReceiver;
+import dev.itsmeow.snailmail.entity.SnailManEntity;
+import dev.itsmeow.snailmail.init.ModBlocks;
 import dev.itsmeow.snailmail.init.ModItems;
 import dev.itsmeow.snailmail.item.EnvelopeItem;
 import dev.itsmeow.snailmail.util.BoxData;
 import dev.itsmeow.snailmail.util.Location;
 import net.minecraft.client.Minecraft;
+import net.minecraft.entity.SpawnReason;
 import net.minecraft.entity.player.ServerPlayerEntity;
 import net.minecraft.item.ItemStack;
 import net.minecraft.network.PacketBuffer;
+import net.minecraft.state.properties.BlockStateProperties;
+import net.minecraft.tileentity.TileEntity;
+import net.minecraft.util.math.BlockPos;
+import net.minecraft.world.World;
 import net.minecraftforge.fml.network.NetworkDirection;
 import net.minecraftforge.fml.network.NetworkEvent;
 
@@ -34,7 +42,9 @@ public class SendEnvelopePacket {
         INVALID_ADDRESS,
         NO_BOXES,
         SELECT_BOX,
-        SUCCESS
+        SUCCESS,
+        BOX_NO_EXIST,
+        WAIT
     }
 
     public Type type;
@@ -104,9 +114,25 @@ public class SendEnvelopePacket {
                                                 hashes.removeIf(p -> p.hashCode() != hashWanted);
                                                 if(hashes.size() == 1) {
                                                     Location selected = hashes.toArray(new Location[1])[0];
-                                                    System.out.println(selected.getX() + " " + selected.getY() + " " + selected.getZ() + " - " + selected.getDimension().getRegistryName().toString());
-                                                    // need to verify box still exists in the world before replying success + delivery
-                                                    reply(ctx, Type.SUCCESS);
+                                                    World world = selected.getWorld(sender.getServer());
+                                                    BlockPos pos = selected.toBP();
+                                                    if(world.isBlockPresent(pos)) {
+                                                        TileEntity teB = world.getTileEntity(pos);
+                                                        if(world.getBlockState(pos).getBlock() == ModBlocks.SNAIL_BOX
+                                                        && teB != null
+                                                        && teB instanceof SnailBoxBlockEntity
+                                                        && (((SnailBoxBlockEntity) teB).getOwner().equals(uuid) || ((SnailBoxBlockEntity) teB).isMember(uuid))) {
+                                                            SnailBoxBlockEntity te = (SnailBoxBlockEntity) teB;
+                                                            deliver(te, stack, selected, ((SnailBoxContainer) sender.openContainer).getTile(sender).getLocation(), sender);
+                                                            reply(ctx, Type.SUCCESS);
+                                                        } else {
+                                                            reply(ctx, Type.BOX_NO_EXIST);
+                                                            ctx.get().setPacketHandled(true);
+                                                            return;
+                                                        }
+                                                    } else {
+                                                        reply(ctx, Type.WAIT);
+                                                    }
                                                 }
                                             }
                                         } else {
@@ -145,6 +171,16 @@ public class SendEnvelopePacket {
             SnailMail.HANDLER.sendTo(new SendEnvelopePacket(response, boxData), ctx.get().getNetworkManager(), NetworkDirection.PLAY_TO_CLIENT);
         }
 
+    }
+
+    public static boolean deliver(SnailBoxBlockEntity te, ItemStack stack, Location location, Location from, ServerPlayerEntity player) {
+        World fromW = from.getWorld(player.getServer());
+        SnailManEntity snail = new SnailManEntity(fromW, location, stack, from);
+        snail.onInitialSpawn(fromW, fromW.getDifficultyForLocation(from.toBP()), SpawnReason.MOB_SUMMONED, null, null);
+        BlockPos pos = from.toBP().offset(te.getBlockState().get(BlockStateProperties.HORIZONTAL_FACING));
+        snail.setLocationAndAngles(pos.getX(), pos.getY(), pos.getZ(), 0, 0);
+        fromW.addEntity(snail);
+        return true;
     }
 
 }

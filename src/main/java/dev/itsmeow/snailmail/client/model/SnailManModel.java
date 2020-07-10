@@ -29,6 +29,7 @@ public class SnailManModel extends EntityModel<SnailManEntity> {
     public ModelRenderer eyeRight;
     public ModelRenderer nubRight;
     public ModelRenderer nubLeft;
+    private float opacity;
 
     public SnailManModel() {
         this.textureWidth = 180;
@@ -131,12 +132,12 @@ public class SnailManModel extends EntityModel<SnailManEntity> {
 
     @Override
     public void render(MatrixStack arg0, IVertexBuilder arg1, int arg2, int arg3, float arg4, float arg5, float arg6, float arg7) {
-        this.body1.render(arg0, arg1, arg2, arg3, arg4, arg5, arg6, arg7);
+        this.body1.render(arg0, arg1, arg2, arg3, arg4, arg5, arg6, opacity);
     }
 
     @Override
     public void setRotationAngles(SnailManEntity arg0, float arg1, float arg2, float arg3, float arg4, float arg5) {
-
+        this.opacity = arg0.getOpacity();
     }
 
     public void setRotateAngle(ModelRenderer modelRenderer, float x, float y, float z) {

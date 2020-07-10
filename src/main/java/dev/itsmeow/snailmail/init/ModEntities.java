@@ -10,6 +10,6 @@ public class ModEntities {
 
     public static final EntityRegistrarHandler H = IMDLib.entityHandler(SnailMail.MODID);
 
-    public static final EntityTypeContainer<SnailManEntity> SNAIL_MAN = H.add(EntityTypeContainer.Builder.create(SnailManEntity.class, SnailManEntity::new, "snail_man", SnailMail.MODID).size(1F, 1F));
+    public static final EntityTypeContainer<SnailManEntity> SNAIL_MAN = H.add(EntityTypeContainer.Builder.create(SnailManEntity.class, SnailManEntity::new, "snail_man", SnailMail.MODID).size(2F, 2F));
 
 }

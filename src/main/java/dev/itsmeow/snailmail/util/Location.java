@@ -7,6 +7,7 @@ import net.minecraft.network.PacketBuffer;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.IWorld;
 import net.minecraft.world.World;
 import net.minecraft.world.dimension.DimensionType;
@@ -109,6 +110,10 @@ public class Location {
                 return this.getDimension() == otherL.getDimension();
             }
         }
+    }
+
+    public Vec3d asVec() {
+        return new Vec3d(this.x + 0.5, this.y, this.z + 0.5);
     }
 
 }
