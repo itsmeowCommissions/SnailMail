@@ -2,6 +2,7 @@ package dev.itsmeow.snailmail.util;
 
 import java.util.Objects;
 
+import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.network.PacketBuffer;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.util.ResourceLocation;
@@ -55,14 +56,26 @@ public class Location {
     }
 
     public void write(PacketBuffer buf) {
-        buf.writeString(dimension.getRegistryName().toString());
+        buf.writeString(dimension.getRegistryName().toString(), 60);
         buf.writeInt(x);
         buf.writeInt(y);
         buf.writeInt(z);
     }
 
     public static Location read(PacketBuffer buf) {
-        return new Location(DimensionType.byName(new ResourceLocation(buf.readString())), buf.readInt(), buf.readInt(), buf.readInt());
+        return new Location(DimensionType.byName(new ResourceLocation(buf.readString(60))), buf.readInt(), buf.readInt(), buf.readInt());
+    }
+
+    public CompoundNBT write(CompoundNBT tag) {
+        tag.putString("dim", dimension.getRegistryName().toString());
+        tag.putInt("x", x);
+        tag.putInt("y", y);
+        tag.putInt("z", z);
+        return tag;
+    }
+
+    public static Location read(CompoundNBT tag) {
+        return new Location(DimensionType.byName(new ResourceLocation(tag.getString("dim"))), tag.getInt("x"), tag.getInt("y"), tag.getInt("z"));
     }
 
     public DimensionType getDimension() {

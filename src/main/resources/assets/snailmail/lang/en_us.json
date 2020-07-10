@@ -23,7 +23,13 @@
     "modal.snailmail.select": "Select",
     "modal.snailmail.close": "Close",
     "modal.snailmail.success": "Success! A snailman has been dispatched to deliver your package.",
-    "message.snailmail.noperm": "This isn't your snailbox! Access denied.",
+    "modal.snailmail.failed_to_add": "Failed to add member to list. It's likely this user is not valid or has not logged in before.",
+    "modal.snailmail.remove_selected": "Remove Selected",
+    "modal.snailmail.add": "Add Member",
+    "modal.snailmail.done": "Done",
+    "container.snailmail.snail_box.members": "Members",
+    "container.snailmail.snail_box.public": "Show Location",
+    "message.snailmail.noperm": "You don't have permission to open this snailbox.",
     "container.snailmail.snail_box.send": "Send",
     "container.snailmail.snail_box.textfield.name": "Box Name"
 }

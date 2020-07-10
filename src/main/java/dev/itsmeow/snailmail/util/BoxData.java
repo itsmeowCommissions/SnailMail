@@ -5,7 +5,6 @@ import java.util.Objects;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
-import dev.itsmeow.snailmail.SnailMail;
 import net.minecraft.network.PacketBuffer;
 
 public class BoxData {
@@ -15,32 +14,34 @@ public class BoxData {
     public final Location pos;
     @Nonnull
     public final int posHash;
+    public final boolean showPos;
 
     public BoxData(String name, int posHash) {
         this.name = name;
         this.posHash = posHash;
         this.pos = null;
+        this.showPos = false;
     }
 
-    public BoxData(String name, Location pos) {
+    public BoxData(String name, Location pos, boolean showPos) {
         this.name = name;
         this.posHash = pos.hashCode();
         this.pos = pos;
+        this.showPos = showPos;
     }
 
     public void write(PacketBuffer buf) {
-        buf.writeString(name);
+        buf.writeString(name, 35);
         buf.writeInt(posHash);
-        boolean realPos = SnailMail.Configuration.get().SHOW_BOX_COORDINATES.get();
-        buf.writeBoolean(realPos);
-        (realPos ? pos : Location.ZERO).write(buf);
+        buf.writeBoolean(showPos);
+        (showPos ? pos : Location.ZERO).write(buf);
     }
 
     public static BoxData read(PacketBuffer buf) {
-        String name = buf.readString();
+        String name = buf.readString(35);
         int hash = buf.readInt();
         if(buf.readBoolean()) {
-            return new BoxData(name, Location.read(buf));
+            return new BoxData(name, Location.read(buf), true);
         } else {
             Location.read(buf);
         }

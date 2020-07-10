@@ -15,9 +15,10 @@ import dev.itsmeow.snailmail.init.ModItems;
 import dev.itsmeow.snailmail.item.NamedBlockItem;
 import dev.itsmeow.snailmail.network.SendEnvelopePacket;
 import dev.itsmeow.snailmail.network.SetEnvelopeNamePacket;
-import dev.itsmeow.snailmail.network.SetSnailBoxNamePacket;
+import dev.itsmeow.snailmail.network.UpdateSnailBoxPacket;
 import dev.itsmeow.snailmail.util.BiMultiMap;
 import dev.itsmeow.snailmail.util.Location;
+import dev.itsmeow.snailmail.util.ServerBoxData;
 import net.minecraft.block.Block;
 import net.minecraft.entity.EntityType;
 import net.minecraft.inventory.container.ContainerType;
@@ -29,8 +30,6 @@ import net.minecraft.nbt.ListNBT;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.tileentity.TileEntityType;
 import net.minecraft.util.ResourceLocation;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.world.IWorld;
 import net.minecraft.world.dimension.DimensionType;
 import net.minecraft.world.server.ServerWorld;
 import net.minecraft.world.storage.DimensionSavedDataManager;
@@ -75,7 +74,7 @@ public class SnailMail {
     public static void setup(final FMLCommonSetupEvent event) {
         HANDLER.registerMessage(packets++, SetEnvelopeNamePacket.class, SetEnvelopeNamePacket::encode, SetEnvelopeNamePacket::decode, SetEnvelopeNamePacket.Handler::handle);
         HANDLER.registerMessage(packets++, SendEnvelopePacket.class, SendEnvelopePacket::encode, SendEnvelopePacket::decode, SendEnvelopePacket.Handler::handle);
-        HANDLER.registerMessage(packets++, SetSnailBoxNamePacket.class, SetSnailBoxNamePacket::encode, SetSnailBoxNamePacket::decode, SetSnailBoxNamePacket.Handler::handle);
+        HANDLER.registerMessage(packets++, UpdateSnailBoxPacket.class, UpdateSnailBoxPacket::encode, UpdateSnailBoxPacket::decode, UpdateSnailBoxPacket.Handler::handle);
     }
 
     @SubscribeEvent
@@ -117,46 +116,48 @@ public class SnailMail {
     public static class SnailBoxData extends WorldSavedData {
 
         private final BiMultiMap<UUID, Location> snailBoxes = new BiMultiMap<>();
+        private final BiMultiMap<UUID, Location> members = new BiMultiMap<>();
         private final Map<Location, String> names = new HashMap<>();
+        private final Map<Location, Boolean> publicM = new HashMap<>();
 
         public SnailBoxData() {
             super("SNAIL_BOXES");
         }
 
-        public void addBox(UUID owner, IWorld world, BlockPos pos, String name) {
-            addBox(owner, new Location(world.getDimension().getType(), pos), name);
-        }
-
-        public void addBox(UUID owner, Location pos, String name) {
-            snailBoxes.put(owner, pos);
-            names.put(pos, name);
+        public void addBox(ServerBoxData box) {
+            snailBoxes.put(box.owner, box.pos);
+            names.put(box.pos, box.name);
+            publicM.put(box.pos, box.publicBox);
+            for(UUID member : box.members) {
+                members.put(member, box.pos);
+            }
             this.markDirty();
         }
 
-        public String removeBox(UUID owner, IWorld world, BlockPos pos) {
-            return removeBox(owner, new Location(world.getDimension().getType(), pos));
-        }
-
-        public String removeBox(UUID owner, Location pos) {
-            snailBoxes.remove(owner, pos);
-            String name = names.remove(pos);
+        public String removeBox(ServerBoxData box) {
+            snailBoxes.remove(box.owner, box.pos);
+            publicM.remove(box.pos);
+            String name = names.remove(box.pos);
+            members.removeValueFromAll(box.pos);
             this.markDirty();
             return name;
-        }
-
-        public void removeBoxRaw(IWorld world, BlockPos pos) {
-            removeBoxRaw(new Location(world, pos));
         }
 
         public void removeBoxRaw(Location pos) {
             snailBoxes.removeValueFromAll(pos);
             names.remove(pos);
+            members.removeValueFromAll(pos);
+            publicM.remove(pos);
             this.markDirty();
         }
 
         public Set<Location> getBoxes(UUID owner) {
             return snailBoxes.getValues(owner);
         }
+
+        public Set<Location> getMemberBoxes(UUID owner) {
+            return members.getValues(owner);
+        } 
 
         public Set<Location> getAllBoxes() {
             return snailBoxes.getValuesToKeys().keySet();
@@ -166,10 +167,17 @@ public class SnailMail {
             return names.get(pos);
         }
 
-
         public void setNameForPos(Location pos, String name) {
             names.put(pos, name);
             this.markDirty();
+        }
+
+        public boolean isPublic(Location pos) {
+            return publicM.get(pos);
+        }
+
+        public boolean setPublic(Location pos, boolean value) {
+            return publicM.put(pos, value);
         }
 
         @Override
@@ -188,6 +196,7 @@ public class SnailMail {
                             Location pos = new Location(DimensionType.byName(new ResourceLocation(comp.getString("dim"))), x, y, z);
                             snailBoxes.put(uuid, pos);
                             names.put(pos, comp.getString("name"));
+                            publicM.put(pos, comp.getBoolean("public"));
                         }
                     }
                 }
@@ -203,6 +212,7 @@ public class SnailMail {
                     comp.putIntArray("pos", new int[] { pos.getX(), pos.getY(), pos.getZ() });
                     comp.putString("name", names.get(pos));
                     comp.putString("dim", pos.getDimension().getRegistryName().toString());
+                    comp.putBoolean("public", publicM.get(pos));
                     list.add(comp);
                 });
                 compound.put(key.toString(), list);
@@ -234,12 +244,10 @@ public class SnailMail {
             return specPair.getRight();
         }
 
-        public final ForgeConfigSpec.BooleanValue SHOW_BOX_COORDINATES;
         public final ForgeConfigSpec.BooleanValue LOCK_BOXES;
         public final ForgeConfigSpec.BooleanValue PROTECT_BOX_DESTROY;
 
         protected Configuration(ForgeConfigSpec.Builder builder) {
-            SHOW_BOX_COORDINATES = builder.comment("Show coordinates of snailboxes when choosing").define("show_box_coordinates", true);
             LOCK_BOXES = builder.comment("Block snailboxes from being opened by non-owners").define("lock_boxes", true);
             PROTECT_BOX_DESTROY = builder.comment("Protect snailboxes from being destroyed by non-owners").define("protect_box_destroy", true);
         }

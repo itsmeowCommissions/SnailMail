@@ -168,10 +168,10 @@ public class EnvelopeItem extends Item {
     public static EnvelopeContainer getClientContainer(int id, PlayerInventory playerInventory, PacketBuffer extra) {
         if(extra.readableBytes() > 0) {
             try {
-                String toName = extra.readString();
+                String toName = extra.readString(35);
                 String fromName = "";
                 if(extra.readableBytes() > 0) {
-                    fromName = extra.readString();
+                    fromName = extra.readString(35);
                 }
                 return new EnvelopeContainer(id, playerInventory, new ItemStackHandler(28), toName, fromName);
             } catch(IndexOutOfBoundsException e) {
@@ -190,10 +190,10 @@ public class EnvelopeItem extends Item {
         NetworkHooks.openGui(player, namedProvider, buf -> {
             if(stack.hasTag()) {
                 if(stack.getTag().contains("AddressedTo", Constants.NBT.TAG_STRING)) {
-                    buf.writeString(stack.getTag().getString("AddressedTo"));
+                    buf.writeString(stack.getTag().getString("AddressedTo"), 35);
                 }
                 if(stack.getTag().contains("AddressedFrom", Constants.NBT.TAG_STRING)) {
-                    buf.writeString(stack.getTag().getString("AddressedFrom"));
+                    buf.writeString(stack.getTag().getString("AddressedFrom"), 35);
                 }
             }
         });

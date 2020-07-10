@@ -13,12 +13,6 @@ public class ModContainers {
     public static final ContainerType<SnailBoxContainer> SNAIL_BOX = create("snail_box", SnailBoxContainer::getClientContainer);
     public static final ContainerType<EnvelopeContainer> ENVELOPE = create("envelope", EnvelopeItem::getClientContainer);
 
-    private static <T extends Container> ContainerType<T> create(String name, ContainerType.IFactory<T> factory) {
-        ContainerType<T> type = new ContainerType<T>(factory);
-        type.setRegistryName(SnailMail.MODID, name);
-        return type;
-    }
-
     private static <T extends Container> ContainerType<T> create(String name, IContainerFactory<T> factory) {
         ContainerType<T> type = new ContainerType<T>(factory);
         type.setRegistryName(SnailMail.MODID, name);

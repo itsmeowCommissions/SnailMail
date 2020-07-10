@@ -90,7 +90,7 @@ public class SendEnvelopePacket {
                                         Set<Location> boxPos = data.getBoxes(uuid);
                                         Set<BoxData> boxes = new HashSet<BoxData>();
                                         for(Location pos : boxPos) {
-                                            boxes.add(new BoxData(data.getNameForPos(pos), pos));
+                                            boxes.add(new BoxData(data.getNameForPos(pos), pos, data.isPublic(pos)));
                                         }
                                         if(boxes.size() > 0) {
                                             if(msg.boxes == null) {
@@ -104,7 +104,8 @@ public class SendEnvelopePacket {
                                                 hashes.removeIf(p -> p.hashCode() != hashWanted);
                                                 if(hashes.size() == 1) {
                                                     Location selected = hashes.toArray(new Location[1])[0];
-                                                    
+                                                    System.out.println(selected.getX() + " " + selected.getY() + " " + selected.getZ() + " - " + selected.getDimension().getRegistryName().toString());
+                                                    // need to verify box still exists in the world before replying success + delivery
                                                     reply(ctx, Type.SUCCESS);
                                                 }
                                             }

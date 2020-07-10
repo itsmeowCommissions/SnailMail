@@ -40,6 +40,7 @@ import net.minecraft.util.math.ChunkPos;
 import net.minecraft.util.math.shapes.ISelectionContext;
 import net.minecraft.util.math.shapes.VoxelShape;
 import net.minecraft.util.math.shapes.VoxelShapes;
+import net.minecraft.util.text.TextFormatting;
 import net.minecraft.util.text.TranslationTextComponent;
 import net.minecraft.world.IBlockReader;
 import net.minecraft.world.IWorld;
@@ -136,7 +137,7 @@ public class SnailBoxBlock extends Block implements IWaterLoggable {
                 ((SnailBoxBlockEntity) worldIn.getTileEntity(pos)).openGUI((ServerPlayerEntity) player);
                 return ActionResultType.SUCCESS;
             } else {
-                player.sendMessage(new TranslationTextComponent("message.snailmail.noperm"));
+                player.sendMessage(new TranslationTextComponent("message.snailmail.noperm").applyTextStyle(TextFormatting.RED));
                 return ActionResultType.FAIL;
             }
         }
@@ -149,7 +150,7 @@ public class SnailBoxBlock extends Block implements IWaterLoggable {
     }
 
     public static boolean isAccessibleFor(SnailBoxBlockEntity te, UUID uuid) {
-        return (!SnailMail.Configuration.get().LOCK_BOXES.get() || uuid.equals(te.getOwner()));
+        return (!SnailMail.Configuration.get().LOCK_BOXES.get() || uuid.equals(te.getOwner()) || te.isMember(uuid));
     }
 
     @Override
@@ -177,7 +178,7 @@ public class SnailBoxBlock extends Block implements IWaterLoggable {
                 if(!uuid.equals(owner) && Configuration.get().PROTECT_BOX_DESTROY.get()) {
                     event.setCanceled(true);
                 } else {
-                    SnailBoxData.getData(((World) event.getWorld()).getServer()).removeBoxRaw(event.getWorld(), pos);
+                    SnailBoxData.getData(((World) event.getWorld()).getServer()).removeBoxRaw(new Location(event.getWorld(), pos));
                 }
             }
         }
