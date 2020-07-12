@@ -14,7 +14,6 @@ import dev.itsmeow.snailmail.init.ModContainers;
 import dev.itsmeow.snailmail.util.EnvelopeSlot;
 import dev.itsmeow.snailmail.util.Location;
 import dev.itsmeow.snailmail.util.ReadOnlySlot;
-import dev.itsmeow.snailmail.util.ServerBoxData;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.player.PlayerInventory;
 import net.minecraft.entity.player.ServerPlayerEntity;
@@ -53,85 +52,46 @@ public class SnailBoxBlockEntity extends TileEntity {
     public final LazyOptional<ItemStackHandler> handlerOptional = LazyOptional.of(() -> handler);
     public static final ITextComponent TITLE = new TranslationTextComponent("container.snailmail.snail_box");
     private static final String ITEM_TAG_KEY = "item_handler";
-    private ServerBoxData boxData;
 
     public SnailBoxBlockEntity() {
         super(ModBlockEntities.SNAIL_BOX);
     }
 
+    protected SnailBoxData data() {
+        return SnailBoxData.getData(this.getWorld().getServer());
+    }
+
     public boolean isPublic() {
-        return boxData == null ? false : boxData.publicBox;
+        return data().isPublic(this.getLocation());
     }
 
     public boolean isMember(UUID uuid) {
-        return boxData == null ? false : boxData.members.contains(uuid);
+        return data().isMemberOf(this.getLocation(), uuid);
     }
 
     public UUID getOwner() {
-        return boxData == null ? null : boxData.owner;
+        return data().getOwner(this.getLocation());
     }
 
-    public void setOwner(UUID uuid, String name, boolean forceName) {
-        String oldName = name;
-        Set<UUID> members = new HashSet<>();
-        boolean publicB = false;
-        if(boxData != null) {
-            members.addAll(boxData.members);
-            publicB = boxData.publicBox;
-            String n = SnailBoxData.getData(this.getWorld().getServer()).removeBox(boxData);
-            if(!forceName) {
-                oldName = n;
-            }
-        }
-        this.boxData = new ServerBoxData(oldName, new Location(this.getWorld(), this.getPos()), uuid, members, publicB);
-        SnailBoxData.getData(this.getWorld().getServer()).addBox(boxData);
-        this.markDirty();
+    public void initializeOwner(UUID uuid, String name, boolean forceName) {
+        data().update(uuid, name, forceName, this.getLocation());
+        data().setPublic(this.getLocation(), false);
     }
 
     public void addMember(UUID uuid) {
-        if(boxData != null) {
-            Set<UUID> members = new HashSet<>();
-            members.addAll(boxData.members);
-            UUID owner = boxData.owner;
-            boolean publicB = boxData.publicBox;
-            if(!owner.equals(uuid)) {
-                members.add(uuid);
-            }
-            this.boxData = new ServerBoxData(SnailBoxData.getData(this.getWorld().getServer()).removeBox(boxData), new Location(this.getWorld(), this.getPos()), owner, members, publicB);
-            SnailBoxData.getData(this.getWorld().getServer()).addBox(boxData);
-            this.markDirty();
-        }
+        data().addMember(uuid, this.getLocation());
     }
 
     public void removeMember(UUID uuid) {
-        if(boxData != null) {
-            Set<UUID> members = new HashSet<>();
-            members.addAll(boxData.members);
-            members.remove(uuid);
-            UUID owner = boxData.owner;
-            boolean publicB = boxData.publicBox;
-            this.boxData = new ServerBoxData(SnailBoxData.getData(this.getWorld().getServer()).removeBox(boxData), new Location(this.getWorld(), this.getPos()), owner, members, publicB);
-            SnailBoxData.getData(this.getWorld().getServer()).addBox(boxData);
-            this.markDirty();
-        }
+        data().removeMember(uuid, this.getLocation());
     }
 
     public void setPublic(boolean publicB) {
-        if(boxData != null) {
-            boxData.publicBox = publicB;
-            SnailBoxData.getData(this.getWorld().getServer()).setPublic(boxData.pos, publicB);
-            this.markDirty();
-        }
+        data().setPublic(this.getLocation(), publicB);
     }
 
-    @Override
-    public void onLoad() {
-        super.onLoad();
-        if(this.getOwner() != null && !this.getWorld().isRemote) {
-            if(!SnailBoxData.getData(this.getWorld().getServer()).getBoxes(this.getOwner()).contains(new Location(this.getWorld(), this.getPos()))) {
-                SnailBoxData.getData(this.getWorld().getServer()).addBox(this.boxData);
-            }
-        }
+    public Set<UUID> getMembers() {
+        return data().getMembers(this.getLocation());
     }
 
     public ItemStackHandler getItemHandler() {
@@ -145,56 +105,30 @@ public class SnailBoxBlockEntity extends TileEntity {
     }
 
     public void setName(String name) {
-        if(boxData != null) {
-            this.boxData.name = name;
-        }
-        SnailBoxData.getData(this.getWorld().getServer()).setNameForPos(new Location(this.getWorld(), this.getPos()), name);
-        this.markDirty();
+        data().setNameForPos(this.getLocation(), name);
     }
 
     @Override
     public void setWorldAndPos(World newWorld, BlockPos newPos) {
-        if(pos != null && world != null && newWorld != world && newPos != pos) {
-            if(boxData != null) {
-                String oldName = boxData.name;
-                if(boxData.owner != null) {
-                    oldName = SnailBoxData.getData(this.getWorld().getServer()).removeBox(boxData);
-                }
-                boxData = new ServerBoxData(oldName, new Location(newWorld, newPos), boxData.owner, boxData.members, boxData.publicBox);
-            }
-            super.setWorldAndPos(newWorld, newPos);
-            if(boxData != null) {
-                SnailBoxData.getData(this.getWorld().getServer()).addBox(boxData);
-            }
-        } else {
-            super.setWorldAndPos(newWorld, newPos);
+        if(pos != null && world != null && (newWorld != world || newPos != pos)) {
+            data().moveBox(this.getLocation(), new Location(newWorld, newPos));
         }
+        super.setWorldAndPos(newWorld, newPos);
     }
 
     @Override
     public void setPos(BlockPos newPos) {
         if(pos != null && world != null && newPos != pos) {
-            if(boxData != null) {
-                String oldName = boxData.name;
-                if(boxData.owner != null) {
-                    oldName = SnailBoxData.getData(this.getWorld().getServer()).removeBox(boxData);
-                }
-                boxData = new ServerBoxData(oldName, new Location(this.getWorld(), newPos), boxData.owner, boxData.members, boxData.publicBox);
-            }
-            super.setPos(newPos);
-            if(boxData != null) {
-                SnailBoxData.getData(this.getWorld().getServer()).addBox(boxData);
-            }
-        } else {
-            super.setPos(newPos);
+            data().moveBox(this.getLocation(), new Location(world, newPos));
         }
+        super.setPos(newPos);
     }
 
     @Override
     public void updateContainingBlockInfo() {
         // remove if air
-        if(boxData != null && !this.getWorld().isRemote && world.isBlockPresent(this.getPos()) && world.getBlockState(this.getPos()).getBlock() != ModBlocks.SNAIL_BOX) {
-            SnailBoxData.getData(this.getWorld().getServer()).removeBox(boxData);
+        if(!this.getWorld().isRemote && world.isBlockPresent(this.getPos()) && world.getBlockState(this.getPos()).getBlock() != ModBlocks.SNAIL_BOX) {
+            SnailBoxData.getData(this.getWorld().getServer()).removeBoxRaw(this.getLocation());
         }
     }
 
@@ -202,16 +136,12 @@ public class SnailBoxBlockEntity extends TileEntity {
     public void read(CompoundNBT compound) {
         super.read(compound);
         this.handler.deserializeNBT(compound.getCompound(ITEM_TAG_KEY));
-        this.boxData = ServerBoxData.read(compound);
     }
 
     @Override
     public CompoundNBT write(CompoundNBT compound) {
         super.write(compound);
         compound.put(ITEM_TAG_KEY, this.handler.serializeNBT());
-        if(boxData != null) {
-            boxData.write(compound);
-        }
         return compound;
     }
 
@@ -224,21 +154,21 @@ public class SnailBoxBlockEntity extends TileEntity {
     }
 
     public void openGUI(ServerPlayerEntity player) {
-        IContainerProvider provider = SnailBoxContainer.getServerContainerProvider(this);
-        INamedContainerProvider namedProvider = new SimpleNamedContainerProvider(provider, TITLE);
-        NetworkHooks.openGui(player, namedProvider, buf -> {
-            String name = SnailBoxData.getData(player.getServer()).getNameForPos(new Location(this.getWorld(), this.getPos()));
-            if(name == null) {
-                name = "";
-            }
-            buf.writeString(name, 35);
-            buf.writeBoolean(PlayerEntity.getUUID(player.getGameProfile()).equals(this.getOwner()));
-            buf.writeBoolean(this.isPublic());
-            if(boxData == null) {
-                buf.writeInt(0);
-            } else {
+        // do it on another thread so as to not block if some usernames need to be retrieved from servers
+        new Thread(() -> {
+            IContainerProvider provider = SnailBoxContainer.getServerContainerProvider(this);
+            INamedContainerProvider namedProvider = new SimpleNamedContainerProvider(provider, TITLE);
+            NetworkHooks.openGui(player, namedProvider, buf -> {
+                String name = data().getNameForPos(this.getLocation());
+                if(name == null) {
+                    name = "";
+                }
+                buf.writeString(name, 35);
+                buf.writeBoolean(PlayerEntity.getUUID(player.getGameProfile()).equals(this.getOwner()));
+                buf.writeBoolean(this.isPublic());
                 Set<String> usernames = new HashSet<String>();
-                for(UUID member : this.boxData.members) {
+
+                for(UUID member : this.getMembers()) {
                     GameProfile profile = player.getServer().getPlayerProfileCache().getProfileByUUID(member);
                     if(profile != null && profile.getName() != null && !profile.getName().isEmpty()) {
                         usernames.add(profile.getName());
@@ -250,8 +180,8 @@ public class SnailBoxBlockEntity extends TileEntity {
                 for(String username : usernames) {
                     buf.writeString(username);
                 }
-            }
-        });
+            });
+        }).start();
     }
 
     public static class SnailBoxContainer extends Container {

@@ -161,7 +161,7 @@ public class SnailBoxBlock extends Block implements IWaterLoggable {
             if(teB != null && teB instanceof SnailBoxBlockEntity) {
                 Set<Location> box = SnailBoxData.getData(worldIn.getServer()).getBoxes(uuid);
                 int size = box == null ? 0 : box.size();
-                ((SnailBoxBlockEntity) teB).setOwner(uuid, ((PlayerEntity) placer).getGameProfile().getName() + " Snailbox #" + (size + 1), false);
+                ((SnailBoxBlockEntity) teB).initializeOwner(uuid, ((PlayerEntity) placer).getGameProfile().getName() + " Snailbox #" + (size + 1), false);
             }
         }
     }
@@ -175,7 +175,7 @@ public class SnailBoxBlock extends Block implements IWaterLoggable {
             TileEntity teB = world.getTileEntity(pos);
             if(teB != null && teB instanceof SnailBoxBlockEntity) {
                 UUID owner = ((SnailBoxBlockEntity) teB).getOwner();
-                if(!uuid.equals(owner) && Configuration.get().PROTECT_BOX_DESTROY.get()) {
+                if(owner != null && !uuid.equals(owner) && Configuration.get().PROTECT_BOX_DESTROY.get()) {
                     event.setCanceled(true);
                 } else {
                     SnailBoxData.getData(((World) event.getWorld()).getServer()).removeBoxRaw(new Location(event.getWorld(), pos));

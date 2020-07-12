@@ -168,7 +168,6 @@ public class SnailManEntity extends CreatureEntity {
                 snail.setMotion(dest.subtract(snail.getPositionVec()).normalize().scale(0.05));
                 float opacity = Math.abs(6F - Math.min((float) snail.getPositionVec().distanceTo(from) - 1F, 6F)) / 6F;
                 snail.setOpacity(opacity < 0.2F ? 0F : opacity);
-                System.out.println(snail.getOpacity());
             }
             totalTicks++;
         }

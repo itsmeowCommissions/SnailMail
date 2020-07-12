@@ -60,4 +60,10 @@ public class BiMultiMap<K, V> {
         valuesToKeys.clear();
     }
 
+    public void putIfAbsent(K key, V value) {
+        if(!keysToValues.containsKey(key) || !valuesToKeys.containsEntry(value, key)) {
+            this.put(key, value);
+        }
+    }
+
 }

@@ -32,7 +32,7 @@ public class SnailMailClient {
             @Nullable
             @Override
             protected RenderType func_230042_a_(SnailManEntity entity, boolean b, boolean b1) {
-                return RenderType.getEntityTranslucentCull(this.getEntityTexture(entity));
+                return RenderType.func_230168_b_(this.getEntityTexture(entity), true);
             }
 
             @Override

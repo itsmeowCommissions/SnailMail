@@ -126,6 +126,13 @@ public class SnailBoxListWidget extends ExtendedList<SnailBoxListWidget.BoxEntry
                 locString = I18n.format("modal.snailmail.no_location");
             }
             font.drawString(font.trimStringToWidth(locString, 256), left + 3, top + 2 + font.FONT_HEIGHT, 0xCCCCCC);
+            String s;
+            if(box.member) {
+                s = I18n.format("modal.snailmail.member");
+            } else {
+                s = I18n.format("modal.snailmail.owner");
+            }
+            font.drawString(s, left + 250 - font.getStringWidth(s), top + 2, 0x55FF55);
         }
 
         @Override

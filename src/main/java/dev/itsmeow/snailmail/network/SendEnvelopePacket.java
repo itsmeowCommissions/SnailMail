@@ -93,54 +93,76 @@ public class SendEnvelopePacket {
                             if(EnvelopeItem.isStamped(stack)) {
                                 String to = EnvelopeItem.getString(stack, "AddressedTo");
                                 if(!to.isEmpty()) {
-                                    GameProfile prof = sender.getServer().getPlayerProfileCache().getGameProfileForUsername(to);
-                                    if(prof != null && prof.getId() != null) {
-                                        UUID uuid = prof.getId();
-                                        SnailBoxData data = SnailBoxData.getData(sender.getServer());
-                                        Set<Location> boxPos = data.getBoxes(uuid);
-                                        Set<BoxData> boxes = new HashSet<BoxData>();
-                                        for(Location pos : boxPos) {
-                                            boxes.add(new BoxData(data.getNameForPos(pos), pos, data.isPublic(pos)));
-                                        }
-                                        if(boxes.size() > 0) {
-                                            if(msg.boxes == null) {
-                                                List<BoxData> boxSorted = boxes.stream().sorted((element1, element2) -> {
-                                                    return element1.name.length() > element2.name.length() ? 1 : (element1.name.length() < element2.name.length() ? -1 : element1.name.compareTo(element2.name));
-                                                }).collect(Collectors.toList());
-                                                reply(ctx, Type.SELECT_BOX, boxSorted.toArray(new BoxData[0]));
-                                            } else if(msg.boxes.length == 1) {
-                                                int hashWanted = msg.boxes[0].posHash;
-                                                Set<Location> hashes = new HashSet<>(boxPos);
-                                                hashes.removeIf(p -> p.hashCode() != hashWanted);
-                                                if(hashes.size() == 1) {
-                                                    Location selected = hashes.toArray(new Location[1])[0];
-                                                    World world = selected.getWorld(sender.getServer());
-                                                    BlockPos pos = selected.toBP();
-                                                    if(world.isBlockPresent(pos)) {
-                                                        TileEntity teB = world.getTileEntity(pos);
-                                                        if(world.getBlockState(pos).getBlock() == ModBlocks.SNAIL_BOX
-                                                        && teB != null
-                                                        && teB instanceof SnailBoxBlockEntity
-                                                        && (((SnailBoxBlockEntity) teB).getOwner().equals(uuid) || ((SnailBoxBlockEntity) teB).isMember(uuid))) {
-                                                            SnailBoxBlockEntity te = (SnailBoxBlockEntity) teB;
-                                                            deliver(te, stack, selected, ((SnailBoxContainer) sender.openContainer).getTile(sender).getLocation(), sender);
-                                                            reply(ctx, Type.SUCCESS);
-                                                        } else {
-                                                            reply(ctx, Type.BOX_NO_EXIST);
-                                                            ctx.get().setPacketHandled(true);
-                                                            return;
-                                                        }
-                                                    } else {
-                                                        reply(ctx, Type.WAIT);
-                                                    }
+                                    reply(ctx, Type.WAIT);
+                                    // move to another thread so as not to block server main thread
+                                    new Thread(() -> {
+                                        GameProfile prof = sender.getServer().getPlayerProfileCache().getGameProfileForUsername(to);
+                                        // back to server main thread!
+                                        ctx.get().enqueueWork(() -> {
+                                            if(prof != null && prof.getId() != null) {
+                                                UUID uuid = prof.getId();
+                                                SnailBoxData data = SnailBoxData.getData(sender.getServer());
+                                                Set<Location> boxPos = data.getBoxes(uuid);
+                                                Set<BoxData> boxes = new HashSet<BoxData>();
+                                                for(Location pos : boxPos) {
+                                                    boxes.add(new BoxData(data.getNameForPos(pos), pos, data.isPublic(pos), false));
                                                 }
+                                                Set<Location> boxPosMember = data.getMemberBoxes(uuid);
+                                                for(Location pos : boxPosMember) {
+                                                    boxes.add(new BoxData(data.getNameForPos(pos), pos, data.isPublic(pos), true));
+                                                }
+                                                if(boxes.size() > 0) {
+                                                    if(msg.boxes == null) {
+                                                        List<BoxData> boxSorted = boxes.stream().sorted((element1, element2) -> {
+                                                            return element1.name.length() > element2.name.length() ? 1 : (element1.name.length() < element2.name.length() ? -1 : element1.name.compareTo(element2.name));
+                                                        }).collect(Collectors.toList());
+                                                        reply(ctx, Type.SELECT_BOX, boxSorted.toArray(new BoxData[0]));
+                                                    } else if(msg.boxes.length == 1) {
+                                                        int hashWanted = msg.boxes[0].posHash;
+                                                        Set<Location> hashes = new HashSet<>(boxPos);
+                                                        hashes.removeIf(p -> p.hashCode() != hashWanted);
+                                                        Location selected = null;
+                                                        if(hashes.size() == 1) {
+                                                            selected = hashes.toArray(new Location[1])[0];
+                                                        } else {
+                                                            Set<Location> hashesM = new HashSet<>(boxPosMember);
+                                                            hashesM.removeIf(p -> p.hashCode() != hashWanted);
+                                                            if(hashesM.size() == 1) {
+                                                                selected = hashesM.toArray(new Location[1])[0];
+                                                            }
+                                                        }
+                                                        if(selected != null) {
+                                                            SnailBoxBlockEntity fromTe = ((SnailBoxContainer) sender.openContainer).getTile(sender);
+                                                            
+                                                            World world = selected.getWorld(sender.getServer());
+                                                            BlockPos pos = selected.toBP();
+                                                            if(world.isBlockPresent(pos)) {
+                                                                TileEntity teB = world.getTileEntity(pos);
+                                                                if(world.getBlockState(pos).getBlock() == ModBlocks.SNAIL_BOX
+                                                                && teB != null
+                                                                && teB instanceof SnailBoxBlockEntity
+                                                                && (((SnailBoxBlockEntity) teB).getOwner().equals(uuid) || ((SnailBoxBlockEntity) teB).isMember(uuid))) {
+                                                                    deliver(fromTe, stack, selected, fromTe.getLocation(), sender);
+                                                                    reply(ctx, Type.SUCCESS);
+                                                                } else {
+                                                                    reply(ctx, Type.BOX_NO_EXIST);
+                                                                    ctx.get().setPacketHandled(true);
+                                                                    return;
+                                                                }
+                                                            } else {
+                                                                deliver(fromTe, stack, selected, fromTe.getLocation(), sender);
+                                                                reply(ctx, Type.SUCCESS);
+                                                            }
+                                                        }
+                                                    }
+                                                } else {
+                                                    reply(ctx, Type.NO_BOXES);
+                                                }
+                                            } else {
+                                                reply(ctx, Type.INVALID_ADDRESS);
                                             }
-                                        } else {
-                                            reply(ctx, Type.NO_BOXES);
-                                        }
-                                    } else {
-                                        reply(ctx, Type.INVALID_ADDRESS);
-                                    }
+                                        });
+                                    }).start();
                                 } else {
                                     reply(ctx, Type.NO_ADDRESS);
                                 }
@@ -173,11 +195,11 @@ public class SendEnvelopePacket {
 
     }
 
-    public static boolean deliver(SnailBoxBlockEntity te, ItemStack stack, Location location, Location from, ServerPlayerEntity player) {
+    public static boolean deliver(SnailBoxBlockEntity fromTe, ItemStack stack, Location location, Location from, ServerPlayerEntity player) {
         World fromW = from.getWorld(player.getServer());
         SnailManEntity snail = new SnailManEntity(fromW, location, stack, from);
         snail.onInitialSpawn(fromW, fromW.getDifficultyForLocation(from.toBP()), SpawnReason.MOB_SUMMONED, null, null);
-        BlockPos pos = from.toBP().offset(te.getBlockState().get(BlockStateProperties.HORIZONTAL_FACING));
+        BlockPos pos = from.toBP().offset(fromTe.getBlockState().get(BlockStateProperties.HORIZONTAL_FACING));
         snail.setLocationAndAngles(pos.getX(), pos.getY(), pos.getZ(), 0, 0);
         fromW.addEntity(snail);
         return true;

@@ -18,7 +18,6 @@ import dev.itsmeow.snailmail.network.SetEnvelopeNamePacket;
 import dev.itsmeow.snailmail.network.UpdateSnailBoxPacket;
 import dev.itsmeow.snailmail.util.BiMultiMap;
 import dev.itsmeow.snailmail.util.Location;
-import dev.itsmeow.snailmail.util.ServerBoxData;
 import net.minecraft.block.Block;
 import net.minecraft.entity.EntityType;
 import net.minecraft.inventory.container.ContainerType;
@@ -27,6 +26,7 @@ import net.minecraft.item.ItemGroup;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.nbt.ListNBT;
+import net.minecraft.nbt.StringNBT;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.tileentity.TileEntityType;
 import net.minecraft.util.ResourceLocation;
@@ -124,23 +124,31 @@ public class SnailMail {
             super("SNAIL_BOXES");
         }
 
-        public void addBox(ServerBoxData box) {
-            snailBoxes.put(box.owner, box.pos);
-            names.put(box.pos, box.name);
-            publicM.put(box.pos, box.publicBox);
-            for(UUID member : box.members) {
-                members.put(member, box.pos);
+        public void updateAll(UUID owner, String name, boolean publicBox, Set<UUID> membersIn, Location pos) {
+            snailBoxes.put(owner, pos);
+            names.put(pos, name);
+            publicM.put(pos, publicBox);
+            for(UUID member : membersIn) {
+                members.put(member, pos);
             }
             this.markDirty();
         }
 
-        public String removeBox(ServerBoxData box) {
-            snailBoxes.remove(box.owner, box.pos);
-            publicM.remove(box.pos);
-            String name = names.remove(box.pos);
-            members.removeValueFromAll(box.pos);
+        public void update(UUID owner, String name, boolean forceName, Location pos) {
+            if(forceName || !names.containsKey(pos)) {
+                names.put(pos, name);
+            }
+            snailBoxes.putIfAbsent(owner, pos);
             this.markDirty();
-            return name;
+        }
+
+        public void moveBox(Location oldLoc, Location newLoc) {
+            UUID owner = this.getOwner(oldLoc);
+            String name = names.remove(oldLoc);
+            boolean publicB = this.isPublic(oldLoc);
+            Set<UUID> memberL = members.getKeys(oldLoc);
+            this.removeBoxRaw(oldLoc);
+            this.updateAll(owner, name, publicB, memberL, newLoc);
         }
 
         public void removeBoxRaw(Location pos) {
@@ -155,8 +163,8 @@ public class SnailMail {
             return snailBoxes.getValues(owner);
         }
 
-        public Set<Location> getMemberBoxes(UUID owner) {
-            return members.getValues(owner);
+        public Set<Location> getMemberBoxes(UUID member) {
+            return members.getValues(member);
         } 
 
         public Set<Location> getAllBoxes() {
@@ -173,11 +181,37 @@ public class SnailMail {
         }
 
         public boolean isPublic(Location pos) {
-            return publicM.get(pos);
+            return publicM.containsKey(pos) && publicM.get(pos);
         }
 
         public boolean setPublic(Location pos, boolean value) {
-            return publicM.put(pos, value);
+            // need to store as object type due to unboxing null
+            Boolean val = publicM.put(pos, value);
+            this.markDirty();
+            return val != null && val;
+        }
+
+        public boolean isMemberOf(Location pos, UUID uuid) {
+            return members.getValuesToKeys().containsEntry(pos, uuid);
+        }
+
+        public UUID getOwner(Location location) {
+            UUID[] uuid = snailBoxes.getValuesToKeys().get(location).toArray(new UUID[0]);
+            return uuid.length == 1 ? uuid[0] : null;
+        }
+
+        public void addMember(UUID uuid, Location location) {
+            members.put(uuid, location);
+            this.markDirty();
+        }
+
+        public void removeMember(UUID uuid, Location location) {
+            members.remove(uuid, location);
+            this.markDirty();
+        }
+
+        public Set<UUID> getMembers(Location location) {
+            return members.getKeys(location);
         }
 
         @Override
@@ -188,15 +222,13 @@ public class SnailMail {
                     ListNBT list = nbt.getList(key, Constants.NBT.TAG_COMPOUND);
                     for(int i = 0; i < list.size(); i++) {
                         CompoundNBT comp = list.getCompound(i);
-                        int[] arr = comp.getIntArray("pos");
-                        if(arr.length == 3) {
-                            int x = arr[0];
-                            int y = arr[1];
-                            int z = arr[2];
-                            Location pos = new Location(DimensionType.byName(new ResourceLocation(comp.getString("dim"))), x, y, z);
-                            snailBoxes.put(uuid, pos);
-                            names.put(pos, comp.getString("name"));
-                            publicM.put(pos, comp.getBoolean("public"));
+                        Location pos = Location.read(comp);
+                        snailBoxes.put(uuid, pos);
+                        names.put(pos, comp.getString("name"));
+                        publicM.put(pos, comp.getBoolean("public"));
+                        ListNBT mList = comp.getList("members", Constants.NBT.TAG_STRING);
+                        for(int j = 0; j < mList.size(); j++) {
+                            members.put(UUID.fromString(mList.getString(j)), pos);
                         }
                     }
                 }
@@ -209,10 +241,14 @@ public class SnailMail {
                 ListNBT list = new ListNBT();
                 snailBoxes.getValues(key).forEach(pos -> {
                     CompoundNBT comp = new CompoundNBT();
-                    comp.putIntArray("pos", new int[] { pos.getX(), pos.getY(), pos.getZ() });
+                    pos.write(comp);
                     comp.putString("name", names.get(pos));
-                    comp.putString("dim", pos.getDimension().getRegistryName().toString());
                     comp.putBoolean("public", publicM.get(pos));
+                    ListNBT list2 = new ListNBT();
+                    for(UUID member : this.getMembers(pos)) {
+                        list2.add(StringNBT.valueOf(member.toString()));
+                    }
+                    comp.put("members", list2);
                     list.add(comp);
                 });
                 compound.put(key.toString(), list);

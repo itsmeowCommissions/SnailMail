@@ -29,6 +29,8 @@
     "modal.snailmail.remove_selected": "Remove Selected",
     "modal.snailmail.add": "Add Member",
     "modal.snailmail.done": "Done",
+    "modal.snailmail.member": "Member",
+    "modal.snailmail.owner": "Owner",
     "container.snailmail.snail_box.members": "Members",
     "container.snailmail.snail_box.public": "Show Location",
     "message.snailmail.noperm": "You don't have permission to open this snailbox.",

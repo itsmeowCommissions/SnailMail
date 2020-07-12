@@ -24,6 +24,7 @@ public class UpdateSnailBoxPacket {
         MEMBER,
         PUBLIC
     }
+
     public String name = "";
     public String memberUsername = "";
     public boolean addMember;
@@ -92,28 +93,38 @@ public class UpdateSnailBoxPacket {
                                 break;
                             case MEMBER:
                                 String username = msg.memberUsername;
-                                GameProfile profile = sender.getServer().getPlayerProfileCache().getGameProfileForUsername(username);
-                                UUID uuid = null;
-                                if((profile == null || profile.getId() == null) && UUID.fromString(username) != null) {
-                                    uuid = UUID.fromString(username);
-                                    if(msg.addMember) {
-                                        te.addMember(uuid);
-                                    } else {
-                                        te.removeMember(uuid);
-                                    }
-                                } else if(profile != null && profile.getId() != null) {
-                                    uuid = profile.getId();
-                                    if(msg.addMember) {
-                                        te.addMember(profile.getId());
-                                    } else {
-                                        te.removeMember(profile.getId());
-                                    }
-                                } else if(msg.addMember) {
-                                    reply(ctx, "FAILED_ID_VERIFY", false);
-                                }
-                                if(uuid != null && (!uuid.equals(te.getOwner()) || !msg.addMember)) {
-                                    reply(ctx, username, msg.addMember);
-                                }
+                                // move to another thread so as not to block server main thread
+                                new Thread(() -> {
+                                    GameProfile profile = sender.getServer().getPlayerProfileCache().getGameProfileForUsername(username);
+                                    // back to server main thread!
+                                    ctx.get().enqueueWork(() -> {
+                                        UUID uuid = null;
+                                        if((profile == null || profile.getId() == null) && UUID.fromString(username) != null) {
+                                            uuid = UUID.fromString(username);
+                                            if(!uuid.equals(te.getOwner())) {
+                                                if(msg.addMember) {
+                                                    te.addMember(uuid);
+                                                } else {
+                                                    te.removeMember(uuid);
+                                                }
+                                            }
+                                        } else if(profile != null && profile.getId() != null) {
+                                            uuid = profile.getId();
+                                            if(!uuid.equals(te.getOwner())) {
+                                                if(msg.addMember) {
+                                                    te.addMember(profile.getId());
+                                                } else {
+                                                    te.removeMember(profile.getId());
+                                                }
+                                            }
+                                        } else if(msg.addMember) {
+                                            reply(ctx, "FAILED_ID_VERIFY", false);
+                                        }
+                                        if(uuid != null && (!uuid.equals(te.getOwner()) || !msg.addMember)) {
+                                            reply(ctx, username, msg.addMember);
+                                        }
+                                    });
+                                }).start();
                                 break;
                             case PUBLIC:
                                 te.setPublic(msg.isPublic);
