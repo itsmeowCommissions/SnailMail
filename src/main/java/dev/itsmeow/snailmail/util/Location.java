@@ -9,8 +9,8 @@ import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.IWorld;
-import net.minecraft.world.World;
 import net.minecraft.world.dimension.DimensionType;
+import net.minecraft.world.server.ServerWorld;
 import net.minecraftforge.common.DimensionManager;
 
 public class Location {
@@ -83,7 +83,7 @@ public class Location {
         return dimension;
     }
 
-    public World getWorld(MinecraftServer server) {
+    public ServerWorld getWorld(MinecraftServer server) {
         return DimensionManager.getWorld(server, dimension, true, true);
     }
 

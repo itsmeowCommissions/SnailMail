@@ -2,16 +2,19 @@ package dev.itsmeow.snailmail;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
 
 import org.apache.commons.lang3.tuple.Pair;
 
+import dev.itsmeow.snailmail.block.entity.SnailBoxBlockEntity;
 import dev.itsmeow.snailmail.init.ModBlockEntities;
 import dev.itsmeow.snailmail.init.ModBlocks;
 import dev.itsmeow.snailmail.init.ModContainers;
 import dev.itsmeow.snailmail.init.ModEntities;
 import dev.itsmeow.snailmail.init.ModItems;
+import dev.itsmeow.snailmail.item.EnvelopeItem;
 import dev.itsmeow.snailmail.item.NamedBlockItem;
 import dev.itsmeow.snailmail.network.SendEnvelopePacket;
 import dev.itsmeow.snailmail.network.SetEnvelopeNamePacket;
@@ -30,12 +33,14 @@ import net.minecraft.nbt.StringNBT;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.tileentity.TileEntityType;
 import net.minecraft.util.ResourceLocation;
+import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.dimension.DimensionType;
 import net.minecraft.world.server.ServerWorld;
 import net.minecraft.world.storage.DimensionSavedDataManager;
 import net.minecraft.world.storage.WorldSavedData;
 import net.minecraftforge.common.ForgeConfigSpec;
 import net.minecraftforge.common.util.Constants;
+import net.minecraftforge.common.util.LazyOptional;
 import net.minecraftforge.event.RegistryEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.ModLoadingContext;
@@ -45,6 +50,9 @@ import net.minecraftforge.fml.event.lifecycle.FMLCommonSetupEvent;
 import net.minecraftforge.fml.event.lifecycle.FMLLoadCompleteEvent;
 import net.minecraftforge.fml.network.NetworkRegistry;
 import net.minecraftforge.fml.network.simple.SimpleChannel;
+import net.minecraftforge.items.CapabilityItemHandler;
+import net.minecraftforge.items.IItemHandler;
+import net.minecraftforge.items.ItemStackHandler;
 
 @Mod.EventBusSubscriber(modid = SnailMail.MODID, bus = Mod.EventBusSubscriber.Bus.MOD)
 @Mod(value = SnailMail.MODID)
@@ -287,5 +295,44 @@ public class SnailMail {
             LOCK_BOXES = builder.comment("Block snailboxes from being opened by non-owners").define("lock_boxes", true);
             PROTECT_BOX_DESTROY = builder.comment("Protect snailboxes from being destroyed by non-owners").define("protect_box_destroy", true);
         }
+    }
+
+    public static void forceArea(ServerWorld world, BlockPos pos, boolean type) {
+        world.forceChunk(pos.getX() >> 4, pos.getZ() >> 4, type);
+        world.forceChunk(pos.getX() >> 4 + 1, pos.getZ() >> 4, type);
+        world.forceChunk(pos.getX() >> 4 - 1, pos.getZ() >> 4, type);
+        world.forceChunk(pos.getX() >> 4, pos.getZ() >> 4 + 1, type);
+        world.forceChunk(pos.getX() >> 4, pos.getZ() >> 4 - 1, type);
+    }
+
+    public static boolean deliverTo(SnailBoxBlockEntity te, ItemStack envelope, boolean failed) {
+        LazyOptional<IItemHandler> hOpt = te.getCapability(CapabilityItemHandler.ITEM_HANDLER_CAPABILITY);
+        if (hOpt.isPresent()) {
+            if(hOpt.orElse(null) instanceof ItemStackHandler) {
+                ItemStackHandler handler = (ItemStackHandler) hOpt.orElse(null);
+                Optional<ItemStack> iOpt = EnvelopeItem.convert(envelope);
+                if(iOpt.isPresent()) {
+                    ItemStack newEnvelope = iOpt.get();
+                    if(failed) {
+                        if(!newEnvelope.hasTag()) {
+                            newEnvelope.setTag(new CompoundNBT());
+                        }
+                        newEnvelope.getTag().putBoolean("delivery_failed", true);
+                    }
+                    ItemStack result = newEnvelope;
+                    for(int i = 0; i < 27 && !result.isEmpty(); i++) {
+                        result = handler.insertItem(i, newEnvelope, true);
+                    }
+                    if(result.isEmpty()) {
+                        result = newEnvelope;
+                        for(int i = 0; i < 27 && !result.isEmpty(); i++) {
+                            result = handler.insertItem(i, newEnvelope, false);
+                        }
+                        return true;
+                    }
+                }
+            }
+        }
+        return false;
     }
 }

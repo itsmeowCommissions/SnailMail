@@ -12,6 +12,7 @@
     "tooltip.snailmail.to": "Addressed To: %s",
     "tooltip.snailmail.from": "From: %s",
     "tooltip.snailmail.stamped": "Stamped",
+    "tooltip.snailmail.delivery_failed": "Delivery Failed",
     "modal.snailmail.no_envelope": "There is no envelope in the slot on the server... Perhaps an error occured?",
     "modal.snailmail.no_stamp": "Envelope has no stamp!",
     "modal.snailmail.no_address": "Envelope has no address!",

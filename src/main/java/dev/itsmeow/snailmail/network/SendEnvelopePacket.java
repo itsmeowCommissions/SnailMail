@@ -29,8 +29,13 @@ import net.minecraft.state.properties.BlockStateProperties;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
+import net.minecraft.world.server.ServerWorld;
+import net.minecraftforge.common.util.LazyOptional;
 import net.minecraftforge.fml.network.NetworkDirection;
 import net.minecraftforge.fml.network.NetworkEvent;
+import net.minecraftforge.items.CapabilityItemHandler;
+import net.minecraftforge.items.IItemHandler;
+import net.minecraftforge.items.ItemStackHandler;
 
 public class SendEnvelopePacket {
 
@@ -133,26 +138,27 @@ public class SendEnvelopePacket {
                                                         }
                                                         if(selected != null) {
                                                             SnailBoxBlockEntity fromTe = ((SnailBoxContainer) sender.openContainer).getTile(sender);
-                                                            
-                                                            World world = selected.getWorld(sender.getServer());
-                                                            BlockPos pos = selected.toBP();
-                                                            if(world.isBlockPresent(pos)) {
-                                                                TileEntity teB = world.getTileEntity(pos);
-                                                                if(world.getBlockState(pos).getBlock() == ModBlocks.SNAIL_BOX
-                                                                && teB != null
-                                                                && teB instanceof SnailBoxBlockEntity
-                                                                && (((SnailBoxBlockEntity) teB).getOwner().equals(uuid) || ((SnailBoxBlockEntity) teB).isMember(uuid))) {
-                                                                    deliver(fromTe, stack, selected, fromTe.getLocation(), sender);
-                                                                    reply(ctx, Type.SUCCESS);
-                                                                } else {
-                                                                    reply(ctx, Type.BOX_NO_EXIST);
-                                                                    ctx.get().setPacketHandled(true);
-                                                                    return;
-                                                                }
-                                                            } else {
-                                                                deliver(fromTe, stack, selected, fromTe.getLocation(), sender);
-                                                                reply(ctx, Type.SUCCESS);
-                                                            }
+                                                            final Location selectFinal = selected;
+                                                            ServerWorld world = selectFinal.getWorld(sender.getServer());
+                                                            BlockPos pos = selectFinal.toBP();
+                                                            reply(ctx, Type.WAIT);
+                                                            new Thread(() -> {
+                                                                // may need to generate chunks
+                                                                SnailMail.forceArea(world, pos, true);
+                                                                // back to main thread
+                                                                ctx.get().enqueueWork(() -> {
+                                                                    if(world.isBlockPresent(pos)) {
+                                                                        TileEntity teB = world.getTileEntity(pos);
+                                                                        if(world.getBlockState(pos).getBlock() == ModBlocks.SNAIL_BOX && teB != null && teB instanceof SnailBoxBlockEntity) {
+                                                                            deliver(fromTe, stack, selectFinal, fromTe.getLocation(), sender);
+                                                                            reply(ctx, Type.SUCCESS);
+                                                                        } else {
+                                                                            reply(ctx, Type.BOX_NO_EXIST);
+                                                                            SnailBoxData.getData(sender.getServer()).removeBoxRaw(selectFinal);
+                                                                        }
+                                                                    }
+                                                                });
+                                                            }).start();
                                                         }
                                                     }
                                                 } else {
@@ -196,13 +202,24 @@ public class SendEnvelopePacket {
     }
 
     public static boolean deliver(SnailBoxBlockEntity fromTe, ItemStack stack, Location location, Location from, ServerPlayerEntity player) {
-        World fromW = from.getWorld(player.getServer());
-        SnailManEntity snail = new SnailManEntity(fromW, location, stack, from);
-        snail.onInitialSpawn(fromW, fromW.getDifficultyForLocation(from.toBP()), SpawnReason.MOB_SUMMONED, null, null);
-        BlockPos pos = from.toBP().offset(fromTe.getBlockState().get(BlockStateProperties.HORIZONTAL_FACING));
-        snail.setLocationAndAngles(pos.getX(), pos.getY(), pos.getZ(), 0, 0);
-        fromW.addEntity(snail);
-        return true;
+        LazyOptional<IItemHandler> hOpt = fromTe.getCapability(CapabilityItemHandler.ITEM_HANDLER_CAPABILITY);
+        if(hOpt.isPresent()) {
+            IItemHandler handlerRaw = hOpt.orElse(null);
+            if(handlerRaw instanceof ItemStackHandler) {
+                ItemStackHandler handler = (ItemStackHandler) handlerRaw;
+                stack = stack.copy();
+                // remove item
+                handler.setStackInSlot(27, ItemStack.EMPTY);
+                World fromW = from.getWorld(player.getServer());
+                SnailManEntity snail = new SnailManEntity(fromW, location, stack, from);
+                snail.onInitialSpawn(fromW, fromW.getDifficultyForLocation(from.toBP()), SpawnReason.MOB_SUMMONED, null, null);
+                BlockPos pos = from.toBP().offset(fromTe.getBlockState().get(BlockStateProperties.HORIZONTAL_FACING));
+                snail.setLocationAndAngles(pos.getX() + 0.5, pos.getY(), pos.getZ() + 0.5, 0, 0);
+                fromW.addEntity(snail);
+                return true;
+            }
+        }
+        return false;
     }
 
 }

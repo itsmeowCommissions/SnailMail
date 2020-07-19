@@ -59,6 +59,9 @@ public class EnvelopeItem extends Item {
         if(stack.hasTag() && stack.getTag().contains("AddressedFrom", Constants.NBT.TAG_STRING) && !stack.getTag().getString("AddressedFrom").isEmpty()) {
             tooltip.add(new TranslationTextComponent("tooltip.snailmail.from", new StringTextComponent(stack.getTag().getString("AddressedFrom")).applyTextStyle(TextFormatting.GRAY)).applyTextStyles(new TextFormatting[] {TextFormatting.RED, TextFormatting.ITALIC}));
         }
+        if(stack.hasTag() && stack.getTag().contains("delivery_failed", Constants.NBT.TAG_BYTE) && stack.getTag().getBoolean("delivery_failed")) {
+            tooltip.add(new TranslationTextComponent("tooltip.snailmail.delivery_failed").applyTextStyles(new TextFormatting[] { TextFormatting.RED, TextFormatting.BOLD }));
+        }
         if(stack.getItem() == ModItems.ENVELOPE_OPEN) {
             LazyOptional<IItemHandler> cap = stack.getCapability(CapabilityItemHandler.ITEM_HANDLER_CAPABILITY);
             if(cap.isPresent()) {
@@ -98,7 +101,7 @@ public class EnvelopeItem extends Item {
         return "";
     }
 
-    protected static void putStringChecked(ItemStack stack, String key, String value) {
+    public static void putStringChecked(ItemStack stack, String key, String value) {
         if(!stack.hasTag()) {
             stack.setTag(new CompoundNBT());
         }

@@ -1,0 +1,14 @@
+{
+	"type": "minecraft:crafting_shapeless",
+	"ingredients": [
+		{
+			"item": "minecraft:iron_nugget"
+		},
+		{
+			"item": "minecraft:paper"
+		}
+	],
+	"result": {
+		"item": "snailmail:envelope_open"
+	}
+}

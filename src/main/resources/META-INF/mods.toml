@@ -2,7 +2,7 @@ modLoader="javafml"
 loaderVersion="[31,)"
 issueTrackerURL="http://github.com/itsmeowCommissions/SnailMail/issues"
 displayURL="https://www.curseforge.com/minecraft/mc-mods/snail-mail"
-logoFile="icon.png"
+logoFile="snailmail.png"
 credits="itsmeow for Programming, Coda for Art + Commission, hobojoe for Art"
 authors="itsmeow, Coda, hobojoe"
 [[mods]]
