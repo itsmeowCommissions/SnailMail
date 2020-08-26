@@ -20,8 +20,8 @@ import net.minecraft.block.material.MaterialColor;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.player.ServerPlayerEntity;
+import net.minecraft.fluid.FluidState;
 import net.minecraft.fluid.Fluids;
-import net.minecraft.fluid.IFluidState;
 import net.minecraft.inventory.InventoryHelper;
 import net.minecraft.item.BlockItemUseContext;
 import net.minecraft.item.ItemStack;
@@ -34,12 +34,14 @@ import net.minecraft.util.Direction.Axis;
 import net.minecraft.util.Hand;
 import net.minecraft.util.Mirror;
 import net.minecraft.util.Rotation;
+import net.minecraft.util.Util;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.BlockRayTraceResult;
 import net.minecraft.util.math.ChunkPos;
 import net.minecraft.util.math.shapes.ISelectionContext;
 import net.minecraft.util.math.shapes.VoxelShape;
 import net.minecraft.util.math.shapes.VoxelShapes;
+import net.minecraft.util.text.Style;
 import net.minecraft.util.text.TextFormatting;
 import net.minecraft.util.text.TranslationTextComponent;
 import net.minecraft.world.IBlockReader;
@@ -74,6 +76,7 @@ public class SnailBoxBlock extends Block implements IWaterLoggable {
         return state.with(BlockStateProperties.HORIZONTAL_FACING, rot.rotate(state.get(BlockStateProperties.HORIZONTAL_FACING)));
     }
 
+    @SuppressWarnings("deprecation")
     @Override
     public BlockState mirror(BlockState state, Mirror mirrorIn) {
         return state.rotate(mirrorIn.toRotation(state.get(BlockStateProperties.HORIZONTAL_FACING)));
@@ -91,18 +94,13 @@ public class SnailBoxBlock extends Block implements IWaterLoggable {
 
     @SuppressWarnings("deprecation")
     @Override
-    public IFluidState getFluidState(BlockState state) {
+    public FluidState getFluidState(BlockState state) {
         return state.get(BlockStateProperties.WATERLOGGED) ? Fluids.WATER.getStillFluidState(false) : super.getFluidState(state);
     }
 
     @Override
     public BlockState getStateForPlacement(BlockItemUseContext context) {
         return this.getDefaultState().with(BlockStateProperties.HORIZONTAL_FACING, context.getPlacementHorizontalFacing().getOpposite());
-    }
-
-    @Override
-    public boolean isNormalCube(BlockState p_220081_1_, IBlockReader p_220081_2_, BlockPos p_220081_3_) {
-        return false;
     }
 
     @Override
@@ -131,13 +129,13 @@ public class SnailBoxBlock extends Block implements IWaterLoggable {
     }
 
     @Override
-    public ActionResultType onBlockActivated(BlockState state, World worldIn, BlockPos pos, PlayerEntity player, Hand handIn, BlockRayTraceResult hit) {
+    public ActionResultType onUse(BlockState state, World worldIn, BlockPos pos, PlayerEntity player, Hand handIn, BlockRayTraceResult hit) {
         if(handIn == Hand.MAIN_HAND && !worldIn.isRemote() && worldIn.getTileEntity(pos) != null) {
             if(canOpen(worldIn, pos, player)) {
                 ((SnailBoxBlockEntity) worldIn.getTileEntity(pos)).openGUI((ServerPlayerEntity) player);
                 return ActionResultType.SUCCESS;
             } else {
-                player.sendMessage(new TranslationTextComponent("message.snailmail.noperm").applyTextStyle(TextFormatting.RED));
+                player.sendMessage(new TranslationTextComponent("message.snailmail.noperm").setStyle(Style.EMPTY.withColor(TextFormatting.RED)), Util.NIL_UUID);
                 return ActionResultType.FAIL;
             }
         }
@@ -173,12 +171,12 @@ public class SnailBoxBlock extends Block implements IWaterLoggable {
             BlockPos pos = event.getPos();
             UUID uuid = PlayerEntity.getUUID(event.getPlayer().getGameProfile());
             TileEntity teB = world.getTileEntity(pos);
-            if(teB != null && teB instanceof SnailBoxBlockEntity) {
+            if(teB != null && teB instanceof SnailBoxBlockEntity && world instanceof World) {
                 UUID owner = ((SnailBoxBlockEntity) teB).getOwner();
                 if(owner != null && !uuid.equals(owner) && Configuration.get().PROTECT_BOX_DESTROY.get()) {
                     event.setCanceled(true);
                 } else {
-                    SnailBoxData.getData(((World) event.getWorld()).getServer()).removeBoxRaw(new Location(event.getWorld(), pos));
+                    SnailBoxData.getData(((World) event.getWorld()).getServer()).removeBoxRaw(new Location((World)event.getWorld(), pos));
                 }
             }
         }
@@ -204,7 +202,7 @@ public class SnailBoxBlock extends Block implements IWaterLoggable {
             Location[] posL = SnailBoxData.getData(((World) event.getWorld()).getServer()).getAllBoxes().toArray(new Location[0]);
             for(int i = 0; i < posL.length; i++) {
                 Location loc = posL[i];
-                if(loc.getDimension() == event.getWorld().getDimension().getType()) {
+                if(loc.getDimension().equals(((World)event.getWorld()).getRegistryKey())) {
                     if(cPos.getXStart() <= loc.getX() && cPos.getXEnd() >= loc.getX()) {
                         if(cPos.getZStart() <= loc.getZ() && cPos.getZEnd() >= loc.getZ()) {
                             BlockState state = event.getChunk().getBlockState(loc.toBP());

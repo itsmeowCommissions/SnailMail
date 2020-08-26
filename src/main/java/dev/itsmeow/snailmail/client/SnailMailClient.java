@@ -1,7 +1,5 @@
 package dev.itsmeow.snailmail.client;
 
-import javax.annotation.Nullable;
-
 import dev.itsmeow.imdlib.client.render.RenderFactory;
 import dev.itsmeow.snailmail.SnailMail;
 import dev.itsmeow.snailmail.client.model.SnailManModel;
@@ -29,10 +27,10 @@ public class SnailMailClient {
         ScreenManager.registerFactory(ModContainers.SNAIL_BOX, SnailBoxScreen::new);
         ScreenManager.registerFactory(ModContainers.ENVELOPE, EnvelopeScreen::new);
         RenderFactory.addRender(ModEntities.SNAIL_MAN.entityType, mgr -> new LivingRenderer<SnailManEntity, SnailManModel>(mgr, new SnailManModel(), 0F) {
-            @Nullable
+
             @Override
-            protected RenderType func_230042_a_(SnailManEntity entity, boolean b, boolean b1) {
-                return RenderType.func_230168_b_(this.getEntityTexture(entity), true);
+            protected RenderType getRenderLayer(SnailManEntity entity, boolean p_230496_2_, boolean p_230496_3_, boolean p_230496_4_) {
+                return RenderType.getEntityTranslucent(this.getEntityTexture(entity), true);
             }
 
             @Override

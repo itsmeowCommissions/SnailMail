@@ -1,6 +1,6 @@
 package dev.itsmeow.snailmail.client.screen;
 
-import com.mojang.blaze3d.systems.RenderSystem;
+import com.mojang.blaze3d.matrix.MatrixStack;
 
 import dev.itsmeow.snailmail.SnailMail;
 import dev.itsmeow.snailmail.block.entity.SnailBoxBlockEntity.SnailBoxContainer;
@@ -11,15 +11,16 @@ import dev.itsmeow.snailmail.network.UpdateSnailBoxPacket;
 import dev.itsmeow.snailmail.util.BoxData;
 import dev.itsmeow.snailmail.util.RandomUtil;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.AbstractGui;
 import net.minecraft.client.gui.screen.inventory.ContainerScreen;
 import net.minecraft.client.gui.widget.TextFieldWidget;
 import net.minecraft.client.gui.widget.button.Button;
 import net.minecraft.client.gui.widget.button.CheckboxButton;
-import net.minecraft.client.resources.I18n;
 import net.minecraft.entity.player.PlayerInventory;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.text.ITextComponent;
+import net.minecraft.util.text.TranslationTextComponent;
 
 public class SnailBoxScreen extends ContainerScreen<SnailBoxContainer> implements IEnvelopePacketReceiver {
     public static final ResourceLocation GUI_TEXTURE = new ResourceLocation("snailmail:textures/gui/snail_box.png");
@@ -37,7 +38,7 @@ public class SnailBoxScreen extends ContainerScreen<SnailBoxContainer> implement
         super.init();
         int xStart = (this.width - this.xSize) / 2;
         int yStart = (this.height - this.ySize) / 2;
-        this.addButton(new Button(xStart + 84, yStart + 4, 67, 20, I18n.format("container.snailmail.snail_box.send"), (bt) -> {
+        this.addButton(new Button(xStart + 84, yStart + 4, 67, 20, new TranslationTextComponent("container.snailmail.snail_box.send"), (bt) -> {
             ItemStack envelope = this.container.getSlot(27).getStack();
             if(!envelope.isEmpty() && envelope.getItem() == ModItems.ENVELOPE_OPEN) {
                 SendEnvelopePacket packet = new SendEnvelopePacket(Type.TO_SERVER);
@@ -46,10 +47,10 @@ public class SnailBoxScreen extends ContainerScreen<SnailBoxContainer> implement
             }
         }));
         if(this.container.isOwner) {
-            this.addButton(new Button(xStart + 88, yStart + 95, 82, 20, I18n.format("container.snailmail.snail_box.members"), (bt) -> {
-                this.minecraft.displayGuiScreen(new SnailBoxMemberScreen(this));
+            this.addButton(new Button(xStart + 88, yStart + 95, 82, 20, new TranslationTextComponent("container.snailmail.snail_box.members"), (bt) -> {
+                this.getMinecraft().displayGuiScreen(new SnailBoxMemberScreen(this));
             }));
-            CheckboxButton button = new CheckboxButton(xStart + 7, yStart + 82, 79, 14, I18n.format("container.snailmail.snail_box.public"), this.container.isPublic) {
+            CheckboxButton button = new CheckboxButton(xStart + 7, yStart + 82, 79, 14, new TranslationTextComponent("container.snailmail.snail_box.public"), this.container.isPublic) {
 
                 @Override
                 public void onPress() {
@@ -59,25 +60,25 @@ public class SnailBoxScreen extends ContainerScreen<SnailBoxContainer> implement
                 }
 
                 @Override
-                public void renderButton(int p_renderButton_1_, int p_renderButton_2_, float p_renderButton_3_) {
+                public void renderButton(MatrixStack stack, int p_renderButton_1_, int p_renderButton_2_, float p_renderButton_3_) {
                     Minecraft minecraft = Minecraft.getInstance();
                     minecraft.getTextureManager().bindTexture(CHECK_TEXTURE);
-                    blit(this.x, this.y, this.isChecked() ? 14 : 0, 0, 14, 14, 28, 14);
-                    RenderSystem.pushMatrix();
-                    RenderSystem.scalef(0.8F, 0.8F, 1F);
-                    minecraft.fontRenderer.drawString(this.getMessage(), (this.x + 14 + 4) * 1.25F, (this.y + 4) * 1.25F, 0xFF404040);
-                    RenderSystem.popMatrix();
+                    AbstractGui.drawTexture(stack, this.x, this.y, this.isChecked() ? 14 : 0, 0, 14, 14, 28, 14);
+                    stack.push();
+                    stack.scale(0.8F, 0.8F, 1F);
+                    minecraft.fontRenderer.draw(stack, this.getMessage(), (this.x + 14 + 4) * 1.25F, (this.y + 4) * 1.25F, 0xFF404040);
+                    stack.pop();
                 }
 
             };
             this.addButton(button);
         }
-        this.minecraft.keyboardListener.enableRepeatEvents(true);
-        this.nameField = new TextFieldWidget(this.font, xStart + 88, yStart + 83, 82, 10, I18n.format("container.snailmail.snail_box.textfield.name")) {
+        this.getMinecraft().keyboardListener.enableRepeatEvents(true);
+        this.nameField = new TextFieldWidget(this.textRenderer, xStart + 88, yStart + 83, 82, 10, new TranslationTextComponent("container.snailmail.snail_box.textfield.name")) {
 
             @Override
             public boolean charTyped(char c, int p_charTyped_2_) {
-                if(!this.canWrite()) {
+                if(!this.func_212955_f()) {
                     return false;
                 } else if(RandomUtil.isAllowedCharacter(c, true)) {
                     this.writeText(Character.toString(c));
@@ -119,16 +120,16 @@ public class SnailBoxScreen extends ContainerScreen<SnailBoxContainer> implement
     @Override
     public void removed() {
         super.removed();
-        this.minecraft.keyboardListener.enableRepeatEvents(false);
+        this.getMinecraft().keyboardListener.enableRepeatEvents(false);
     }
 
     @Override
     public boolean keyPressed(int key, int a, int b) {
         if(key == 256) {
-            this.minecraft.player.closeScreen();
+            this.getMinecraft().player.closeScreen();
         }
         if(nameField.isFocused()) {
-            if(!this.nameField.keyPressed(key, a, b) && !this.nameField.canWrite()) {
+            if(!this.nameField.keyPressed(key, a, b) && !this.nameField.func_212955_f()) {
                 return super.keyPressed(key, a, b);
             } else {
                 return true;
@@ -138,33 +139,33 @@ public class SnailBoxScreen extends ContainerScreen<SnailBoxContainer> implement
     }
 
     @Override
-    public void render(int x, int y, float partialTicks) {
-        this.renderBackground();
-        super.render(x, y, partialTicks);
-        this.nameField.render(x, y, partialTicks);
-        this.renderHoveredToolTip(x, y);
+    public void render(MatrixStack stack, int x, int y, float partialTicks) {
+        this.renderBackground(stack);
+        super.render(stack, x, y, partialTicks);
+        this.nameField.render(stack, x, y, partialTicks);
+        this.renderTextHoverEffect(stack, null, x, y);
     }
 
     @Override
-    protected void drawGuiContainerBackgroundLayer(float partialTicks, int mouseX, int mouseY) {
+    protected void drawBackground(MatrixStack stack, float partialTicks, int mouseX, int mouseY) {
         int xStart = (this.width - this.xSize) / 2;
         int yStart = (this.height - this.ySize) / 2;
-        this.minecraft.getTextureManager().bindTexture(GUI_TEXTURE);
-        this.blit(xStart, yStart, 0, 0, this.xSize, this.ySize);
+        this.getMinecraft().getTextureManager().bindTexture(GUI_TEXTURE);
+        this.drawTexture(stack, xStart, yStart, 0, 0, this.xSize, this.ySize);
     }
 
     @Override
-    protected void drawGuiContainerForegroundLayer(int mouseX, int mouseY) {
-        this.font.drawString(this.title.getFormattedText(), 8, 11, 0x404040);
-        this.font.drawString(this.playerInventory.getDisplayName().getFormattedText(), 8, 104, 0x404040);
+    protected void drawForeground(MatrixStack stack, int mouseX, int mouseY) {
+        this.textRenderer.draw(stack, this.title, 8, 11, 0x404040);
+        this.textRenderer.draw(stack, this.playerInventory.getDisplayName(), 8, 104, 0x404040);
     }
 
     @Override
     public void receivePacket(SendEnvelopePacket msg) {
         if(msg.type == Type.SELECT_BOX) {
-            this.minecraft.displayGuiScreen(new SnailBoxSelectionScreen(this, msg.boxes));
+            this.getMinecraft().displayGuiScreen(new SnailBoxSelectionScreen(this, msg.boxes));
         } else {
-            this.minecraft.displayGuiScreen(new SnailBoxModalScreen(this, msg.type));
+            this.getMinecraft().displayGuiScreen(new SnailBoxModalScreen(this, msg.type));
         }
     }
 

@@ -12,7 +12,6 @@ import dev.itsmeow.snailmail.util.Location;
 import net.minecraft.block.BlockState;
 import net.minecraft.entity.CreatureEntity;
 import net.minecraft.entity.Entity;
-import net.minecraft.entity.SharedMonsterAttributes;
 import net.minecraft.entity.ai.goal.Goal;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.CompoundNBT;
@@ -25,7 +24,7 @@ import net.minecraft.util.DamageSource;
 import net.minecraft.util.Direction;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.ChunkPos;
-import net.minecraft.util.math.Vec3d;
+import net.minecraft.util.math.vector.Vector3d;
 import net.minecraft.world.World;
 import net.minecraft.world.server.ServerWorld;
 import net.minecraftforge.common.util.ITeleporter;
@@ -106,12 +105,6 @@ public class SnailManEntity extends CreatureEntity {
     }
 
     @Override
-    protected void registerAttributes() {
-        super.registerAttributes();
-        this.getAttribute(SharedMonsterAttributes.MOVEMENT_SPEED).setBaseValue(0.25D);
-    }
-
-    @Override
     public boolean isInvulnerableTo(DamageSource source) {
         return source != DamageSource.OUT_OF_WORLD;
     }
@@ -148,9 +141,9 @@ public class SnailManEntity extends CreatureEntity {
     public static class MoveAwayFromSpawnGoal extends Goal {
 
         protected SnailManEntity snail;
-        private Vec3d from;
+        private Vector3d from;
         private int totalTicks = 0;
-        private Vec3d dest;
+        private Vector3d dest;
 
         public MoveAwayFromSpawnGoal(SnailManEntity snail) {
             this.setMutexFlags(EnumSet.of(Flag.MOVE, Flag.LOOK));
@@ -164,7 +157,7 @@ public class SnailManEntity extends CreatureEntity {
 
         @Override
         public boolean shouldContinueExecuting() {
-            return snail.getPositionVector().distanceTo(from) < 7 && snail.leavingDeliveryPoint && totalTicks < 160;
+            return snail.getPositionVec().distanceTo(from) < 7 && snail.leavingDeliveryPoint && totalTicks < 160;
         }
 
         @Override
@@ -185,7 +178,7 @@ public class SnailManEntity extends CreatureEntity {
             Direction direction = this.getDirection();
             if(dest == null) {
                 BlockPos away = this.getAwayPos(direction);
-                dest = new Vec3d(away.getX() + 0.5, away.getY(), away.getZ() + 0.5);
+                dest = new Vector3d(away.getX() + 0.5, away.getY(), away.getZ() + 0.5);
             }
             if(dest != null) {
                 snail.dataManager.set(YAW, direction.getHorizontalAngle());
@@ -216,7 +209,7 @@ public class SnailManEntity extends CreatureEntity {
     public static class MoveToBoxGoal extends Goal {
 
         protected SnailManEntity snail;
-        private Vec3d to;
+        private Vector3d to;
         private int totalTicks = 0;
         private float angle = 0F;
         private boolean taskReset = false;
@@ -233,7 +226,7 @@ public class SnailManEntity extends CreatureEntity {
 
         @Override
         public boolean shouldContinueExecuting() {
-            return !taskReset && !snail.deliveryFailed && snail.getPositionVector().distanceTo(to) > 1 || snail.world.getDimension().getType() != snail.mailbox.getDimension();
+            return !taskReset && !snail.deliveryFailed && snail.getPositionVec().distanceTo(to) > 1 || !snail.world.getRegistryKey().equals(snail.mailbox.getDimension());
         }
 
         @Override
@@ -306,8 +299,8 @@ public class SnailManEntity extends CreatureEntity {
         }
 
         private void transport(BlockPos newPos) {
-            if(snail.world.getDimension().getType() != snail.mailbox.getDimension()) {
-                snail.changeDimension(snail.mailbox.getDimension(), new ITeleporter() {
+            if(!snail.world.getRegistryKey().equals(snail.mailbox.getDimension())) {
+                snail.changeDimension(snail.getServer().getWorld(snail.mailbox.getDimension()), new ITeleporter() {
                     @Override
                     public Entity placeEntity(Entity entity, ServerWorld currentWorld, ServerWorld destWorld, float yaw, Function<Boolean, Entity> repositionEntity) {
                         Entity newEntity = entity.getType().create(destWorld);
@@ -315,7 +308,7 @@ public class SnailManEntity extends CreatureEntity {
                             newEntity.copyDataFromOld(entity);
                             newEntity.moveToBlockPosAndAngles(newPos, angle, newEntity.rotationPitch);
                             newEntity.setMotion(0, 0, 0);
-                            destWorld.addFromAnotherDimension(newEntity);
+                            destWorld.addEntity(newEntity);
                         }
                         return entity;
                     }
@@ -330,7 +323,7 @@ public class SnailManEntity extends CreatureEntity {
     public static class ReturnFailedDelivery extends Goal {
 
         protected SnailManEntity snail;
-        private Vec3d to;
+        private Vector3d to;
         private int totalTicks = 0;
         private float angle = 0F;
         private boolean taskReset = false;
@@ -347,7 +340,7 @@ public class SnailManEntity extends CreatureEntity {
 
         @Override
         public boolean shouldContinueExecuting() {
-            return !taskReset && snail.getPositionVector().distanceTo(to) > 1 || snail.world.getDimension().getType() != snail.fromMailbox.getDimension();
+            return !taskReset && snail.getPositionVec().distanceTo(to) > 1 || !snail.world.getRegistryKey().equals(snail.fromMailbox.getDimension());
         }
 
         @Override
@@ -376,8 +369,8 @@ public class SnailManEntity extends CreatureEntity {
             ServerWorld destWorld = snail.fromMailbox.getWorld(snail.getServer());
             BlockPos newPos = destWorld.isBlockPresent(away) ? away : snail.fromMailbox.toBP();
             if(destWorld.chunkExists(newPos.getX() >> 4, newPos.getZ() >> 4) && destWorld.getChunkProvider().isChunkLoaded(new ChunkPos(newPos.getX() >> 4, newPos.getZ() >> 4))) {
-                if(snail.world.getDimension().getType() != snail.fromMailbox.getDimension()) {
-                    snail.changeDimension(snail.fromMailbox.getDimension(), new ITeleporter() {
+                if(!snail.world.getRegistryKey().equals(snail.fromMailbox.getDimension())) {
+                    snail.changeDimension(snail.getServer().getWorld(snail.fromMailbox.getDimension()), new ITeleporter() {
                         @Override
                         public Entity placeEntity(Entity entity, ServerWorld currentWorld, ServerWorld destWorld, float yaw, Function<Boolean, Entity> repositionEntity) {
                             Entity newEntity = entity.getType().create(destWorld);
@@ -385,7 +378,7 @@ public class SnailManEntity extends CreatureEntity {
                                 newEntity.copyDataFromOld(entity);
                                 newEntity.moveToBlockPosAndAngles(newPos, angle, newEntity.rotationPitch);
                                 newEntity.setMotion(0, 0, 0);
-                                destWorld.addFromAnotherDimension(newEntity);
+                                destWorld.addEntity(newEntity);
                             }
                             return entity;
                         }

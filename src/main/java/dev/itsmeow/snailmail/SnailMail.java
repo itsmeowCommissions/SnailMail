@@ -34,7 +34,7 @@ import net.minecraft.server.MinecraftServer;
 import net.minecraft.tileentity.TileEntityType;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.BlockPos;
-import net.minecraft.world.dimension.DimensionType;
+import net.minecraft.world.World;
 import net.minecraft.world.server.ServerWorld;
 import net.minecraft.world.storage.DimensionSavedDataManager;
 import net.minecraft.world.storage.WorldSavedData;
@@ -254,7 +254,7 @@ public class SnailMail {
                     comp.putBoolean("public", publicM.get(pos));
                     ListNBT list2 = new ListNBT();
                     for(UUID member : this.getMembers(pos)) {
-                        list2.add(StringNBT.valueOf(member.toString()));
+                        list2.add(StringNBT.of(member.toString()));
                     }
                     comp.put("members", list2);
                     list.add(comp);
@@ -265,7 +265,7 @@ public class SnailMail {
         }
 
         public static SnailBoxData getData(MinecraftServer server) {
-            ServerWorld world = server.getWorld(DimensionType.OVERWORLD);
+            ServerWorld world = server.getWorld(World.OVERWORLD);
             DimensionSavedDataManager data = world.getSavedData();
             SnailBoxData a = data.getOrCreate(SnailBoxData::new, "SNAIL_BOXES");
             return a;

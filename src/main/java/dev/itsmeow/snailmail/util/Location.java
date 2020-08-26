@@ -5,35 +5,35 @@ import java.util.Objects;
 import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.network.PacketBuffer;
 import net.minecraft.server.MinecraftServer;
+import net.minecraft.util.RegistryKey;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.Vec3d;
-import net.minecraft.world.IWorld;
-import net.minecraft.world.dimension.DimensionType;
+import net.minecraft.util.math.vector.Vector3d;
+import net.minecraft.util.registry.Registry;
+import net.minecraft.world.World;
 import net.minecraft.world.server.ServerWorld;
-import net.minecraftforge.common.DimensionManager;
 
 public class Location {
 
-    public static final Location ZERO = new Location(DimensionType.OVERWORLD, 0, 0, 0);
-    private final DimensionType dimension;
+    public static final Location ZERO = new Location(World.OVERWORLD, 0, 0, 0);
+    private final RegistryKey<World> dimension;
     private final int x;
     private final int y;
     private final int z;
 
-    public Location(IWorld world, BlockPos pos) {
-        this(world.getDimension().getType(), pos.getX(), pos.getY(), pos.getZ());
+    public Location(World world, BlockPos pos) {
+        this(world.getRegistryKey(), pos.getX(), pos.getY(), pos.getZ());
     }
 
-    public Location(IWorld world, int x, int y, int z) {
-        this(world.getDimension().getType(), x, y, z);
+    public Location(World world, int x, int y, int z) {
+        this(world.getRegistryKey(), x, y, z);
     }
 
-    public Location(DimensionType dimension, BlockPos pos) {
+    public Location(RegistryKey<World> dimension, BlockPos pos) {
         this(dimension, pos.getX(), pos.getY(), pos.getZ());
     }
 
-    public Location(DimensionType dimension, int x, int y, int z) {
+    public Location(RegistryKey<World> dimension, int x, int y, int z) {
         this.x = x;
         this.y = y;
         this.z = z;
@@ -64,7 +64,7 @@ public class Location {
     }
 
     public static Location read(PacketBuffer buf) {
-        return new Location(DimensionType.byName(new ResourceLocation(buf.readString(60))), buf.readInt(), buf.readInt(), buf.readInt());
+        return new Location(RegistryKey.of(Registry.DIMENSION, new ResourceLocation(buf.readString(60))), buf.readInt(), buf.readInt(), buf.readInt());
     }
 
     public CompoundNBT write(CompoundNBT tag) {
@@ -76,15 +76,15 @@ public class Location {
     }
 
     public static Location read(CompoundNBT tag) {
-        return new Location(DimensionType.byName(new ResourceLocation(tag.getString("dim"))), tag.getInt("x"), tag.getInt("y"), tag.getInt("z"));
+        return new Location(RegistryKey.of(Registry.DIMENSION, new ResourceLocation(tag.getString("dim"))), tag.getInt("x"), tag.getInt("y"), tag.getInt("z"));
     }
 
-    public DimensionType getDimension() {
+    public RegistryKey<World> getDimension() {
         return dimension;
     }
 
     public ServerWorld getWorld(MinecraftServer server) {
-        return DimensionManager.getWorld(server, dimension, true, true);
+        return server.getWorld(dimension);
     }
 
     @Override
@@ -112,8 +112,8 @@ public class Location {
         }
     }
 
-    public Vec3d asVec() {
-        return new Vec3d(this.x + 0.5, this.y, this.z + 0.5);
+    public Vector3d asVec() {
+        return new Vector3d(this.x + 0.5, this.y, this.z + 0.5);
     }
 
 }

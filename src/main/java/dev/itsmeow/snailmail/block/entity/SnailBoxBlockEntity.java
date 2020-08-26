@@ -14,6 +14,7 @@ import dev.itsmeow.snailmail.init.ModContainers;
 import dev.itsmeow.snailmail.util.EnvelopeSlot;
 import dev.itsmeow.snailmail.util.Location;
 import dev.itsmeow.snailmail.util.ReadOnlySlot;
+import net.minecraft.block.BlockState;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.player.PlayerInventory;
 import net.minecraft.entity.player.ServerPlayerEntity;
@@ -109,11 +110,11 @@ public class SnailBoxBlockEntity extends TileEntity {
     }
 
     @Override
-    public void setWorldAndPos(World newWorld, BlockPos newPos) {
+    public void setLocation(World newWorld, BlockPos newPos) {
         if(pos != null && world != null && (newWorld != world || newPos != pos)) {
             data().moveBox(this.getLocation(), new Location(newWorld, newPos));
         }
-        super.setWorldAndPos(newWorld, newPos);
+        super.setLocation(newWorld, newPos);
     }
 
     @Override
@@ -133,8 +134,8 @@ public class SnailBoxBlockEntity extends TileEntity {
     }
 
     @Override
-    public void read(CompoundNBT compound) {
-        super.read(compound);
+    public void fromTag(BlockState state, CompoundNBT compound) {
+        super.fromTag(state, compound);
         this.handler.deserializeNBT(compound.getCompound(ITEM_TAG_KEY));
     }
 

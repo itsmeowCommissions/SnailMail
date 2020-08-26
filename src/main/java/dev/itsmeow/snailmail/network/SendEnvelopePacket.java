@@ -28,7 +28,6 @@ import net.minecraft.network.PacketBuffer;
 import net.minecraft.state.properties.BlockStateProperties;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.math.BlockPos;
-import net.minecraft.world.World;
 import net.minecraft.world.server.ServerWorld;
 import net.minecraftforge.common.util.LazyOptional;
 import net.minecraftforge.fml.network.NetworkDirection;
@@ -210,7 +209,7 @@ public class SendEnvelopePacket {
                 stack = stack.copy();
                 // remove item
                 handler.setStackInSlot(27, ItemStack.EMPTY);
-                World fromW = from.getWorld(player.getServer());
+                ServerWorld fromW = from.getWorld(player.getServer());
                 SnailManEntity snail = new SnailManEntity(fromW, location, stack, from);
                 snail.onInitialSpawn(fromW, fromW.getDifficultyForLocation(from.toBP()), SpawnReason.MOB_SUMMONED, null, null);
                 BlockPos pos = from.toBP().offset(fromTe.getBlockState().get(BlockStateProperties.HORIZONTAL_FACING));

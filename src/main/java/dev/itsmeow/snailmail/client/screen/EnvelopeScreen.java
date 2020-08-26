@@ -1,5 +1,7 @@
 package dev.itsmeow.snailmail.client.screen;
 
+import com.mojang.blaze3d.matrix.MatrixStack;
+
 import dev.itsmeow.snailmail.SnailMail;
 import dev.itsmeow.snailmail.item.EnvelopeItem.EnvelopeContainer;
 import dev.itsmeow.snailmail.network.SetEnvelopeNamePacket;
@@ -7,10 +9,10 @@ import dev.itsmeow.snailmail.util.RandomUtil;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.screen.inventory.ContainerScreen;
 import net.minecraft.client.gui.widget.TextFieldWidget;
-import net.minecraft.client.resources.I18n;
 import net.minecraft.entity.player.PlayerInventory;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.text.ITextComponent;
+import net.minecraft.util.text.TranslationTextComponent;
 
 public class EnvelopeScreen extends ContainerScreen<EnvelopeContainer> {
     private static final ResourceLocation GUI_TEXTURE = new ResourceLocation("snailmail:textures/gui/envelope_open.png");
@@ -26,14 +28,14 @@ public class EnvelopeScreen extends ContainerScreen<EnvelopeContainer> {
     @Override
     protected void init() {
         super.init();
-        this.minecraft.keyboardListener.enableRepeatEvents(true);
+        this.getMinecraft().keyboardListener.enableRepeatEvents(true);
         int i = (this.width - this.xSize) / 2;
         int j = (this.height - this.ySize) / 2;
-        this.toField = new TextFieldWidget(this.font, i + 92, j + 10, 58, 10, I18n.format("container.snailmail.envelope.textfield.to")) {
+        this.toField = new TextFieldWidget(this.textRenderer, i + 92, j + 10, 58, 10, new TranslationTextComponent("container.snailmail.envelope.textfield.to")) {
 
             @Override
             public boolean charTyped(char c, int p_charTyped_2_) {
-                if(!this.canWrite()) {
+                if(!this.func_212955_f()) {
                     return false;
                 } else if(RandomUtil.isAllowedCharacter(c, false)) {
                     this.writeText(Character.toString(c));
@@ -56,11 +58,11 @@ public class EnvelopeScreen extends ContainerScreen<EnvelopeContainer> {
         });
         this.children.add(this.toField);
 
-        this.fromField = new TextFieldWidget(this.font, i + 111, j + 84, 58, 10, I18n.format("container.snailmail.envelope.textfield.from")) {
+        this.fromField = new TextFieldWidget(this.textRenderer, i + 111, j + 84, 58, 10, new TranslationTextComponent("container.snailmail.envelope.textfield.from")) {
 
             @Override
             public boolean charTyped(char c, int p_charTyped_2_) {
-                if(!this.canWrite()) {
+                if(!this.func_212955_f()) {
                     return false;
                 } else if(RandomUtil.isAllowedCharacter(c, false)) {
                     this.writeText(Character.toString(c));
@@ -102,22 +104,22 @@ public class EnvelopeScreen extends ContainerScreen<EnvelopeContainer> {
     @Override
     public void removed() {
         super.removed();
-        this.minecraft.keyboardListener.enableRepeatEvents(false);
+        this.getMinecraft().keyboardListener.enableRepeatEvents(false);
     }
 
     @Override
     public boolean keyPressed(int key, int a, int b) {
         if(key == 256) {
-            this.minecraft.player.closeScreen();
+            this.getMinecraft().player.closeScreen();
         }
         if(toField.isFocused()) {
-            if(!this.toField.keyPressed(key, a, b) && !this.toField.canWrite()) {
+            if(!this.toField.keyPressed(key, a, b) && !this.toField.func_212955_f()) {
                 return super.keyPressed(key, a, b);
             } else {
                 return true;
             }
         } else if(fromField.isFocused()) {
-            if(!this.fromField.keyPressed(key, a, b) && !this.fromField.canWrite()) {
+            if(!this.fromField.keyPressed(key, a, b) && !this.fromField.func_212955_f()) {
                 return super.keyPressed(key, a, b);
             } else {
                 return true;
@@ -127,25 +129,25 @@ public class EnvelopeScreen extends ContainerScreen<EnvelopeContainer> {
     }
 
     @Override
-    public void render(int x, int y, float partialTicks) {
-        this.renderBackground();
-        super.render(x, y, partialTicks);
-        this.toField.render(x, y, partialTicks);
-        this.fromField.render(x, y, partialTicks);
-        this.renderHoveredToolTip(x, y);
+    public void render(MatrixStack stack, int x, int y, float partialTicks) {
+        this.renderBackground(stack);
+        super.render(stack, x, y, partialTicks);
+        this.toField.render(stack, x, y, partialTicks);
+        this.fromField.render(stack, x, y, partialTicks);
+        this.renderTextHoverEffect(stack, null, x, y);
     }
 
     @Override
-    protected void drawGuiContainerBackgroundLayer(float partialTicks, int mouseX, int mouseY) {
+    protected void drawBackground(MatrixStack stack, float partialTicks, int mouseX, int mouseY) {
         int xStart = (this.width - this.xSize) / 2;
         int yStart = (this.height - this.ySize) / 2;
-        this.minecraft.getTextureManager().bindTexture(GUI_TEXTURE);
-        this.blit(xStart, yStart, 0, 0, this.xSize, this.ySize);
+        this.getMinecraft().getTextureManager().bindTexture(GUI_TEXTURE);
+        this.drawTexture(stack, xStart, yStart, 0, 0, this.xSize, this.ySize);
     }
 
     @Override
-    protected void drawGuiContainerForegroundLayer(int mouseX, int mouseY) {
-        this.font.drawString(this.title.getFormattedText(), 8, 11, 0x404040);
-        this.font.drawString(this.playerInventory.getDisplayName().getFormattedText(), 8, 84, 0x404040);
+    protected void drawForeground(MatrixStack stack, int mouseX, int mouseY) {
+        this.textRenderer.draw(stack, this.title, 8, 11, 0x404040);
+        this.textRenderer.draw(stack, this.playerInventory.getDisplayName(), 8, 84, 0x404040);
     }
 }

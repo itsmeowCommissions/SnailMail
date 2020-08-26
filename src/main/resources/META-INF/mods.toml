@@ -1,5 +1,6 @@
 modLoader="javafml"
-loaderVersion="[31,)"
+loaderVersion="[33,)"
+license="GNU LGPLv3"
 issueTrackerURL="http://github.com/itsmeowCommissions/SnailMail/issues"
 displayURL="https://www.curseforge.com/minecraft/mc-mods/snail-mail"
 logoFile="snailmail.png"
@@ -11,9 +12,9 @@ version="${file.jarVersion}"
 displayName="Snail Mail"
 description='''
 Send mail to your friends, snail style.'''
-[[dependencies.basemod]]
+[[dependencies.snailmail]]
     modId="forge"
     mandatory=true
-    versionRange="[31.2.0,)"
+    versionRange="[33.0.0,)"
     ordering="NONE"
     side="BOTH"
