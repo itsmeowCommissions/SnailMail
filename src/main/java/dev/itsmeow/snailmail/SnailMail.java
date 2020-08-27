@@ -118,7 +118,10 @@ public class SnailMail {
 
     @SubscribeEvent
     public static void registerEntities(final RegistryEvent.Register<EntityType<?>> event) {
-        ModEntities.H.ENTITIES.values().forEach(c -> event.getRegistry().register(c.entityType));
+        ModEntities.H.ENTITIES.values().forEach(c -> {
+            event.getRegistry().register(c.entityType);
+            c.registerAttributes();
+        });
     }
 
     public static class SnailBoxData extends WorldSavedData {

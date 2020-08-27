@@ -8,13 +8,13 @@ import dev.itsmeow.snailmail.init.ModItems;
 import dev.itsmeow.snailmail.item.EnvelopeItem;
 import dev.itsmeow.snailmail.network.SendEnvelopePacket;
 import dev.itsmeow.snailmail.network.SendEnvelopePacket.Type;
-import net.minecraft.client.gui.AbstractGui;
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.gui.widget.button.Button;
 import net.minecraft.item.ItemStack;
-import net.minecraft.util.IReorderingProcessor;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.text.ITextComponent;
+import net.minecraft.util.text.ITextProperties;
+import net.minecraft.util.text.StringTextComponent;
 import net.minecraft.util.text.TranslationTextComponent;
 
 public class SnailBoxModalScreen extends Screen implements IEnvelopePacketReceiver {
@@ -55,7 +55,7 @@ public class SnailBoxModalScreen extends Screen implements IEnvelopePacketReceiv
                     arg = EnvelopeItem.getString(istack, "AddressedTo");
                 }
             }
-            List<IReorderingProcessor> text = this.textRenderer.wrapLines(new TranslationTextComponent("modal.snailmail." + type.name().toLowerCase(), arg), 240);
+            List<ITextProperties> text = this.textRenderer.wrapLines(new TranslationTextComponent("modal.snailmail." + type.name().toLowerCase(), arg), 240);
             for(int i = 0; i < text.size(); i++) {
                 this.textRenderer.draw(stack, text.get(i), modalXStart + (modalXSize / 2) - (this.textRenderer.getWidth(text.get(i)) / 2), modalYStart + (modalYSize / 2) - (this.textRenderer.FONT_HEIGHT * (text.size() - i)), 0xFFFFFF);
             }
@@ -66,7 +66,7 @@ public class SnailBoxModalScreen extends Screen implements IEnvelopePacketReceiv
             for(int i = 0; i < dotAmount; i++) {
                 dots += ".";
             }
-            AbstractGui.drawCenteredString(stack, this.textRenderer, new TranslationTextComponent("modal.snailmail.sending") + dots, modalXStart + (modalXSize / 2), modalYStart + (modalYSize / 2), 0xFFFFFF);
+            this.drawCenteredString(stack, this.textRenderer, new TranslationTextComponent("modal.snailmail.sending").append(new StringTextComponent(dots)).getString(), modalXStart + (modalXSize / 2), modalYStart + (modalYSize / 2), 0xFFFFFF);
         }
     }
 

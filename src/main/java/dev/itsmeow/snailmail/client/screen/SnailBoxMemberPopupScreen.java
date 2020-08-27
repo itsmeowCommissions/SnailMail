@@ -6,9 +6,9 @@ import com.mojang.blaze3d.matrix.MatrixStack;
 
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.gui.widget.button.Button;
-import net.minecraft.util.IReorderingProcessor;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.text.ITextComponent;
+import net.minecraft.util.text.ITextProperties;
 import net.minecraft.util.text.TranslationTextComponent;
 
 public class SnailBoxMemberPopupScreen extends Screen {
@@ -39,7 +39,7 @@ public class SnailBoxMemberPopupScreen extends Screen {
         int modalYStart = (this.height - modalYSize) / 2;
         this.getMinecraft().getTextureManager().bindTexture(MODAL_TEXTURE);
         this.drawTexture(stack, modalXStart, modalYStart, 0, 0, modalXSize, modalYSize);
-        List<IReorderingProcessor> text = this.textRenderer.wrapLines(new TranslationTextComponent("modal.snailmail.failed_to_add"), 240);
+        List<ITextProperties> text = this.textRenderer.wrapLines(new TranslationTextComponent("modal.snailmail.failed_to_add"), 240);
         for(int i = 0; i < text.size(); i++) {
             this.textRenderer.draw(stack, text.get(i), modalXStart + (modalXSize / 2) - (this.textRenderer.getWidth(text.get(i)) / 2), modalYStart + (modalYSize / 2) - (this.textRenderer.FONT_HEIGHT * (text.size() - i)), 0xFFFFFF);
         }

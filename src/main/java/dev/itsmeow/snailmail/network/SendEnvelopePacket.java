@@ -210,11 +210,15 @@ public class SendEnvelopePacket {
                 // remove item
                 handler.setStackInSlot(27, ItemStack.EMPTY);
                 ServerWorld fromW = from.getWorld(player.getServer());
-                SnailManEntity snail = new SnailManEntity(fromW, location, stack, from);
-                snail.onInitialSpawn(fromW, fromW.getDifficultyForLocation(from.toBP()), SpawnReason.MOB_SUMMONED, null, null);
-                BlockPos pos = from.toBP().offset(fromTe.getBlockState().get(BlockStateProperties.HORIZONTAL_FACING));
-                snail.setLocationAndAngles(pos.getX() + 0.5, pos.getY(), pos.getZ() + 0.5, 0, 0);
-                fromW.addEntity(snail);
+                try {
+                    SnailManEntity snail = new SnailManEntity(fromW, location, stack, from);
+                    snail.onInitialSpawn(fromW, fromW.getDifficultyForLocation(from.toBP()), SpawnReason.MOB_SUMMONED, null, null);
+                    BlockPos pos = from.toBP().offset(fromTe.getBlockState().get(BlockStateProperties.HORIZONTAL_FACING));
+                    snail.setLocationAndAngles(pos.getX() + 0.5, pos.getY(), pos.getZ() + 0.5, 0, 0);
+                    fromW.addEntity(snail);
+                } catch(Exception e) {
+                    e.printStackTrace();
+                }
                 return true;
             }
         }

@@ -64,7 +64,7 @@ public class Location {
     }
 
     public static Location read(PacketBuffer buf) {
-        return new Location(RegistryKey.of(Registry.DIMENSION, new ResourceLocation(buf.readString(60))), buf.readInt(), buf.readInt(), buf.readInt());
+        return new Location(RegistryKey.of(Registry.field_239699_ae_, new ResourceLocation(buf.readString(60))), buf.readInt(), buf.readInt(), buf.readInt());
     }
 
     public CompoundNBT write(CompoundNBT tag) {
@@ -76,7 +76,7 @@ public class Location {
     }
 
     public static Location read(CompoundNBT tag) {
-        return new Location(RegistryKey.of(Registry.DIMENSION, new ResourceLocation(tag.getString("dim"))), tag.getInt("x"), tag.getInt("y"), tag.getInt("z"));
+        return new Location(RegistryKey.of(Registry.field_239699_ae_, new ResourceLocation(tag.getString("dim"))), tag.getInt("x"), tag.getInt("y"), tag.getInt("z"));
     }
 
     public RegistryKey<World> getDimension() {
