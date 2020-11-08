@@ -129,13 +129,13 @@ public class SnailBoxBlock extends Block implements IWaterLoggable {
     }
 
     @Override
-    public ActionResultType onUse(BlockState state, World worldIn, BlockPos pos, PlayerEntity player, Hand handIn, BlockRayTraceResult hit) {
+    public ActionResultType onBlockActivated(BlockState state, World worldIn, BlockPos pos, PlayerEntity player, Hand handIn, BlockRayTraceResult hit) {
         if(handIn == Hand.MAIN_HAND && !worldIn.isRemote() && worldIn.getTileEntity(pos) != null) {
             if(canOpen(worldIn, pos, player)) {
                 ((SnailBoxBlockEntity) worldIn.getTileEntity(pos)).openGUI((ServerPlayerEntity) player);
                 return ActionResultType.SUCCESS;
             } else {
-                player.sendMessage(new TranslationTextComponent("message.snailmail.noperm").setStyle(Style.EMPTY.withColor(TextFormatting.RED)), Util.NIL_UUID);
+                player.sendMessage(new TranslationTextComponent("message.snailmail.noperm").setStyle(Style.EMPTY.applyFormatting(TextFormatting.RED)), Util.DUMMY_UUID);
                 return ActionResultType.FAIL;
             }
         }
@@ -202,7 +202,7 @@ public class SnailBoxBlock extends Block implements IWaterLoggable {
             Location[] posL = SnailBoxData.getData(((World) event.getWorld()).getServer()).getAllBoxes().toArray(new Location[0]);
             for(int i = 0; i < posL.length; i++) {
                 Location loc = posL[i];
-                if(loc.getDimension().equals(((World)event.getWorld()).getRegistryKey())) {
+                if(loc.getDimension().equals(((World)event.getWorld()).getDimensionKey())) {
                     if(cPos.getXStart() <= loc.getX() && cPos.getXEnd() >= loc.getX()) {
                         if(cPos.getZStart() <= loc.getZ() && cPos.getZEnd() >= loc.getZ()) {
                             BlockState state = event.getChunk().getBlockState(loc.toBP());

@@ -29,7 +29,7 @@ public class SnailMailClient {
         RenderFactory.addRender(ModEntities.SNAIL_MAN.entityType, mgr -> new LivingRenderer<SnailManEntity, SnailManModel>(mgr, new SnailManModel(), 0F) {
 
             @Override
-            protected RenderType getRenderLayer(SnailManEntity entity, boolean p_230496_2_, boolean p_230496_3_, boolean p_230496_4_) {
+            protected RenderType func_230496_a_(SnailManEntity entity, boolean p_230496_2_, boolean p_230496_3_, boolean p_230496_4_) {
                 return RenderType.getEntityTranslucent(this.getEntityTexture(entity), true);
             }
 

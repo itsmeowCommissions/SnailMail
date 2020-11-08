@@ -32,11 +32,11 @@ public class SnailBoxMemberScreen extends Screen {
         this.children.add(list);
 
         this.getMinecraft().keyboardListener.enableRepeatEvents(true);
-        this.nameField = new TextFieldWidget(this.textRenderer, (this.width - 100) / 2 - 75, 3, 100, 18, new TranslationTextComponent("container.snailmail.snail_box.textfield.name")) {
+        this.nameField = new TextFieldWidget(this.font, (this.width - 100) / 2 - 75, 3, 100, 18, new TranslationTextComponent("container.snailmail.snail_box.textfield.name")) {
 
             @Override
             public boolean charTyped(char c, int p_charTyped_2_) {
-                if(!this.func_212955_f()) {
+                if(!this.canWrite()) {
                     return false;
                 } else if(RandomUtil.isAllowedCharacter(c, false)) {
                     this.writeText(Character.toString(c));
@@ -83,8 +83,8 @@ public class SnailBoxMemberScreen extends Screen {
     }
 
     @Override
-    public void removed() {
-        super.removed();
+    public void onClose() {
+        super.onClose();
         this.getMinecraft().keyboardListener.enableRepeatEvents(false);
     }
 
@@ -94,7 +94,7 @@ public class SnailBoxMemberScreen extends Screen {
             this.getMinecraft().displayGuiScreen(parent);
         }
         if(nameField.isFocused()) {
-            if(!this.nameField.keyPressed(key, a, b) && !this.nameField.func_212955_f()) {
+            if(!this.nameField.keyPressed(key, a, b) && !this.nameField.canWrite()) {
                 return super.keyPressed(key, a, b);
             } else {
                 return true;
@@ -111,12 +111,12 @@ public class SnailBoxMemberScreen extends Screen {
     }
 
     @Override
-    public void onClose() {
+    public void closeScreen() {
         this.getMinecraft().displayGuiScreen(parent);
     }
 
     public FontRenderer getFontRenderer() {
-        return this.textRenderer;
+        return this.font;
     }
 
     public void failedAdd() {

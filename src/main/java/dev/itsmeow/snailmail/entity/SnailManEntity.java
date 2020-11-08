@@ -226,7 +226,7 @@ public class SnailManEntity extends CreatureEntity {
 
         @Override
         public boolean shouldContinueExecuting() {
-            return !taskReset && !snail.deliveryFailed && snail.getPositionVec().distanceTo(to) > 1 || !snail.world.getRegistryKey().equals(snail.mailbox.getDimension());
+            return !taskReset && !snail.deliveryFailed && snail.getPositionVec().distanceTo(to) > 1 || !snail.world.getDimensionKey().equals(snail.mailbox.getDimension());
         }
 
         @Override
@@ -260,8 +260,8 @@ public class SnailManEntity extends CreatureEntity {
             angle = getDirection().getOpposite().getHorizontalAngle();
             BlockPos away = this.getAwayPos(getDirection());
             ServerWorld destWorld = snail.mailbox.getWorld(snail.getServer());
-            BlockPos newPos = destWorld.isBlockPresent(away) ? away : snail.mailbox.toBP();
-            if(destWorld.chunkExists(newPos.getX() >> 4, newPos.getZ() >> 4) && destWorld.getChunkProvider().isChunkLoaded(new ChunkPos(newPos.getX() >> 4, newPos.getZ() >> 4))) {
+            BlockPos newPos = destWorld != null && destWorld.isBlockPresent(away) ? away : snail.mailbox.toBP();
+            if(destWorld != null && destWorld.chunkExists(newPos.getX() >> 4, newPos.getZ() >> 4) && destWorld.getChunkProvider().isChunkLoaded(new ChunkPos(newPos.getX() >> 4, newPos.getZ() >> 4))) {
                 transport(newPos);
             } else {
                 // entity won't tick there, just do delivery without animation
@@ -299,7 +299,7 @@ public class SnailManEntity extends CreatureEntity {
         }
 
         private void transport(BlockPos newPos) {
-            if(!snail.world.getRegistryKey().equals(snail.mailbox.getDimension())) {
+            if(!snail.world.getDimensionKey().equals(snail.mailbox.getDimension())) {
                 snail.changeDimension(snail.getServer().getWorld(snail.mailbox.getDimension()), new ITeleporter() {
                     @Override
                     public Entity placeEntity(Entity entity, ServerWorld currentWorld, ServerWorld destWorld, float yaw, Function<Boolean, Entity> repositionEntity) {
@@ -340,7 +340,7 @@ public class SnailManEntity extends CreatureEntity {
 
         @Override
         public boolean shouldContinueExecuting() {
-            return !taskReset && snail.getPositionVec().distanceTo(to) > 1 || !snail.world.getRegistryKey().equals(snail.fromMailbox.getDimension());
+            return !taskReset && snail.getPositionVec().distanceTo(to) > 1 || !snail.world.getDimensionKey().equals(snail.fromMailbox.getDimension());
         }
 
         @Override
@@ -369,7 +369,7 @@ public class SnailManEntity extends CreatureEntity {
             ServerWorld destWorld = snail.fromMailbox.getWorld(snail.getServer());
             BlockPos newPos = destWorld.isBlockPresent(away) ? away : snail.fromMailbox.toBP();
             if(destWorld.chunkExists(newPos.getX() >> 4, newPos.getZ() >> 4) && destWorld.getChunkProvider().isChunkLoaded(new ChunkPos(newPos.getX() >> 4, newPos.getZ() >> 4))) {
-                if(!snail.world.getRegistryKey().equals(snail.fromMailbox.getDimension())) {
+                if(!snail.world.getDimensionKey().equals(snail.fromMailbox.getDimension())) {
                     snail.changeDimension(snail.getServer().getWorld(snail.fromMailbox.getDimension()), new ITeleporter() {
                         @Override
                         public Entity placeEntity(Entity entity, ServerWorld currentWorld, ServerWorld destWorld, float yaw, Function<Boolean, Entity> repositionEntity) {

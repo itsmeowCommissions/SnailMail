@@ -22,11 +22,11 @@ public class Location {
     private final int z;
 
     public Location(World world, BlockPos pos) {
-        this(world.getRegistryKey(), pos.getX(), pos.getY(), pos.getZ());
+        this(world.getDimensionKey(), pos.getX(), pos.getY(), pos.getZ());
     }
 
     public Location(World world, int x, int y, int z) {
-        this(world.getRegistryKey(), x, y, z);
+        this(world.getDimensionKey(), x, y, z);
     }
 
     public Location(RegistryKey<World> dimension, BlockPos pos) {
@@ -57,18 +57,18 @@ public class Location {
     }
 
     public void write(PacketBuffer buf) {
-        buf.writeString(dimension.getRegistryName().toString(), 60);
+        buf.writeString(dimension.getLocation().toString(), 60);
         buf.writeInt(x);
         buf.writeInt(y);
         buf.writeInt(z);
     }
 
     public static Location read(PacketBuffer buf) {
-        return new Location(RegistryKey.of(Registry.field_239699_ae_, new ResourceLocation(buf.readString(60))), buf.readInt(), buf.readInt(), buf.readInt());
+        return new Location(RegistryKey.getOrCreateKey(Registry.WORLD_KEY, new ResourceLocation(buf.readString(60))), buf.readInt(), buf.readInt(), buf.readInt());
     }
 
     public CompoundNBT write(CompoundNBT tag) {
-        tag.putString("dim", dimension.getRegistryName().toString());
+        tag.putString("dim", dimension.getLocation().toString());
         tag.putInt("x", x);
         tag.putInt("y", y);
         tag.putInt("z", z);
@@ -76,7 +76,7 @@ public class Location {
     }
 
     public static Location read(CompoundNBT tag) {
-        return new Location(RegistryKey.of(Registry.field_239699_ae_, new ResourceLocation(tag.getString("dim"))), tag.getInt("x"), tag.getInt("y"), tag.getInt("z"));
+        return new Location(RegistryKey.getOrCreateKey(Registry.WORLD_KEY, new ResourceLocation(tag.getString("dim"))), tag.getInt("x"), tag.getInt("y"), tag.getInt("z"));
     }
 
     public RegistryKey<World> getDimension() {
@@ -89,7 +89,7 @@ public class Location {
 
     @Override
     public int hashCode() {
-        return Objects.hash(dimension.getRegistryName().toString(), x, y, z);
+        return Objects.hash(dimension.getLocation().toString(), x, y, z);
     }
 
     @Override

@@ -55,20 +55,20 @@ public class EnvelopeItem extends Item {
     @Override
     public void addInformation(ItemStack stack, World worldIn, List<ITextComponent> tooltip, ITooltipFlag flagIn) {
         if(stack.hasTag() && stack.getTag().contains("AddressedTo", Constants.NBT.TAG_STRING) && !stack.getTag().getString("AddressedTo").isEmpty()) {
-            tooltip.add(new TranslationTextComponent("tooltip.snailmail.to", new StringTextComponent(stack.getTag().getString("AddressedTo")).setStyle(Style.EMPTY.withColor(TextFormatting.GRAY))).setStyle(Style.EMPTY.withColor(TextFormatting.GREEN).withItalic(true)));
+            tooltip.add(new TranslationTextComponent("tooltip.snailmail.to", new StringTextComponent(stack.getTag().getString("AddressedTo")).setStyle(Style.EMPTY.applyFormatting(TextFormatting.GRAY))).setStyle(Style.EMPTY.applyFormatting(TextFormatting.GREEN).setItalic(true)));
         }
         if(stack.hasTag() && stack.getTag().contains("AddressedFrom", Constants.NBT.TAG_STRING) && !stack.getTag().getString("AddressedFrom").isEmpty()) {
-            tooltip.add(new TranslationTextComponent("tooltip.snailmail.from", new StringTextComponent(stack.getTag().getString("AddressedFrom")).setStyle(Style.EMPTY.withColor(TextFormatting.GRAY))).setStyle(Style.EMPTY.withColor(TextFormatting.RED).withItalic(true)));
+            tooltip.add(new TranslationTextComponent("tooltip.snailmail.from", new StringTextComponent(stack.getTag().getString("AddressedFrom")).setStyle(Style.EMPTY.applyFormatting(TextFormatting.GRAY))).setStyle(Style.EMPTY.applyFormatting(TextFormatting.RED).setItalic(true)));
         }
         if(stack.hasTag() && stack.getTag().contains("delivery_failed", Constants.NBT.TAG_BYTE) && stack.getTag().getBoolean("delivery_failed")) {
-            tooltip.add(new TranslationTextComponent("tooltip.snailmail.delivery_failed").setStyle(Style.EMPTY.withColor(TextFormatting.RED).withBold(true)));
+            tooltip.add(new TranslationTextComponent("tooltip.snailmail.delivery_failed").setStyle(Style.EMPTY.applyFormatting(TextFormatting.RED).setBold(true)));
         }
         if(stack.getItem() == ModItems.ENVELOPE_OPEN) {
             LazyOptional<IItemHandler> cap = stack.getCapability(CapabilityItemHandler.ITEM_HANDLER_CAPABILITY);
             if(cap.isPresent()) {
                 ItemStack stampSlot = cap.orElse(null).getStackInSlot(27);
                 if(!stampSlot.isEmpty() && stampSlot.getItem() == ModItems.STAMP) {
-                    tooltip.add(new TranslationTextComponent("tooltip.snailmail.stamped").setStyle(Style.EMPTY.withColor(TextFormatting.GOLD).withItalic(true)));
+                    tooltip.add(new TranslationTextComponent("tooltip.snailmail.stamped").setStyle(Style.EMPTY.applyFormatting(TextFormatting.GOLD).setItalic(true)));
                 }
             }
         }
@@ -153,11 +153,11 @@ public class EnvelopeItem extends Item {
         if(!stack.isEmpty() && stack.getCapability(CapabilityItemHandler.ITEM_HANDLER_CAPABILITY) != null && playerIn instanceof ServerPlayerEntity) {
             if(stack.getItem() == ModItems.ENVELOPE_OPEN) {
                 openGUI((ServerPlayerEntity) playerIn, stack);
-                return ActionResult.success(stack);
+                return ActionResult.resultSuccess(stack);
             } else if(stack.getItem() == ModItems.ENVELOPE_CLOSED) {
                 Optional<ItemStack> open = convert(stack);
                 if(open.isPresent()) {
-                    return ActionResult.success(open.get());
+                    return ActionResult.resultSuccess(open.get());
                 }
             }
 

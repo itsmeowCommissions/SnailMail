@@ -110,11 +110,11 @@ public class SnailBoxBlockEntity extends TileEntity {
     }
 
     @Override
-    public void setLocation(World newWorld, BlockPos newPos) {
+    public void setWorldAndPos(World newWorld, BlockPos newPos) {
         if(pos != null && world != null && (newWorld != world || newPos != pos)) {
             data().moveBox(this.getLocation(), new Location(newWorld, newPos));
         }
-        super.setLocation(newWorld, newPos);
+        super.setWorldAndPos(newWorld, newPos);
     }
 
     @Override
@@ -134,9 +134,9 @@ public class SnailBoxBlockEntity extends TileEntity {
     }
 
     @Override
-    public void fromTag(BlockState state, CompoundNBT compound) {
-        super.fromTag(state, compound);
-        this.handler.deserializeNBT(compound.getCompound(ITEM_TAG_KEY));
+    public void read(BlockState state, CompoundNBT nbt) {
+        super.read(state, nbt);
+        this.handler.deserializeNBT(nbt.getCompound(ITEM_TAG_KEY));
     }
 
     @Override

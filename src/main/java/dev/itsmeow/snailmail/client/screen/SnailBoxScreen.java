@@ -63,10 +63,10 @@ public class SnailBoxScreen extends ContainerScreen<SnailBoxContainer> implement
                 public void renderButton(MatrixStack stack, int p_renderButton_1_, int p_renderButton_2_, float p_renderButton_3_) {
                     Minecraft minecraft = Minecraft.getInstance();
                     minecraft.getTextureManager().bindTexture(CHECK_TEXTURE);
-                    AbstractGui.drawTexture(stack, this.x, this.y, this.isChecked() ? 14 : 0, 0, 14, 14, 28, 14);
+                    AbstractGui.blit(stack, this.x, this.y, this.isChecked() ? 14 : 0, 0, 14, 14, 28, 14);
                     stack.push();
                     stack.scale(0.8F, 0.8F, 1F);
-                    minecraft.fontRenderer.draw(stack, this.getMessage(), (this.x + 14 + 4) * 1.25F, (this.y + 4) * 1.25F, 0xFF404040);
+                    minecraft.fontRenderer.func_243248_b(stack, this.getMessage(), (this.x + 14 + 4) * 1.25F, (this.y + 4) * 1.25F, 0xFF404040);
                     stack.pop();
                 }
 
@@ -74,11 +74,11 @@ public class SnailBoxScreen extends ContainerScreen<SnailBoxContainer> implement
             this.addButton(button);
         }
         this.getMinecraft().keyboardListener.enableRepeatEvents(true);
-        this.nameField = new TextFieldWidget(this.textRenderer, xStart + 88, yStart + 83, 82, 10, new TranslationTextComponent("container.snailmail.snail_box.textfield.name")) {
+        this.nameField = new TextFieldWidget(this.font, xStart + 88, yStart + 83, 82, 10, new TranslationTextComponent("container.snailmail.snail_box.textfield.name")) {
 
             @Override
             public boolean charTyped(char c, int p_charTyped_2_) {
-                if(!this.func_212955_f()) {
+                if(!this.canWrite()) {
                     return false;
                 } else if(RandomUtil.isAllowedCharacter(c, true)) {
                     this.writeText(Character.toString(c));
@@ -118,8 +118,8 @@ public class SnailBoxScreen extends ContainerScreen<SnailBoxContainer> implement
     }
 
     @Override
-    public void removed() {
-        super.removed();
+    public void onClose() {
+        super.onClose();
         this.getMinecraft().keyboardListener.enableRepeatEvents(false);
     }
 
@@ -129,7 +129,7 @@ public class SnailBoxScreen extends ContainerScreen<SnailBoxContainer> implement
             this.getMinecraft().player.closeScreen();
         }
         if(nameField.isFocused()) {
-            if(!this.nameField.keyPressed(key, a, b) && !this.nameField.func_212955_f()) {
+            if(!this.nameField.keyPressed(key, a, b) && !this.nameField.canWrite()) {
                 return super.keyPressed(key, a, b);
             } else {
                 return true;
@@ -143,21 +143,21 @@ public class SnailBoxScreen extends ContainerScreen<SnailBoxContainer> implement
         this.renderBackground(stack);
         super.render(stack, x, y, partialTicks);
         this.nameField.render(stack, x, y, partialTicks);
-        this.renderTextHoverEffect(stack, null, x, y);
+        this.renderHoveredTooltip(stack, x, y);
     }
 
     @Override
-    protected void drawBackground(MatrixStack stack, float partialTicks, int mouseX, int mouseY) {
+    protected void drawGuiContainerBackgroundLayer(MatrixStack stack, float partialTicks, int mouseX, int mouseY) {
         int xStart = (this.width - this.xSize) / 2;
         int yStart = (this.height - this.ySize) / 2;
         this.getMinecraft().getTextureManager().bindTexture(GUI_TEXTURE);
-        this.drawTexture(stack, xStart, yStart, 0, 0, this.xSize, this.ySize);
+        this.blit(stack, xStart, yStart, 0, 0, this.xSize, this.ySize);
     }
 
     @Override
-    protected void drawForeground(MatrixStack stack, int mouseX, int mouseY) {
-        this.textRenderer.draw(stack, this.title, 8, 11, 0x404040);
-        this.textRenderer.draw(stack, this.playerInventory.getDisplayName(), 8, 104, 0x404040);
+    protected void drawGuiContainerForegroundLayer(MatrixStack stack, int mouseX, int mouseY) {
+        this.font.func_243248_b(stack, this.title, 8, 11, 0x404040);
+        this.font.func_243248_b(stack, this.playerInventory.getDisplayName(), 8, 104, 0x404040);
     }
 
     @Override

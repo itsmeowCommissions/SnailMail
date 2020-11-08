@@ -257,7 +257,7 @@ public class SnailMail {
                     comp.putBoolean("public", publicM.get(pos));
                     ListNBT list2 = new ListNBT();
                     for(UUID member : this.getMembers(pos)) {
-                        list2.add(StringNBT.of(member.toString()));
+                        list2.add(StringNBT.valueOf(member.toString()));
                     }
                     comp.put("members", list2);
                     list.add(comp);

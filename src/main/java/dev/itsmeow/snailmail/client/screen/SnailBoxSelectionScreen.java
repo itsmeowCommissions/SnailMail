@@ -41,7 +41,7 @@ public class SnailBoxSelectionScreen extends Screen {
     }
 
     @Override
-    public void onClose() {
+    public void closeScreen() {
         this.getMinecraft().displayGuiScreen(parent);
     }
 
@@ -51,6 +51,6 @@ public class SnailBoxSelectionScreen extends Screen {
     }
 
     public FontRenderer getFontRenderer() {
-        return this.textRenderer;
+        return this.font;
     }
 }

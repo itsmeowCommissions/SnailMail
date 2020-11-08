@@ -31,11 +31,11 @@ public class EnvelopeScreen extends ContainerScreen<EnvelopeContainer> {
         this.getMinecraft().keyboardListener.enableRepeatEvents(true);
         int i = (this.width - this.xSize) / 2;
         int j = (this.height - this.ySize) / 2;
-        this.toField = new TextFieldWidget(this.textRenderer, i + 92, j + 10, 58, 10, new TranslationTextComponent("container.snailmail.envelope.textfield.to")) {
+        this.toField = new TextFieldWidget(this.font, i + 92, j + 10, 58, 10, new TranslationTextComponent("container.snailmail.envelope.textfield.to")) {
 
             @Override
             public boolean charTyped(char c, int p_charTyped_2_) {
-                if(!this.func_212955_f()) {
+                if(!this.canWrite()) {
                     return false;
                 } else if(RandomUtil.isAllowedCharacter(c, false)) {
                     this.writeText(Character.toString(c));
@@ -58,11 +58,11 @@ public class EnvelopeScreen extends ContainerScreen<EnvelopeContainer> {
         });
         this.children.add(this.toField);
 
-        this.fromField = new TextFieldWidget(this.textRenderer, i + 111, j + 84, 58, 10, new TranslationTextComponent("container.snailmail.envelope.textfield.from")) {
+        this.fromField = new TextFieldWidget(this.font, i + 111, j + 84, 58, 10, new TranslationTextComponent("container.snailmail.envelope.textfield.from")) {
 
             @Override
             public boolean charTyped(char c, int p_charTyped_2_) {
-                if(!this.func_212955_f()) {
+                if(!this.canWrite()) {
                     return false;
                 } else if(RandomUtil.isAllowedCharacter(c, false)) {
                     this.writeText(Character.toString(c));
@@ -102,8 +102,8 @@ public class EnvelopeScreen extends ContainerScreen<EnvelopeContainer> {
     }
 
     @Override
-    public void removed() {
-        super.removed();
+    public void onClose() {
+        super.onClose();
         this.getMinecraft().keyboardListener.enableRepeatEvents(false);
     }
 
@@ -113,13 +113,13 @@ public class EnvelopeScreen extends ContainerScreen<EnvelopeContainer> {
             this.getMinecraft().player.closeScreen();
         }
         if(toField.isFocused()) {
-            if(!this.toField.keyPressed(key, a, b) && !this.toField.func_212955_f()) {
+            if(!this.toField.keyPressed(key, a, b) && !this.toField.canWrite()) {
                 return super.keyPressed(key, a, b);
             } else {
                 return true;
             }
         } else if(fromField.isFocused()) {
-            if(!this.fromField.keyPressed(key, a, b) && !this.fromField.func_212955_f()) {
+            if(!this.fromField.keyPressed(key, a, b) && !this.fromField.canWrite()) {
                 return super.keyPressed(key, a, b);
             } else {
                 return true;
@@ -134,20 +134,20 @@ public class EnvelopeScreen extends ContainerScreen<EnvelopeContainer> {
         super.render(stack, x, y, partialTicks);
         this.toField.render(stack, x, y, partialTicks);
         this.fromField.render(stack, x, y, partialTicks);
-        this.renderTextHoverEffect(stack, null, x, y);
+        this.renderHoveredTooltip(stack, x, y);
     }
 
     @Override
-    protected void drawBackground(MatrixStack stack, float partialTicks, int mouseX, int mouseY) {
+    protected void drawGuiContainerBackgroundLayer(MatrixStack stack, float partialTicks, int x, int y) {
         int xStart = (this.width - this.xSize) / 2;
         int yStart = (this.height - this.ySize) / 2;
         this.getMinecraft().getTextureManager().bindTexture(GUI_TEXTURE);
-        this.drawTexture(stack, xStart, yStart, 0, 0, this.xSize, this.ySize);
+        this.blit(stack, xStart, yStart, 0, 0, this.xSize, this.ySize);
     }
 
     @Override
-    protected void drawForeground(MatrixStack stack, int mouseX, int mouseY) {
-        this.textRenderer.draw(stack, this.title, 8, 11, 0x404040);
-        this.textRenderer.draw(stack, this.playerInventory.getDisplayName(), 8, 84, 0x404040);
+    protected void drawGuiContainerForegroundLayer(MatrixStack stack, int x, int y) {
+        this.font.func_243248_b(stack, this.title, 8, 11, 0x404040);
+        this.font.func_243248_b(stack, this.playerInventory.getDisplayName(), 8, 84, 0x404040);
     }
 }

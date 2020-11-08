@@ -6,9 +6,9 @@ import com.mojang.blaze3d.matrix.MatrixStack;
 
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.gui.widget.button.Button;
+import net.minecraft.util.IReorderingProcessor;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.text.ITextComponent;
-import net.minecraft.util.text.ITextProperties;
 import net.minecraft.util.text.TranslationTextComponent;
 
 public class SnailBoxMemberPopupScreen extends Screen {
@@ -38,16 +38,16 @@ public class SnailBoxMemberPopupScreen extends Screen {
         int modalXStart = (this.width - modalXSize) / 2;
         int modalYStart = (this.height - modalYSize) / 2;
         this.getMinecraft().getTextureManager().bindTexture(MODAL_TEXTURE);
-        this.drawTexture(stack, modalXStart, modalYStart, 0, 0, modalXSize, modalYSize);
-        List<ITextProperties> text = this.textRenderer.wrapLines(new TranslationTextComponent("modal.snailmail.failed_to_add"), 240);
+        this.blit(stack, modalXStart, modalYStart, 0, 0, modalXSize, modalYSize);
+        List<IReorderingProcessor> text = this.font.trimStringToWidth(new TranslationTextComponent("modal.snailmail.failed_to_add"), 240);
         for(int i = 0; i < text.size(); i++) {
-            this.textRenderer.draw(stack, text.get(i), modalXStart + (modalXSize / 2) - (this.textRenderer.getWidth(text.get(i)) / 2), modalYStart + (modalYSize / 2) - (this.textRenderer.FONT_HEIGHT * (text.size() - i)), 0xFFFFFF);
+            this.font.func_238422_b_(stack, text.get(i), modalXStart + (modalXSize / 2) - (this.font.func_243245_a(text.get(i)) / 2), modalYStart + (modalYSize / 2) - (this.font.FONT_HEIGHT * (text.size() - i)), 0xFFFFFF);
         }
         super.render(stack, x, y, partialTicks);
     }
 
     @Override
-    public void onClose() {
+    public void closeScreen() {
         this.getMinecraft().displayGuiScreen(parent);
     }
 
