@@ -11,6 +11,8 @@ import dev.itsmeow.snailmail.block.SnailBoxBlock;
 import dev.itsmeow.snailmail.init.ModBlockEntities;
 import dev.itsmeow.snailmail.init.ModBlocks;
 import dev.itsmeow.snailmail.init.ModContainers;
+import dev.itsmeow.snailmail.init.ModItems;
+import dev.itsmeow.snailmail.item.EnvelopeItem;
 import dev.itsmeow.snailmail.util.EnvelopeSlot;
 import dev.itsmeow.snailmail.util.Location;
 import dev.itsmeow.snailmail.util.ReadOnlySlot;
@@ -186,6 +188,22 @@ public class SnailBoxBlockEntity extends TileEntity {
     }
 
     public static class SnailBoxContainer extends Container {
+        @Override
+        public void onContainerClosed(PlayerEntity playerIn) {
+            super.onContainerClosed(playerIn);
+
+            // the player might have filled the envelope then moved it to their inventory
+            // in this case, dump out all the items in the envelope
+            if (!playerIn.world.isRemote()){
+                for (int i=0;i<playerIn.inventory.getSizeInventory();i++){
+                    ItemStack stack = playerIn.inventory.getStackInSlot(i);
+                    if (stack.getItem() == ModItems.ENVELOPE_OPEN){
+                        EnvelopeItem.emptyEnvelope(stack, playerIn);
+                        playerIn.inventory.setInventorySlotContents(i, new ItemStack(ModItems.ENVELOPE_OPEN));
+                    }
+                }
+            }
+        }
 
         public static SnailBoxContainer getClientContainer(int id, PlayerInventory playerInventory, PacketBuffer extra) {
             if(extra.readableBytes() > 0) {

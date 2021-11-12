@@ -5,6 +5,7 @@ import com.mojang.blaze3d.matrix.MatrixStack;
 import dev.itsmeow.snailmail.SnailMail;
 import dev.itsmeow.snailmail.block.entity.SnailBoxBlockEntity.SnailBoxContainer;
 import dev.itsmeow.snailmail.init.ModItems;
+import dev.itsmeow.snailmail.network.OpenEnvelopeGUIPacket;
 import dev.itsmeow.snailmail.network.SendEnvelopePacket;
 import dev.itsmeow.snailmail.network.SendEnvelopePacket.Type;
 import dev.itsmeow.snailmail.network.UpdateSnailBoxPacket;
@@ -43,6 +44,13 @@ public class SnailBoxScreen extends ContainerScreen<SnailBoxContainer> implement
             if(!envelope.isEmpty() && envelope.getItem() == ModItems.ENVELOPE_OPEN) {
                 SendEnvelopePacket packet = new SendEnvelopePacket(Type.TO_SERVER);
                 this.receivePacket(packet);
+                SnailMail.HANDLER.sendToServer(packet);
+            }
+        }));
+        this.addButton(new Button(xStart+this.xSize-80, yStart-20, 80, 20, new TranslationTextComponent("container.snailmail.open_envelope"), (bt) -> {
+            ItemStack envelope = this.container.getSlot(27).getStack();
+            if(envelope.getItem() == ModItems.ENVELOPE_OPEN) {
+                OpenEnvelopeGUIPacket packet = new OpenEnvelopeGUIPacket();
                 SnailMail.HANDLER.sendToServer(packet);
             }
         }));
