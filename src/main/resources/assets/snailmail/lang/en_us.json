@@ -3,6 +3,7 @@
     "entity.snailmail.snail_man": "Snailman",
     "container.snailmail.snail_box": "Snailbox",
     "container.snailmail.envelope": "Envelope",
+    "container.snailmail.open_envelope": "Open Envelope",
     "container.snailmail.envelope.textfield.to": "Address To",
     "container.snailmail.envelope.textfield.from": "Address From",
     "block.snailmail.snail_box": "Snailbox",

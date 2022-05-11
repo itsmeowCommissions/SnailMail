@@ -6,6 +6,7 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
 
+import dev.itsmeow.snailmail.network.OpenEnvelopeGUIPacket;
 import org.apache.commons.lang3.tuple.Pair;
 
 import dev.itsmeow.snailmail.block.entity.SnailBoxBlockEntity;
@@ -83,6 +84,7 @@ public class SnailMail {
         HANDLER.registerMessage(packets++, SetEnvelopeNamePacket.class, SetEnvelopeNamePacket::encode, SetEnvelopeNamePacket::decode, SetEnvelopeNamePacket.Handler::handle);
         HANDLER.registerMessage(packets++, SendEnvelopePacket.class, SendEnvelopePacket::encode, SendEnvelopePacket::decode, SendEnvelopePacket.Handler::handle);
         HANDLER.registerMessage(packets++, UpdateSnailBoxPacket.class, UpdateSnailBoxPacket::encode, UpdateSnailBoxPacket::decode, UpdateSnailBoxPacket.Handler::handle);
+        HANDLER.registerMessage(packets++, OpenEnvelopeGUIPacket.class, OpenEnvelopeGUIPacket::encode, OpenEnvelopeGUIPacket::decode, OpenEnvelopeGUIPacket.Handler::handle);
     }
 
     @SubscribeEvent

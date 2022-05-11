@@ -1,6 +1,7 @@
 package dev.itsmeow.snailmail.block;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Set;
 import java.util.UUID;
 
@@ -128,10 +129,13 @@ public class SnailBoxBlock extends Block implements IWaterLoggable {
         super.onReplaced(state, worldIn, pos, newState, isMoving);
     }
 
+    public static HashMap<UUID, BlockPos> lastClickedBox = new HashMap<>();
+
     @Override
     public ActionResultType onBlockActivated(BlockState state, World worldIn, BlockPos pos, PlayerEntity player, Hand handIn, BlockRayTraceResult hit) {
         if(handIn == Hand.MAIN_HAND && !worldIn.isRemote() && worldIn.getTileEntity(pos) != null) {
             if(canOpen(worldIn, pos, player)) {
+                lastClickedBox.put(player.getUniqueID(), pos);
                 ((SnailBoxBlockEntity) worldIn.getTileEntity(pos)).openGUI((ServerPlayerEntity) player);
                 return ActionResultType.SUCCESS;
             } else {

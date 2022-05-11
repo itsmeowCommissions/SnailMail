@@ -4,6 +4,8 @@ import java.util.List;
 import java.util.Optional;
 
 import dev.itsmeow.snailmail.SnailMail;
+import dev.itsmeow.snailmail.block.SnailBoxBlock;
+import dev.itsmeow.snailmail.block.entity.SnailBoxBlockEntity;
 import dev.itsmeow.snailmail.init.ModContainers;
 import dev.itsmeow.snailmail.init.ModItems;
 import dev.itsmeow.snailmail.util.NoItemCapSlot;
@@ -25,6 +27,7 @@ import net.minecraft.network.PacketBuffer;
 import net.minecraft.util.ActionResult;
 import net.minecraft.util.Direction;
 import net.minecraft.util.Hand;
+import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.text.ITextComponent;
 import net.minecraft.util.text.StringTextComponent;
 import net.minecraft.util.text.Style;
@@ -39,6 +42,7 @@ import net.minecraftforge.common.util.LazyOptional;
 import net.minecraftforge.fml.network.NetworkHooks;
 import net.minecraftforge.items.CapabilityItemHandler;
 import net.minecraftforge.items.IItemHandler;
+import net.minecraftforge.items.ItemHandlerHelper;
 import net.minecraftforge.items.ItemStackHandler;
 
 public class EnvelopeItem extends Item {
@@ -147,20 +151,25 @@ public class EnvelopeItem extends Item {
         return Optional.empty();
     }
 
+    public static void emptyEnvelope(ItemStack stack, PlayerEntity playerIn){
+        stack.getCapability(CapabilityItemHandler.ITEM_HANDLER_CAPABILITY).ifPresent((inv) -> {
+            for (int i=0;i<inv.getSlots();i++){
+                ItemHandlerHelper.giveItemToPlayer(playerIn, inv.getStackInSlot(i));
+            }
+        });
+    }
+
     @Override
     public ActionResult<ItemStack> onItemRightClick(World worldIn, PlayerEntity playerIn, Hand handIn) {
         ItemStack stack = playerIn.getHeldItem(handIn);
         if(!stack.isEmpty() && stack.getCapability(CapabilityItemHandler.ITEM_HANDLER_CAPABILITY) != null && playerIn instanceof ServerPlayerEntity) {
-            if(stack.getItem() == ModItems.ENVELOPE_OPEN) {
-                openGUI((ServerPlayerEntity) playerIn, stack);
-                return ActionResult.resultSuccess(stack);
-            } else if(stack.getItem() == ModItems.ENVELOPE_CLOSED) {
+            if(stack.getItem() == ModItems.ENVELOPE_CLOSED) {
                 Optional<ItemStack> open = convert(stack);
                 if(open.isPresent()) {
-                    return ActionResult.resultSuccess(open.get());
+                    emptyEnvelope(stack, playerIn);
+                    return ActionResult.resultSuccess(new ItemStack(ModItems.ENVELOPE_OPEN));
                 }
             }
-
         }
         return super.onItemRightClick(worldIn, playerIn, handIn);
     }
@@ -209,6 +218,19 @@ public class EnvelopeItem extends Item {
     }
 
     public static class EnvelopeContainer extends Container {
+        @Override
+        public void onContainerClosed(PlayerEntity playerIn) {
+            super.onContainerClosed(playerIn);
+
+            if (!playerIn.world.isRemote()){
+                BlockPos pos = SnailBoxBlock.lastClickedBox.get(playerIn.getUniqueID());
+                if (playerIn.world.getTileEntity(pos) instanceof SnailBoxBlockEntity){
+                    if (SnailBoxBlock.canOpen(playerIn.world, pos, playerIn)){
+                        ((SnailBoxBlockEntity) playerIn.world.getTileEntity(pos)).openGUI((ServerPlayerEntity) playerIn);
+                    }
+                }
+            }
+        }
 
         private final int SLOT_COUNT;
         private final IItemHandler items;
@@ -284,20 +306,6 @@ public class EnvelopeItem extends Item {
 
             return itemstack;
         }
-
-        @Override
-        public boolean canInteractWith(PlayerEntity player) {
-            if(player.getHeldItemMainhand().getItem() == ModItems.ENVELOPE_OPEN || player.getHeldItemOffhand().getItem() == ModItems.ENVELOPE_OPEN) {
-                if(player.getHeldItemMainhand().getCapability(CapabilityItemHandler.ITEM_HANDLER_CAPABILITY).orElse(null) == this.items) {
-                    return true;
-                } else if(player.getHeldItemOffhand().getCapability(CapabilityItemHandler.ITEM_HANDLER_CAPABILITY).orElse(null) == this.items) {
-                    return true;
-                }
-                return false;
-            }
-            return false;
-        }
-
     }
 
     public static class EnvelopeCapabilityProvider implements ICapabilitySerializable<CompoundNBT> {
