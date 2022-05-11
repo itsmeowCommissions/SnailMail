@@ -171,21 +171,6 @@ public class EnvelopeItem extends Item {
                 }
             }
         }
-        /*
-        ItemStack stack = playerIn.getHeldItem(handIn);
-        if(!stack.isEmpty() && stack.getCapability(CapabilityItemHandler.ITEM_HANDLER_CAPABILITY) != null && playerIn instanceof ServerPlayerEntity) {
-            if(stack.getItem() == ModItems.ENVELOPE_OPEN) {
-                openGUI((ServerPlayerEntity) playerIn, stack);
-                return ActionResult.resultSuccess(stack);
-            } else if(stack.getItem() == ModItems.ENVELOPE_CLOSED) {
-                Optional<ItemStack> open = convert(stack);
-                if(open.isPresent()) {
-                    return ActionResult.resultSuccess(open.get());
-                }
-            }
-
-        }
-         */
         return super.onItemRightClick(worldIn, playerIn, handIn);
     }
 
@@ -321,24 +306,6 @@ public class EnvelopeItem extends Item {
 
             return itemstack;
         }
-
-        @Override
-        public boolean canInteractWith(PlayerEntity player) {
-            return true;
-            /*
-            if(player.getHeldItemMainhand().getItem() == ModItems.ENVELOPE_OPEN || player.getHeldItemOffhand().getItem() == ModItems.ENVELOPE_OPEN) {
-                if(player.getHeldItemMainhand().getCapability(CapabilityItemHandler.ITEM_HANDLER_CAPABILITY).orElse(null) == this.items) {
-                    return true;
-                } else if(player.getHeldItemOffhand().getCapability(CapabilityItemHandler.ITEM_HANDLER_CAPABILITY).orElse(null) == this.items) {
-                    return true;
-                }
-                return false;
-            }
-            return false;
-
-             */
-        }
-
     }
 
     public static class EnvelopeCapabilityProvider implements ICapabilitySerializable<CompoundNBT> {
