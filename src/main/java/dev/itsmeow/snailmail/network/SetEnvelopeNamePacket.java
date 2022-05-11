@@ -66,28 +66,6 @@ public class SetEnvelopeNamePacket {
                             }
                         }
                     }
-
-                    /*
-                    if(sender.openContainer instanceof EnvelopeContainer) {
-                        Hand hand = null;
-                        if(sender.getHeldItem(Hand.MAIN_HAND).getItem() == ModItems.ENVELOPE_OPEN) {
-                            hand = Hand.MAIN_HAND;
-                        } else if(sender.getHeldItem(Hand.OFF_HAND).getItem() == ModItems.ENVELOPE_OPEN) {
-                            hand = Hand.OFF_HAND;
-                        }
-                        if(hand != null) {
-                            String s = RandomUtil.filterAllowedCharacters(msg.name, false);
-                            if(s.length() <= 35) {
-                                ItemStack stack = sender.getHeldItem(hand);
-                                if(msg.type == Type.TO) {
-                                    EnvelopeItem.setToName(sender, hand, stack, s);
-                                } else {
-                                    EnvelopeItem.setFromName(sender, hand, stack, s);
-                                }
-                            }
-                        }
-                    }
-                    */
                 });
             }
             ctx.get().setPacketHandled(true);
