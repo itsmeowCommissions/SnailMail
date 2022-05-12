@@ -1,0 +1,8 @@
+apply from: "https://maven.itsmeow.dev/scripts/architectury-forge.gradle"
+apply from: "https://maven.itsmeow.dev/scripts/architectury-forge-imdlib.gradle"
+
+loom {
+    forge {
+        mixinConfig "mixin.imdlib-snailmail.json", "snailmail-forge.mixins.json"
+    }
+}

@@ -1,0 +1,15 @@
+{
+    "required": true,
+    "package": "dev.itsmeow.snailmail.mixin.forge",
+    "compatibilityLevel": "JAVA_8",
+    "minVersion": "0.8",
+    "mixins": [
+        "EnvelopeItemMixin",
+        "SnailBoxBlockEntityMixin"
+    ],
+    "client": [
+    ],
+    "injectors": {
+        "defaultRequire": 1
+    }
+}

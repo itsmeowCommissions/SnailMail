@@ -1,0 +1,26 @@
+modLoader="javafml"
+loaderVersion="[36,)"
+license="GNU LGPLv3"
+issueTrackerURL="https://github.com/itsmeowCommissions/SnailMail/issues"
+displayURL="https://www.curseforge.com/minecraft/mc-mods/snail-mail"
+logoFile="snailmail.png"
+credits="itsmeow for Programming, Coda for Art + Commission, hobojoe for Art"
+authors="itsmeow, Coda, hobojoe"
+[[mods]]
+modId="snailmail"
+version="${version}"
+displayName="Snail Mail"
+description='''
+Send mail to your friends, snail style.'''
+[[dependencies.snailmail]]
+    modId="forge"
+    mandatory=true
+    versionRange="[36.2.0,)"
+    ordering="NONE"
+    side="BOTH"
+[[dependencies.snailmail]]
+    modId="architectury"
+    mandatory=true
+    versionRange="[1.26.0,)"
+    ordering="NONE"
+    side="BOTH"

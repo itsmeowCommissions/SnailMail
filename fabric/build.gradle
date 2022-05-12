@@ -1,0 +1,27 @@
+apply from: "https://maven.itsmeow.dev/scripts/architectury-fabric.gradle"
+apply from: "https://maven.itsmeow.dev/scripts/architectury-fabric-imdlib.gradle"
+
+repositories {
+    maven {
+        name = "TerraformersMC"
+        url = "https://maven.terraformersmc.com/"
+    }
+    maven {
+        url = "https://maven.shedaniel.me/"
+    }
+    maven {
+        url = "https://cursemaven.com/"
+    }
+}
+
+dependencies {
+    modRuntimeOnly("com.terraformersmc:modmenu:1.16.22") {
+        transitive = false
+    }
+    modRuntimeOnly ("curse.maven:cloth-config-319057:3559633") {
+        transitive = false
+    }
+    runtimeOnly("me.shedaniel.cloth:basic-math:0.6.0") {
+        transitive = false
+    }
+}

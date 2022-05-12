@@ -1,0 +1,2 @@
+apply from: "https://maven.itsmeow.dev/scripts/architectury-common.gradle"
+apply from: "https://maven.itsmeow.dev/scripts/architectury-common-imdlib.gradle"
