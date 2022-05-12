@@ -35,6 +35,7 @@ import net.minecraft.world.phys.shapes.VoxelShape;
 import java.util.HashMap;
 import java.util.UUID;
 
+@SuppressWarnings("deprecation")
 public class SnailBoxBlock extends Block implements SimpleWaterloggedBlock, EntityBlock {
 
     private static VoxelShape SHAPE_X;
@@ -62,7 +63,6 @@ public class SnailBoxBlock extends Block implements SimpleWaterloggedBlock, Enti
         builder.add(BlockStateProperties.HORIZONTAL_FACING, BlockStateProperties.WATERLOGGED);
     }
 
-    @SuppressWarnings("deprecation")
     @Override
     public FluidState getFluidState(BlockState state) {
         return state.getValue(BlockStateProperties.WATERLOGGED) ? Fluids.WATER.getSource(false) : super.getFluidState(state);
@@ -78,7 +78,6 @@ public class SnailBoxBlock extends Block implements SimpleWaterloggedBlock, Enti
         return ModBlockEntities.SNAIL_BOX.get().create();
     }
 
-    @SuppressWarnings("deprecation")
     @Override
     public void onRemove(BlockState state, Level worldIn, BlockPos pos, BlockState newState, boolean isMoving) {
         if(state.getBlock() != newState.getBlock()) {
@@ -92,13 +91,14 @@ public class SnailBoxBlock extends Block implements SimpleWaterloggedBlock, Enti
 
     @Override
     public InteractionResult use(BlockState blockState, Level level, BlockPos pos, Player player, InteractionHand hand, BlockHitResult blockHitResult) {
-        if(hand == InteractionHand.MAIN_HAND && !level.isClientSide() && level.getBlockEntity(pos) != null) {
+        if(!level.isClientSide() && level.getBlockEntity(pos) != null) {
             if(canOpen(level, pos, player)) {
-                lastClickedBox.put(player.getUUID(), pos);
+                lastClickedBox.put(player.getUUID(), new BlockPos(pos));
                 ((SnailBoxBlockEntity) level.getBlockEntity(pos)).openGUI((ServerPlayer) player);
-                return InteractionResult.SUCCESS;
+                return InteractionResult.CONSUME;
             } else {
-                player.sendMessage(new TranslatableComponent("message.snailmail.noperm").setStyle(Style.EMPTY.withColor(ChatFormatting.RED)), Util.NIL_UUID);
+                if (hand == InteractionHand.MAIN_HAND)
+                    player.sendMessage(new TranslatableComponent("message.snailmail.noperm").setStyle(Style.EMPTY.withColor(ChatFormatting.RED)), Util.NIL_UUID);
                 return InteractionResult.FAIL;
             }
         }

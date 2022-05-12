@@ -45,7 +45,8 @@ public class SendEnvelopePacket {
         SELECT_BOX,
         SUCCESS,
         BOX_NO_EXIST,
-        WAIT
+        WAIT,
+        REOPEN
     }
 
     public Type type;
@@ -174,13 +175,19 @@ public class SendEnvelopePacket {
                         } else {
                             reply(ctx, Type.NO_ENVELOPE);
                         }
+                    } else {
+                        reply(ctx, Type.REOPEN);
                     }
                 });
             }
             if(ctx.get().getEnvironment() == Env.CLIENT && msg.type != Type.TO_SERVER) {
                 ctx.get().queue(() -> {
-                    if(Minecraft.getInstance().screen instanceof IEnvelopePacketReceiver) {
-                        ((IEnvelopePacketReceiver) Minecraft.getInstance().screen).receivePacket(msg);
+                    if(msg.type == Type.REOPEN && Minecraft.getInstance().player.containerMenu instanceof SnailBoxMenu) {
+                        ModNetwork.HANDLER.sendToServer(new OpenSnailBoxGUIPacket(((SnailBoxMenu) Minecraft.getInstance().player.containerMenu).pos));
+                    } else {
+                        if (Minecraft.getInstance().screen instanceof IEnvelopePacketReceiver) {
+                            ((IEnvelopePacketReceiver) Minecraft.getInstance().screen).receivePacket(msg);
+                        }
                     }
                 });
             }
@@ -203,7 +210,7 @@ public class SendEnvelopePacket {
         }
         ServerLevel fromW = from.getWorld(player.getServer());
         try {
-            SnailManEntity snail = new SnailManEntity(ModEntities.SNAIL_MAN.getEntityType(), fromW, location, stack, from);
+            SnailManEntity snail = new SnailManEntity(ModEntities.SNAIL_MAN.get(), fromW, location, stack, from);
             snail.finalizeSpawn(fromW, fromW.getCurrentDifficultyAt(from.toBP()), MobSpawnType.MOB_SUMMONED, null, null);
             BlockPos pos = from.toBP().relative(fromTe.getBlockState().getValue(BlockStateProperties.HORIZONTAL_FACING));
             snail.moveTo(pos.getX() + 0.5, pos.getY(), pos.getZ() + 0.5, 0, 0);

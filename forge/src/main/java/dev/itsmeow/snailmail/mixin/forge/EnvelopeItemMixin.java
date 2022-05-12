@@ -1,16 +1,19 @@
 package dev.itsmeow.snailmail.mixin.forge;
 
+import dev.itsmeow.snailmail.init.ModItems;
 import dev.itsmeow.snailmail.item.EnvelopeItem;
 import net.minecraft.core.Direction;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.Items;
 import net.minecraftforge.common.capabilities.Capability;
 import net.minecraftforge.common.capabilities.ICapabilityProvider;
 import net.minecraftforge.common.capabilities.ICapabilitySerializable;
 import net.minecraftforge.common.util.LazyOptional;
 import net.minecraftforge.items.CapabilityItemHandler;
 import net.minecraftforge.items.ItemStackHandler;
+import org.jetbrains.annotations.NotNull;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
@@ -38,7 +41,15 @@ public abstract class EnvelopeItemMixin extends Item {
         private ItemStack stack;
 
         public EnvelopeCapabilityProvider(ItemStack stack, CompoundTag compound, boolean isOpen) {
-            this.handler = new ItemStackHandler(isOpen ? 28 : 27);
+            this.handler = new ItemStackHandler(isOpen ? 28 : 27) {
+                @Override
+                public boolean isItemValid(int slot, @NotNull ItemStack stack) {
+                    if(slot == 27) {
+                        return stack.getItem() == ModItems.STAMP.get();
+                    }
+                    return !stack.getCapability(CapabilityItemHandler.ITEM_HANDLER_CAPABILITY).isPresent() && stack.getItem() != Items.SHULKER_BOX;
+                }
+            };
             this.handlerOptional = LazyOptional.of(() -> handler);
             this.stack = stack;
         }

@@ -1,9 +1,10 @@
 {
-    "required": false,
-    "package": "",
+    "required": true,
+    "package": "dev.itsmeow.snailmail.mixin.fabric",
     "compatibilityLevel": "JAVA_8",
     "minVersion": "0.8",
     "mixins": [
+        "SnailBoxBlockEntityMixin"
     ],
     "client": [
     ],

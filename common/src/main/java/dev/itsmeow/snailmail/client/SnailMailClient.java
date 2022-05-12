@@ -1,6 +1,5 @@
 package dev.itsmeow.snailmail.client;
 
-import dev.itsmeow.imdlib.client.render.RenderFactory;
 import dev.itsmeow.snailmail.SnailMail;
 import dev.itsmeow.snailmail.client.model.SnailManModel;
 import dev.itsmeow.snailmail.client.screen.EnvelopeScreen;
@@ -9,6 +8,7 @@ import dev.itsmeow.snailmail.entity.SnailManEntity;
 import dev.itsmeow.snailmail.init.ModEntities;
 import dev.itsmeow.snailmail.init.ModMenus;
 import me.shedaniel.architectury.registry.MenuRegistry;
+import me.shedaniel.architectury.registry.entity.EntityRenderers;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.entity.MobRenderer;
 import net.minecraft.resources.ResourceLocation;
@@ -20,7 +20,7 @@ public class SnailMailClient {
     public static void clientInit() {
         MenuRegistry.registerScreenFactory(ModMenus.SNAIL_BOX.get(), SnailBoxScreen::new);
         MenuRegistry.registerScreenFactory(ModMenus.ENVELOPE.get(), EnvelopeScreen::new);
-        RenderFactory.addRender(ModEntities.SNAIL_MAN.getEntityType(), mgr -> new MobRenderer<SnailManEntity, SnailManModel>(mgr, new SnailManModel(), 0F) {
+        EntityRenderers.register(ModEntities.SNAIL_MAN.get(), mgr -> new MobRenderer<SnailManEntity, SnailManModel>(mgr, new SnailManModel(), 0F) {
             @Override
             public ResourceLocation getTextureLocation(SnailManEntity entity) {
                 return TEXTURE;

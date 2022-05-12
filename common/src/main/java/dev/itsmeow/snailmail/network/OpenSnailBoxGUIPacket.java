@@ -2,7 +2,6 @@ package dev.itsmeow.snailmail.network;
 
 import dev.itsmeow.snailmail.block.entity.SnailBoxBlockEntity;
 import dev.itsmeow.snailmail.init.ModItems;
-import dev.itsmeow.snailmail.menu.EnvelopeMenu;
 import me.shedaniel.architectury.networking.NetworkManager;
 import me.shedaniel.architectury.utils.Env;
 import net.minecraft.core.BlockPos;
@@ -33,7 +32,7 @@ public class OpenSnailBoxGUIPacket {
             if(ctx.get().getEnvironment() == Env.SERVER) {
                 ctx.get().queue(() -> {
                     ServerPlayer sender = (ServerPlayer) ctx.get().getPlayer();
-                    if (sender.containerMenu instanceof EnvelopeMenu && sender.distanceToSqr(msg.pos.getX(), msg.pos.getY(), msg.pos.getZ()) <= 25D) {
+                    if (sender.distanceToSqr(msg.pos.getX(), msg.pos.getY(), msg.pos.getZ()) <= 25D) {
                         BlockEntity target = sender.level.getBlockEntity(msg.pos);
                         if(target instanceof SnailBoxBlockEntity && SnailBoxBlockEntity.getEnvelope((SnailBoxBlockEntity) target).getItem() == ModItems.ENVELOPE_OPEN.get() && ((SnailBoxBlockEntity) target).canAccess(sender)) {
                             ((SnailBoxBlockEntity) target).openGUI(sender);

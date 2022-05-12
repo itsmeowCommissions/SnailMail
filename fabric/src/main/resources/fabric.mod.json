@@ -1,0 +1,37 @@
+{
+    "schemaVersion": 1,
+    "id": "snailmail",
+    "version": "${version}",
+    "name": "Snail Mail",
+    "description": "Send mail to your friends, snail style.",
+    "authors": ["itsmeowdev", "Coda", "hobojoe"],
+    "contact": {
+        "homepage": "https://www.curseforge.com/minecraft/mc-mods/snail-mail",
+        "sources": "https://github.com/itsmeowCommissions/SnailMail",
+        "issues": "https://github.com/itsmeowCommissions/issues"
+    },
+    "license": "GNU LGPLv3",
+    "icon": "snailmail.png",
+    "environment": "*",
+    "accessWidener": "snailmail.accessWidener",
+    "entrypoints": {
+        "main": ["dev.itsmeow.snailmail.SnailMailFabric"],
+        "client": ["dev.itsmeow.snailmail.client.SnailMailClientFabric"]
+    },
+    "depends": {
+        "minecraft": "1.16.5",
+        "architectury": ">=1.26.42",
+        "fabricloader": ">=0.12.0",
+        "fabric": ">=0.32.0"
+    },
+    "mixins": [
+        "snailmail-fabric.mixins.json"
+    ],
+    "custom": {
+        "modmenu": {
+            "links": {
+                "modmenu.discord": "https://discord.betteranimalsplus.com/"
+            }
+        }
+    }
+}

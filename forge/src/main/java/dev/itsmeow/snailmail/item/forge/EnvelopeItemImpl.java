@@ -68,7 +68,10 @@ public class EnvelopeItemImpl {
         if(extra.readableBytes() > 0) {
             try {
                 BlockPos returnPos = extra.readBlockPos();
-                String toName = extra.readUtf(35);
+                String toName = "";
+                if(extra.readableBytes() > 0) {
+                    toName = extra.readUtf(35);
+                }
                 String fromName = "";
                 if(extra.readableBytes() > 0) {
                     fromName = extra.readUtf(35);

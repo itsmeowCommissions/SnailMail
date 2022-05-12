@@ -1,12 +1,9 @@
 package dev.itsmeow.snailmail.entity;
 
-import dev.itsmeow.imdlib.entity.EntityTypeContainer;
-import dev.itsmeow.imdlib.entity.interfaces.IContainerEntity;
 import dev.itsmeow.snailmail.SnailMail;
 import dev.itsmeow.snailmail.SnailMail.SnailBoxSavedData;
 import dev.itsmeow.snailmail.block.entity.SnailBoxBlockEntity;
 import dev.itsmeow.snailmail.init.ModBlocks;
-import dev.itsmeow.snailmail.init.ModEntities;
 import dev.itsmeow.snailmail.item.EnvelopeItem;
 import dev.itsmeow.snailmail.util.Location;
 import net.minecraft.core.BlockPos;
@@ -32,7 +29,7 @@ import net.minecraft.world.phys.Vec3;
 import java.util.EnumSet;
 import java.util.Optional;
 
-public class SnailManEntity extends PathfinderMob implements IContainerEntity<SnailManEntity> {
+public class SnailManEntity extends PathfinderMob {
 
     private static final EntityDataAccessor<Float> OPACITY = SynchedEntityData.defineId(SnailManEntity.class, EntityDataSerializers.FLOAT);
     private static final EntityDataAccessor<Float> YAW = SynchedEntityData.defineId(SnailManEntity.class, EntityDataSerializers.FLOAT);
@@ -145,16 +142,6 @@ public class SnailManEntity extends PathfinderMob implements IContainerEntity<Sn
         compound.putBoolean("failed", this.deliveryFailed);
     }
 
-    @Override
-    public SnailManEntity getImplementation() {
-        return this;
-    }
-
-    @Override
-    public EntityTypeContainer<? extends SnailManEntity> getContainer() {
-        return ModEntities.SNAIL_MAN;
-    }
-
     public static class MoveAwayFromSpawnGoal extends Goal {
 
         protected SnailManEntity snail;
@@ -243,7 +230,10 @@ public class SnailManEntity extends PathfinderMob implements IContainerEntity<Sn
 
         @Override
         public boolean canContinueToUse() {
-            return !taskReset && !snail.deliveryFailed && snail.position().distanceTo(to) > 1 || !snail.level.dimension().equals(snail.mailbox.getDimension());
+            if(taskReset) {
+                return false;
+            }
+            return !snail.deliveryFailed && snail.position().distanceTo(to) > 1 || !snail.level.dimension().equals(snail.mailbox.getDimension());
         }
 
         @Override

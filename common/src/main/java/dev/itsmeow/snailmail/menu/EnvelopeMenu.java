@@ -2,16 +2,15 @@ package dev.itsmeow.snailmail.menu;
 
 import dev.itsmeow.snailmail.block.SnailBoxBlock;
 import dev.itsmeow.snailmail.block.entity.SnailBoxBlockEntity;
-import dev.itsmeow.snailmail.init.ModItems;
 import dev.itsmeow.snailmail.init.ModMenus;
 import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.Container;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.AbstractContainerMenu;
-import net.minecraft.world.inventory.ChestMenu;
 import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.block.entity.BlockEntity;
 
 public abstract class EnvelopeMenu extends AbstractContainerMenu {
 
@@ -71,15 +70,22 @@ public abstract class EnvelopeMenu extends AbstractContainerMenu {
     }
 
     @Override
-    public void removed(Player playerIn) {
-        super.removed(playerIn);
-        if (!playerIn.level.isClientSide()){
-            BlockPos pos = SnailBoxBlock.lastClickedBox.get(playerIn.getUUID());
-            if (playerIn.level.getBlockEntity(pos) instanceof SnailBoxBlockEntity){
-                if (SnailBoxBlock.canOpen(playerIn.level, pos, playerIn)){
-                    ((SnailBoxBlockEntity) playerIn.level.getBlockEntity(pos)).openGUI((ServerPlayer) playerIn);
+    public void removed(Player player) {
+        super.removed(player);
+        if (!player.level.isClientSide()) {
+            player.getServer().execute(() -> {
+                BlockPos pos = returnPos;
+                BlockEntity blockEntity = player.level.getBlockEntity(pos);
+                if(!(blockEntity instanceof SnailBoxBlockEntity)) {
+                    pos = SnailBoxBlock.lastClickedBox.get(player.getUUID());
+                    blockEntity = player.level.getBlockEntity(pos);
                 }
-            }
+                if (blockEntity instanceof SnailBoxBlockEntity){
+                    if (SnailBoxBlock.canOpen(player.level, pos, player)){
+                        ((SnailBoxBlockEntity) player.level.getBlockEntity(pos)).openGUI((ServerPlayer) player);
+                    }
+                }
+            });
         }
     }
 

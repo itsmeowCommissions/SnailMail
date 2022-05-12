@@ -1,6 +1,5 @@
 package dev.itsmeow.snailmail;
 
-import dev.itsmeow.imdlib.IMDLib;
 import dev.itsmeow.snailmail.block.entity.SnailBoxBlockEntity;
 import dev.itsmeow.snailmail.init.*;
 import dev.itsmeow.snailmail.item.EnvelopeItem;
@@ -37,7 +36,6 @@ public class SnailMail {
     public static CreativeModeTab ITEM_GROUP = CreativeTabs.create(new ResourceLocation(MODID, "main"), () -> new ItemStack(ModItems.ENVELOPE_CLOSED.get()));;
 
     public static void construct() {
-        IMDLib.setRegistry(MODID);
         ModEntities.init();
         ModBlocks.init();
         ModItems.init();

@@ -1,5 +1,8 @@
 apply from: "https://maven.itsmeow.dev/scripts/architectury-fabric.gradle"
-apply from: "https://maven.itsmeow.dev/scripts/architectury-fabric-imdlib.gradle"
+
+loom {
+    accessWidenerPath = file("src/main/resources/snailmail.accessWidener")
+}
 
 repositories {
     maven {
