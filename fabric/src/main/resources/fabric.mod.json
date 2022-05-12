@@ -16,7 +16,8 @@
     "accessWidener": "snailmail.accessWidener",
     "entrypoints": {
         "main": ["dev.itsmeow.snailmail.SnailMailFabric"],
-        "client": ["dev.itsmeow.snailmail.client.SnailMailClientFabric"]
+        "client": ["dev.itsmeow.snailmail.client.SnailMailClientFabric"],
+        "modmenu": ["dev.itsmeow.snailmail.util.ModMenuCompat"]
     },
     "depends": {
         "minecraft": "1.16.5",

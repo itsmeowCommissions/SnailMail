@@ -1,13 +1,17 @@
 package dev.itsmeow.snailmail.block;
 
+import dev.itsmeow.snailmail.SnailMail;
 import dev.itsmeow.snailmail.block.entity.SnailBoxBlockEntity;
 import dev.itsmeow.snailmail.init.ModBlockEntities;
+import dev.itsmeow.snailmail.util.SnailMailCommonConfig;
 import net.minecraft.ChatFormatting;
 import net.minecraft.Util;
+import net.minecraft.client.Minecraft;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.network.chat.Style;
 import net.minecraft.network.chat.TranslatableComponent;
+import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
@@ -107,11 +111,22 @@ public class SnailBoxBlock extends Block implements SimpleWaterloggedBlock, Enti
 
     public static boolean canOpen(Level worldIn, BlockPos pos, Player player) {
         BlockEntity teB = worldIn.getBlockEntity(pos);
-        return teB != null && teB instanceof SnailBoxBlockEntity && isAccessibleFor((SnailBoxBlockEntity) teB, Player.createPlayerUUID(player.getGameProfile()));
+        return teB != null && teB instanceof SnailBoxBlockEntity && isAccessibleFor((SnailBoxBlockEntity) teB, player);
     }
 
-    public static boolean isAccessibleFor(SnailBoxBlockEntity te, UUID uuid) {
-        return (/*TODO !SnailMail.Configuration.get().LOCK_BOXES.get() ||*/ uuid.equals(te.getOwner()) || te.isMember(uuid));
+    public static boolean isAccessibleFor(SnailBoxBlockEntity te, Player player) {
+
+        if(!SnailMailCommonConfig.lockBoxes()) {
+            return true;
+        }
+        UUID uuid = Player.createPlayerUUID(player.getGameProfile());
+        if(uuid.equals(te.getOwner()) || te.isMember(uuid)) {
+            return true;
+        }
+        if(SnailMailCommonConfig.opBypassLock()) {
+            return player.hasPermissions(SnailMailCommonConfig.bypassLockOpLevel());
+        }
+        return false;
     }
 
 }

@@ -1,5 +1,12 @@
 apply from: "https://maven.itsmeow.dev/scripts/architectury-fabric.gradle"
 
+configurations {
+    shadowImplementation
+    implementation.extendsFrom shadowImplementation
+    shadowModApi
+    modApi.extendsFrom shadowModApi
+}
+
 loom {
     accessWidenerPath = file("src/main/resources/snailmail.accessWidener")
 }
@@ -18,13 +25,21 @@ repositories {
 }
 
 dependencies {
-    modRuntimeOnly("com.terraformersmc:modmenu:1.16.22") {
+    modImplementation("com.terraformersmc:modmenu:1.16.22") {
         transitive = false
     }
-    modRuntimeOnly ("curse.maven:cloth-config-319057:3559633") {
+    modApi("curse.maven:cloth-config-319057:3559633") {
         transitive = false
     }
     runtimeOnly("me.shedaniel.cloth:basic-math:0.6.0") {
         transitive = false
     }
+    shadowImplementation "me.zeroeightsix:fiber:0.23.0-SNAPSHOT"
+    shadowModApi ("me.shedaniel.cloth:fiber2cloth:3.2.0") {
+        transitive = false
+    }
+}
+
+shadowJar {
+    configurations = [project.configurations.shadowCommon, project.configurations.shadowImplementation, project.configurations.shadowModApi]
 }

@@ -5,6 +5,7 @@ import dev.itsmeow.snailmail.init.*;
 import dev.itsmeow.snailmail.item.EnvelopeItem;
 import dev.itsmeow.snailmail.util.BiMultiMap;
 import dev.itsmeow.snailmail.util.Location;
+import dev.itsmeow.snailmail.util.SnailMailCommonConfig;
 import me.shedaniel.architectury.event.events.BlockEvent;
 import me.shedaniel.architectury.event.events.ChunkEvent;
 import me.shedaniel.architectury.event.events.ExplosionEvent;
@@ -56,11 +57,9 @@ public class SnailMail {
         });
         BlockEvent.BREAK.register((level, pos, state, player, xp) -> {
             if(state.getBlock() == ModBlocks.SNAIL_BOX.get()) {
-                UUID uuid = Player.createPlayerUUID(player.getGameProfile());
                 BlockEntity teB = level.getBlockEntity(pos);
-                if(teB != null && teB instanceof SnailBoxBlockEntity) {
-                    UUID owner = ((SnailBoxBlockEntity) teB).getOwner();
-                    if(owner != null && !uuid.equals(owner) /*TODO && Configuration.get().PROTECT_BOX_DESTROY.get()*/) {
+                if(teB instanceof SnailBoxBlockEntity) {
+                    if(SnailMailCommonConfig.protectBoxDestroy() && !((SnailBoxBlockEntity) teB).canAccess(player)) {
                         return InteractionResult.FAIL;
                     } else {
                         SnailBoxSavedData.getData(level.getServer()).removeBoxRaw(new Location(level, pos));
@@ -250,32 +249,7 @@ public class SnailMail {
         }
 
     }
-/* TODO config
 
-    public static class Configuration {
-        public static ForgeConfigSpec SPEC = null;
-        protected static Configuration INSTANCE = null;
-
-        public static Configuration get() {
-            return INSTANCE;
-        }
-
-        public static ForgeConfigSpec initSpec() {
-            final Pair<Configuration, ForgeConfigSpec> specPair = new ForgeConfigSpec.Builder().configure(Configuration::new);
-            SPEC = specPair.getRight();
-            INSTANCE = specPair.getLeft();
-            return specPair.getRight();
-        }
-
-        public final ForgeConfigSpec.BooleanValue LOCK_BOXES;
-        public final ForgeConfigSpec.BooleanValue PROTECT_BOX_DESTROY;
-
-        protected Configuration(ForgeConfigSpec.Builder builder) {
-            LOCK_BOXES = builder.comment("Block snailboxes from being opened by non-owners").define("lock_boxes", true);
-            PROTECT_BOX_DESTROY = builder.comment("Protect snailboxes from being destroyed by non-owners").define("protect_box_destroy", true);
-        }
-    }
-*/
     public static void forceArea(ServerLevel world, BlockPos pos, boolean type) {
         world.setChunkForced(pos.getX() >> 4, pos.getZ() >> 4, type);
         world.setChunkForced(pos.getX() >> 4 + 1, pos.getZ() >> 4, type);

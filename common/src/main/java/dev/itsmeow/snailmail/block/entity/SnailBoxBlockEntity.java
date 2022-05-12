@@ -204,6 +204,6 @@ public class SnailBoxBlockEntity extends BlockEntity {
     }
 
     public boolean canAccess(ServerPlayer sender) {
-        return SnailBoxBlock.isAccessibleFor(this, Player.createPlayerUUID(sender.getGameProfile()));
+        return SnailBoxBlock.isAccessibleFor(this, sender);
     }
 }

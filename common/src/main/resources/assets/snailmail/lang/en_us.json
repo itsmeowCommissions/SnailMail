@@ -37,5 +37,10 @@
     "message.snailmail.noperm": "You don't have permission to open this snailbox.",
     "container.snailmail.snail_box.send": "Send",
     "container.snailmail.snail_box.textfield.name": "Box Name",
-    "container.snailmail.snail_box.open_envelope": "Open Envelope"
+    "container.snailmail.snail_box.open_envelope": "Open Envelope",
+    "config.snailmail": "Snail Mail Configuration",
+    "config.snailmail.lock_boxes": "Lock Snailboxes?",
+    "config.snailmail.protect_box_destroy": "Protect Snailboxes from Breaking?",
+    "config.snailmail.op_bypass_lock": "Can Ops Bypass Snailbox Locks?",
+    "config.snailmail.bypass_lock_op_level": "Required Op Level for Bypassing Snailbox Locks"
 }
