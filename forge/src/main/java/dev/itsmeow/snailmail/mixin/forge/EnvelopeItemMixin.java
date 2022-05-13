@@ -13,7 +13,6 @@ import net.minecraftforge.common.capabilities.ICapabilitySerializable;
 import net.minecraftforge.common.util.LazyOptional;
 import net.minecraftforge.items.CapabilityItemHandler;
 import net.minecraftforge.items.ItemStackHandler;
-import org.jetbrains.annotations.NotNull;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
@@ -43,7 +42,7 @@ public abstract class EnvelopeItemMixin extends Item {
         public EnvelopeCapabilityProvider(ItemStack stack, CompoundTag compound, boolean isOpen) {
             this.handler = new ItemStackHandler(isOpen ? 28 : 27) {
                 @Override
-                public boolean isItemValid(int slot, @NotNull ItemStack stack) {
+                public boolean isItemValid(int slot, ItemStack stack) {
                     if(slot == 27) {
                         return stack.getItem() == ModItems.STAMP.get();
                     }
