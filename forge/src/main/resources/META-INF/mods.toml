@@ -1,5 +1,5 @@
 modLoader="javafml"
-loaderVersion="[37,)"
+loaderVersion="[39,)"
 license="GNU LGPLv3"
 issueTrackerURL="https://github.com/itsmeowCommissions/SnailMail/issues"
 displayURL="https://www.curseforge.com/minecraft/mc-mods/snail-mail"
@@ -15,12 +15,12 @@ Send mail to your friends, snail style.'''
 [[dependencies.snailmail]]
     modId="forge"
     mandatory=true
-    versionRange="[37.1.0,)"
+    versionRange="[39.0.0,)"
     ordering="NONE"
     side="BOTH"
 [[dependencies.snailmail]]
     modId="architectury"
     mandatory=true
-    versionRange="[2.5.0,)"
+    versionRange="[3.9.0,)"
     ordering="NONE"
     side="BOTH"

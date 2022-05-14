@@ -18,7 +18,7 @@ public class ModMenuCompat implements ModMenuApi {
     @Override
     public ConfigScreenFactory<?> getModConfigScreenFactory() {
         Supplier<Supplier<ConfigScreenFactory<?>>> supplier = () -> ClothConfigScreenFactory::new;
-        return FabricLoader.getInstance().isModLoaded("cloth-config2") ? supplier.get().get() : screen -> null;
+        return FabricLoader.getInstance().isModLoaded("cloth-config") ? supplier.get().get() : screen -> null;
     }
 
     public static class ClothConfigScreenFactory implements ConfigScreenFactory<Screen> {

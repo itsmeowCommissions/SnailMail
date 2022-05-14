@@ -114,10 +114,9 @@ public class SnailBoxBlockEntity extends BlockEntity {
     }
 
     @Override
-    public CompoundTag save(CompoundTag compound) {
-        super.save(compound);
-        saveStorage(this, compound);
-        return compound;
+    protected void saveAdditional(CompoundTag compoundTag) {
+        super.saveAdditional(compoundTag);
+        saveStorage(this, compoundTag);
     }
 
     @ExpectPlatform

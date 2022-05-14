@@ -19,7 +19,6 @@ import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.PathfinderMob;
 import net.minecraft.world.entity.ai.goal.Goal;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
@@ -268,7 +267,7 @@ public class SnailManEntity extends PathfinderMob {
             BlockPos away = this.getAwayPos(getDirection());
             ServerLevel destWorld = snail.mailbox.getWorld(snail.getServer());
             BlockPos newPos = destWorld != null && destWorld.isLoaded(away) ? away : snail.mailbox.toBP();
-            if(destWorld != null && destWorld.hasChunk(newPos.getX() >> 4, newPos.getZ() >> 4) && destWorld.isPositionEntityTicking(new ChunkPos(newPos.getX() >> 4, newPos.getZ() >> 4))) {
+            if(destWorld != null && destWorld.hasChunk(newPos.getX() >> 4, newPos.getZ() >> 4) && destWorld.isPositionEntityTicking(newPos)) {
                 transportTo(snail, newPos, angle);
             } else {
                 // entity won't tick there, just do delivery without animation
@@ -365,7 +364,7 @@ public class SnailManEntity extends PathfinderMob {
             BlockPos away = this.getAwayPos(getDirection());
             ServerLevel destWorld = snail.fromMailbox.getWorld(snail.getServer());
             BlockPos newPos = destWorld.isLoaded(away) ? away : snail.fromMailbox.toBP();
-            if(destWorld.hasChunk(newPos.getX() >> 4, newPos.getZ() >> 4) && destWorld.isPositionEntityTicking(new ChunkPos(newPos.getX() >> 4, newPos.getZ() >> 4))) {
+            if(destWorld.hasChunk(newPos.getX() >> 4, newPos.getZ() >> 4) && destWorld.isPositionEntityTicking(newPos)) {
                 transportTo(snail, newPos, angle);
             } else {
                 // return instantly, somehow the original delivery chunk isn't ticking anymore
