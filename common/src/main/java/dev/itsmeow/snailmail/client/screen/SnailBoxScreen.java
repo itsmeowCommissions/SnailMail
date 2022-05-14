@@ -55,6 +55,7 @@ public class SnailBoxScreen extends AbstractContainerScreen<SnailBoxMenu> implem
                 ModNetwork.HANDLER.sendToServer(new OpenEnvelopeGUIPacket(menu.pos));
             }
         });
+        this.envelopeButton.active = this.menu.getSlot(27).getItem().getItem() == ModItems.ENVELOPE_OPEN.get();
         this.addRenderableWidget(envelopeButton);
         if(this.menu.isOwner) {
             this.addRenderableWidget(new Button(xStart + 88, yStart + 95, 82, 20, new TranslatableComponent("container.snailmail.snail_box.members"), (bt) -> {
