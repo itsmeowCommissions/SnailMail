@@ -5,3 +5,18 @@ loom {
         mixinConfig "snailmail.mixins.json", "snailmail-forge.mixins.json"
     }
 }
+
+repositories {
+    maven {
+        url = "https://cursemaven.com/"
+    }
+}
+
+dependencies {
+    modCompileOnly("curse.maven:autoreglib-250363:3642382") {
+        transitive = false
+    }
+    modCompileOnly("curse.maven:quark-243121:3740897") {
+        transitive = false
+    }
+}

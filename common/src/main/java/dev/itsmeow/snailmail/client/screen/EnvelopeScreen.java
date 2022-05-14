@@ -2,6 +2,7 @@ package dev.itsmeow.snailmail.client.screen;
 
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.PoseStack;
+import dev.architectury.platform.Platform;
 import dev.itsmeow.snailmail.block.entity.SnailBoxBlockEntity;
 import dev.itsmeow.snailmail.init.ModNetwork;
 import dev.itsmeow.snailmail.menu.EnvelopeMenu;
@@ -10,6 +11,9 @@ import dev.itsmeow.snailmail.network.SetEnvelopeNamePacket;
 import dev.itsmeow.snailmail.util.RandomUtil;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.components.EditBox;
+import net.minecraft.client.gui.components.Widget;
+import net.minecraft.client.gui.components.events.GuiEventListener;
+import net.minecraft.client.gui.narration.NarratableEntry;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
 import net.minecraft.client.renderer.GameRenderer;
 import net.minecraft.network.chat.Component;
@@ -99,7 +103,17 @@ public class EnvelopeScreen extends AbstractContainerScreen<EnvelopeMenu> {
     }
 
     @Override
-    protected void containerTick() {
+    protected <T extends GuiEventListener & Widget & NarratableEntry> T addRenderableWidget(T guiEventListener) {
+        if(Platform.isForge() && Platform.isModLoaded("quark")) {
+            if(SnailBoxScreen.checkButton(guiEventListener)) {
+                return null;
+            }
+        }
+        return super.addRenderableWidget(guiEventListener);
+    }
+
+    @Override
+    public void containerTick() {
         this.toField.tick();
         this.fromField.tick();
     }

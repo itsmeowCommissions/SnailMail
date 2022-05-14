@@ -2,6 +2,8 @@ package dev.itsmeow.snailmail.client.screen;
 
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.PoseStack;
+import dev.architectury.injectables.annotations.ExpectPlatform;
+import dev.architectury.platform.Platform;
 import dev.itsmeow.snailmail.init.ModItems;
 import dev.itsmeow.snailmail.init.ModNetwork;
 import dev.itsmeow.snailmail.menu.SnailBoxMenu;
@@ -16,6 +18,9 @@ import net.minecraft.client.gui.GuiComponent;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.components.Checkbox;
 import net.minecraft.client.gui.components.EditBox;
+import net.minecraft.client.gui.components.Widget;
+import net.minecraft.client.gui.components.events.GuiEventListener;
+import net.minecraft.client.gui.narration.NarratableEntry;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
 import net.minecraft.client.renderer.GameRenderer;
 import net.minecraft.network.chat.Component;
@@ -115,6 +120,21 @@ public class SnailBoxScreen extends AbstractContainerScreen<SnailBoxMenu> implem
         });
         this.nameField.setVisible(menu.isOwner);
         this.addRenderableWidget(this.nameField);
+    }
+
+    @Override
+    protected <T extends GuiEventListener & Widget & NarratableEntry> T addRenderableWidget(T guiEventListener) {
+        if(Platform.isForge() && Platform.isModLoaded("quark")) {
+            if(SnailBoxScreen.checkButton(guiEventListener)) {
+                return null;
+            }
+        }
+        return super.addRenderableWidget(guiEventListener);
+    }
+
+    @ExpectPlatform
+    public static <T extends GuiEventListener & Widget & NarratableEntry> boolean checkButton(T guiEventListener) {
+        return true;
     }
 
     @Override
