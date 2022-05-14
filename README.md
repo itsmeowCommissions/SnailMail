@@ -31,3 +31,5 @@ Fiber is Copyright FabLabsMC. No modifications were made to the original source.
 ### Jankson
 
 Snail Mail and Fiber include [Jankson](https://github.com/falkreon/Jankson), a JSON5/HJSON parser and processor, which is licensed under the [MIT License](https://github.com/falkreon/Jankson/blob/main/LICENSE).
+
+Jankson is Copyright Falkreon.
