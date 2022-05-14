@@ -1,17 +1,14 @@
 package dev.itsmeow.snailmail.block;
 
-import dev.itsmeow.snailmail.SnailMail;
 import dev.itsmeow.snailmail.block.entity.SnailBoxBlockEntity;
 import dev.itsmeow.snailmail.init.ModBlockEntities;
 import dev.itsmeow.snailmail.util.SnailMailCommonConfig;
 import net.minecraft.ChatFormatting;
 import net.minecraft.Util;
-import net.minecraft.client.Minecraft;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.network.chat.Style;
 import net.minecraft.network.chat.TranslatableComponent;
-import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
@@ -95,18 +92,19 @@ public class SnailBoxBlock extends Block implements SimpleWaterloggedBlock, Enti
 
     @Override
     public InteractionResult use(BlockState blockState, Level level, BlockPos pos, Player player, InteractionHand hand, BlockHitResult blockHitResult) {
-        if(!level.isClientSide() && level.getBlockEntity(pos) != null) {
-            if(canOpen(level, pos, player)) {
-                lastClickedBox.put(player.getUUID(), new BlockPos(pos));
-                ((SnailBoxBlockEntity) level.getBlockEntity(pos)).openGUI((ServerPlayer) player);
-                return InteractionResult.CONSUME;
-            } else {
-                if (hand == InteractionHand.MAIN_HAND)
+        if(level.isClientSide) {
+            return InteractionResult.SUCCESS;
+        } else {
+            if (level.getBlockEntity(pos) != null) {
+                if (canOpen(level, pos, player)) {
+                    lastClickedBox.put(player.getUUID(), new BlockPos(pos));
+                    ((SnailBoxBlockEntity) level.getBlockEntity(pos)).openGUI((ServerPlayer) player);
+                } else if (hand == InteractionHand.MAIN_HAND) {
                     player.sendMessage(new TranslatableComponent("message.snailmail.noperm").setStyle(Style.EMPTY.withColor(ChatFormatting.RED)), Util.NIL_UUID);
-                return InteractionResult.FAIL;
+                }
             }
+            return InteractionResult.CONSUME;
         }
-        return InteractionResult.PASS;
     }
 
     public static boolean canOpen(Level worldIn, BlockPos pos, Player player) {
