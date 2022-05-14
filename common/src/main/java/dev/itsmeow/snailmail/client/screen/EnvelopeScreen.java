@@ -7,10 +7,11 @@ import dev.itsmeow.snailmail.menu.EnvelopeMenu;
 import dev.itsmeow.snailmail.network.OpenSnailBoxGUIPacket;
 import dev.itsmeow.snailmail.network.SetEnvelopeNamePacket;
 import dev.itsmeow.snailmail.util.RandomUtil;
+import me.shedaniel.architectury.platform.Platform;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.components.AbstractWidget;
 import net.minecraft.client.gui.components.EditBox;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
-import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraft.resources.ResourceLocation;
@@ -95,6 +96,16 @@ public class EnvelopeScreen extends AbstractContainerScreen<EnvelopeMenu> {
         this.init(mc, x, y);
         this.toField.setValue(s);
         this.fromField.setValue(s2);
+    }
+
+    @Override
+    protected <T extends AbstractWidget> T addButton(T abstractWidget) {
+        if(Platform.isForge() && Platform.isModLoaded("quark")) {
+            if(SnailBoxScreen.checkButton(abstractWidget)) {
+                return null;
+            }
+        }
+        return super.addButton(abstractWidget);
     }
 
     @Override

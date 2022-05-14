@@ -1,6 +1,7 @@
 package dev.itsmeow.snailmail.client.screen;
 
 import com.mojang.blaze3d.vertex.PoseStack;
+import dev.architectury.injectables.annotations.ExpectPlatform;
 import dev.itsmeow.snailmail.init.ModItems;
 import dev.itsmeow.snailmail.init.ModNetwork;
 import dev.itsmeow.snailmail.menu.SnailBoxMenu;
@@ -10,8 +11,10 @@ import dev.itsmeow.snailmail.network.SendEnvelopePacket.Type;
 import dev.itsmeow.snailmail.network.UpdateSnailBoxPacket;
 import dev.itsmeow.snailmail.util.BoxData;
 import dev.itsmeow.snailmail.util.RandomUtil;
+import me.shedaniel.architectury.platform.Platform;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiComponent;
+import net.minecraft.client.gui.components.AbstractWidget;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.components.Checkbox;
 import net.minecraft.client.gui.components.EditBox;
@@ -21,6 +24,8 @@ import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.item.ItemStack;
+
+import java.util.List;
 
 public class SnailBoxScreen extends AbstractContainerScreen<SnailBoxMenu> implements IEnvelopePacketReceiver {
     public static final ResourceLocation GUI_TEXTURE = new ResourceLocation("snailmail:textures/gui/snail_box.png");
@@ -112,6 +117,22 @@ public class SnailBoxScreen extends AbstractContainerScreen<SnailBoxMenu> implem
         });
         this.nameField.setVisible(menu.isOwner);
         this.children.add(this.nameField);
+
+    }
+
+    @Override
+    protected <T extends AbstractWidget> T addButton(T abstractWidget) {
+        if(Platform.isForge() && Platform.isModLoaded("quark")) {
+            if(checkButton(abstractWidget)) {
+                return null;
+            }
+        }
+        return super.addButton(abstractWidget);
+    }
+
+    @ExpectPlatform
+    public static <T extends AbstractWidget> boolean checkButton(T button) {
+        return true;
     }
 
     @Override

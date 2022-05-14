@@ -4,10 +4,14 @@ import dev.itsmeow.snailmail.SnailMail;
 import dev.itsmeow.snailmail.util.forge.SnailMailCommonConfigImpl;
 import me.shedaniel.architectury.platform.forge.EventBuses;
 import net.minecraftforge.eventbus.api.IEventBus;
+import net.minecraftforge.fml.ModList;
 import net.minecraftforge.fml.ModLoadingContext;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.config.ModConfig;
 import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
+import vazkii.quark.base.handler.GeneralConfig;
+
+import java.util.function.Supplier;
 
 @Mod(value = SnailMail.MODID)
 public class SnailMailForge {
@@ -17,6 +21,17 @@ public class SnailMailForge {
         EventBuses.registerModEventBus(SnailMail.MODID, modBus);
         SnailMail.construct();
         ModLoadingContext.get().registerConfig(ModConfig.Type.COMMON, SnailMailCommonConfigImpl.Configuration.initSpec());
+        if(ModList.get().isLoaded("quark")) {
+            Supplier<Runnable> target = () -> () -> {
+
+            };
+            target.get().run();
+        }
     }
 
+    private static class QuarkHandler {
+        public static void removeScreens() {
+
+        }
+    }
 }
