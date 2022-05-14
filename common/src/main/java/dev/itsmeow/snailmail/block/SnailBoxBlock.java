@@ -92,18 +92,19 @@ public class SnailBoxBlock extends Block implements SimpleWaterloggedBlock, Enti
 
     @Override
     public InteractionResult use(BlockState blockState, Level level, BlockPos pos, Player player, InteractionHand hand, BlockHitResult blockHitResult) {
-        if(!level.isClientSide() && level.getBlockEntity(pos) != null) {
-            if(canOpen(level, pos, player)) {
-                lastClickedBox.put(player.getUUID(), new BlockPos(pos));
-                ((SnailBoxBlockEntity) level.getBlockEntity(pos)).openGUI((ServerPlayer) player);
-                return InteractionResult.CONSUME;
-            } else {
-                if (hand == InteractionHand.MAIN_HAND)
+        if(level.isClientSide) {
+            return InteractionResult.SUCCESS;
+        } else {
+            if (level.getBlockEntity(pos) != null) {
+                if (canOpen(level, pos, player)) {
+                    lastClickedBox.put(player.getUUID(), new BlockPos(pos));
+                    ((SnailBoxBlockEntity) level.getBlockEntity(pos)).openGUI((ServerPlayer) player);
+                } else if (hand == InteractionHand.MAIN_HAND) {
                     player.sendMessage(new TranslatableComponent("message.snailmail.noperm").setStyle(Style.EMPTY.withColor(ChatFormatting.RED)), Util.NIL_UUID);
-                return InteractionResult.FAIL;
+                }
             }
+            return InteractionResult.CONSUME;
         }
-        return InteractionResult.PASS;
     }
 
     public static boolean canOpen(Level worldIn, BlockPos pos, Player player) {
