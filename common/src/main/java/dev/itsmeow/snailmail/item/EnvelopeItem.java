@@ -1,15 +1,14 @@
 package dev.itsmeow.snailmail.item;
 
 import dev.architectury.injectables.annotations.ExpectPlatform;
+import dev.architectury.registry.menu.MenuRegistry;
 import dev.itsmeow.snailmail.SnailMail;
 import dev.itsmeow.snailmail.init.ModItems;
 import dev.itsmeow.snailmail.menu.EnvelopeMenu;
-import dev.itsmeow.snailmail.menu.SnailBoxMenu;
-import me.shedaniel.architectury.registry.MenuRegistry;
-import me.shedaniel.architectury.utils.NbtType;
 import net.minecraft.ChatFormatting;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.Tag;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.Style;
@@ -44,13 +43,13 @@ public class EnvelopeItem extends Item {
 
     @Override
     public void appendHoverText(ItemStack stack, Level worldIn, List<Component> tooltip, TooltipFlag flagIn) {
-        if(stack.hasTag() && stack.getTag().contains("AddressedTo", NbtType.STRING) && !stack.getTag().getString("AddressedTo").isEmpty()) {
+        if(stack.hasTag() && stack.getTag().contains("AddressedTo", Tag.TAG_STRING) && !stack.getTag().getString("AddressedTo").isEmpty()) {
             tooltip.add(new TranslatableComponent("tooltip.snailmail.to", new TextComponent(stack.getTag().getString("AddressedTo")).setStyle(Style.EMPTY.applyFormat(ChatFormatting.GRAY))).setStyle(Style.EMPTY.applyFormat(ChatFormatting.GREEN).withItalic(true)));
         }
-        if(stack.hasTag() && stack.getTag().contains("AddressedFrom", NbtType.STRING) && !stack.getTag().getString("AddressedFrom").isEmpty()) {
+        if(stack.hasTag() && stack.getTag().contains("AddressedFrom", Tag.TAG_STRING) && !stack.getTag().getString("AddressedFrom").isEmpty()) {
             tooltip.add(new TranslatableComponent("tooltip.snailmail.from", new TextComponent(stack.getTag().getString("AddressedFrom")).setStyle(Style.EMPTY.applyFormat(ChatFormatting.GRAY))).setStyle(Style.EMPTY.applyFormat(ChatFormatting.RED).withItalic(true)));
         }
-        if(stack.hasTag() && stack.getTag().contains("delivery_failed", NbtType.BYTE) && stack.getTag().getBoolean("delivery_failed")) {
+        if(stack.hasTag() && stack.getTag().contains("delivery_failed", Tag.TAG_BYTE) && stack.getTag().getBoolean("delivery_failed")) {
             tooltip.add(new TranslatableComponent("tooltip.snailmail.delivery_failed").setStyle(Style.EMPTY.applyFormat(ChatFormatting.RED).withBold(true)));
         }
         if(stack.getItem() == ModItems.ENVELOPE_OPEN.get()) {
@@ -140,10 +139,10 @@ public class EnvelopeItem extends Item {
         MenuRegistry.openExtendedMenu(player, namedProvider, buf -> {
             buf.writeBlockPos(pos);
             if(stack.hasTag()) {
-                if(stack.getTag().contains("AddressedTo", NbtType.STRING)) {
+                if(stack.getTag().contains("AddressedTo", Tag.TAG_STRING)) {
                     buf.writeUtf(stack.getTag().getString("AddressedTo"), 35);
                 }
-                if(stack.getTag().contains("AddressedFrom", NbtType.STRING)) {
+                if(stack.getTag().contains("AddressedFrom", Tag.TAG_STRING)) {
                     buf.writeUtf(stack.getTag().getString("AddressedFrom"), 35);
                 }
             }

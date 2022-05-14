@@ -1,17 +1,14 @@
 package dev.itsmeow.snailmail.block;
 
-import dev.itsmeow.snailmail.SnailMail;
 import dev.itsmeow.snailmail.block.entity.SnailBoxBlockEntity;
 import dev.itsmeow.snailmail.init.ModBlockEntities;
 import dev.itsmeow.snailmail.util.SnailMailCommonConfig;
 import net.minecraft.ChatFormatting;
 import net.minecraft.Util;
-import net.minecraft.client.Minecraft;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.network.chat.Style;
 import net.minecraft.network.chat.TranslatableComponent;
-import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
@@ -78,8 +75,8 @@ public class SnailBoxBlock extends Block implements SimpleWaterloggedBlock, Enti
     }
 
     @Override
-    public BlockEntity newBlockEntity(BlockGetter blockGetter) {
-        return ModBlockEntities.SNAIL_BOX.get().create();
+    public BlockEntity newBlockEntity(BlockPos blockPos, BlockState blockState) {
+        return new SnailBoxBlockEntity(blockPos, blockState);
     }
 
     @Override

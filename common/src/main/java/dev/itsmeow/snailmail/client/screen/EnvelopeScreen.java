@@ -1,5 +1,6 @@
 package dev.itsmeow.snailmail.client.screen;
 
+import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.PoseStack;
 import dev.itsmeow.snailmail.block.entity.SnailBoxBlockEntity;
 import dev.itsmeow.snailmail.init.ModNetwork;
@@ -10,7 +11,7 @@ import dev.itsmeow.snailmail.util.RandomUtil;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.components.EditBox;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
-import net.minecraft.core.BlockPos;
+import net.minecraft.client.renderer.GameRenderer;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraft.resources.ResourceLocation;
@@ -59,7 +60,7 @@ public class EnvelopeScreen extends AbstractContainerScreen<EnvelopeMenu> {
         this.toField.setResponder(newText -> {
             ModNetwork.HANDLER.sendToServer(new SetEnvelopeNamePacket(SetEnvelopeNamePacket.Type.TO, newText));
         });
-        this.children.add(this.toField);
+        this.addRenderableWidget(this.toField);
 
         this.fromField = new EditBox(this.font, i + 111, j + 84, 58, 10, new TranslatableComponent("container.snailmail.envelope.textfield.from")) {
             @Override
@@ -85,7 +86,7 @@ public class EnvelopeScreen extends AbstractContainerScreen<EnvelopeMenu> {
         this.fromField.setResponder(newText -> {
             ModNetwork.HANDLER.sendToServer(new SetEnvelopeNamePacket(SetEnvelopeNamePacket.Type.FROM, newText));
         });
-        this.children.add(this.fromField);
+        this.addRenderableWidget(this.fromField);
     }
 
     @Override
@@ -98,7 +99,7 @@ public class EnvelopeScreen extends AbstractContainerScreen<EnvelopeMenu> {
     }
 
     @Override
-    public void tick() {
+    protected void containerTick() {
         this.toField.tick();
         this.fromField.tick();
     }
@@ -141,16 +142,18 @@ public class EnvelopeScreen extends AbstractContainerScreen<EnvelopeMenu> {
 
     @Override
     protected void renderBg(PoseStack stack, float partialTicks, int x, int y) {
+        RenderSystem.setShader(GameRenderer::getPositionTexShader);
+        RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
+        RenderSystem.setShaderTexture(0, GUI_TEXTURE);
         int xStart = (this.width - this.imageWidth) / 2;
         int yStart = (this.height - this.imageHeight) / 2;
-        Minecraft.getInstance().getTextureManager().bind(GUI_TEXTURE);
         this.blit(stack, xStart, yStart, 0, 0, this.imageWidth, this.imageHeight);
     }
 
     @Override
     protected void renderLabels(PoseStack stack, int x, int y) {
         this.font.draw(stack, this.title, 8, 11, 0x404040);
-        this.font.draw(stack, this.inventory.getDisplayName(), 8, 84, 0x404040);
+        this.font.draw(stack, this.playerInventoryTitle, 8, 84, 0x404040);
     }
 
     @Override

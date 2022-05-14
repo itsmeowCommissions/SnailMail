@@ -1,24 +1,23 @@
 package dev.itsmeow.snailmail;
 
+import dev.architectury.event.EventResult;
+import dev.architectury.event.events.common.BlockEvent;
+import dev.architectury.event.events.common.ChunkEvent;
+import dev.architectury.event.events.common.ExplosionEvent;
+import dev.architectury.registry.CreativeTabRegistry;
 import dev.itsmeow.snailmail.block.entity.SnailBoxBlockEntity;
 import dev.itsmeow.snailmail.init.*;
 import dev.itsmeow.snailmail.item.EnvelopeItem;
 import dev.itsmeow.snailmail.util.BiMultiMap;
 import dev.itsmeow.snailmail.util.Location;
 import dev.itsmeow.snailmail.util.SnailMailCommonConfig;
-import me.shedaniel.architectury.event.events.BlockEvent;
-import me.shedaniel.architectury.event.events.ChunkEvent;
-import me.shedaniel.architectury.event.events.ExplosionEvent;
-import me.shedaniel.architectury.registry.CreativeTabs;
-import me.shedaniel.architectury.utils.NbtType;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.StringTag;
+import net.minecraft.nbt.Tag;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerLevel;
-import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.CreativeModeTab;
 import net.minecraft.world.item.ItemStack;
@@ -27,14 +26,13 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.saveddata.SavedData;
-import net.minecraft.world.level.storage.DimensionDataStorage;
 
 import java.util.*;
 
 public class SnailMail {
 
     public static final String MODID = "snailmail";
-    public static CreativeModeTab ITEM_GROUP = CreativeTabs.create(new ResourceLocation(MODID, "main"), () -> new ItemStack(ModItems.ENVELOPE_CLOSED.get()));;
+    public static CreativeModeTab ITEM_GROUP = CreativeTabRegistry.create(new ResourceLocation(MODID, "main"), () -> new ItemStack(ModItems.ENVELOPE_CLOSED.get()));;
 
     public static void construct() {
         ModEntities.init();
@@ -48,25 +46,25 @@ public class SnailMail {
                 UUID uuid = Player.createPlayerUUID(((Player) entity).getGameProfile());
                 BlockEntity teB = level.getBlockEntity(pos);
                 if(teB != null && teB instanceof SnailBoxBlockEntity) {
-                    Set<Location> box = SnailBoxSavedData.getData(level.getServer()).getBoxes(uuid);
+                    Set<Location> box = SnailBoxSavedData.getOrCreate(level).getBoxes(uuid);
                     int size = box == null ? 0 : box.size();
                     ((SnailBoxBlockEntity) teB).initializeOwner(uuid, ((Player) entity).getGameProfile().getName() + " Snailbox #" + (size + 1), false);
                 }
             }
-            return InteractionResult.PASS;
+            return EventResult.pass();
         });
         BlockEvent.BREAK.register((level, pos, state, player, xp) -> {
             if(state.getBlock() == ModBlocks.SNAIL_BOX.get()) {
                 BlockEntity teB = level.getBlockEntity(pos);
                 if(teB instanceof SnailBoxBlockEntity) {
                     if(SnailMailCommonConfig.protectBoxDestroy() && !((SnailBoxBlockEntity) teB).canAccess(player)) {
-                        return InteractionResult.FAIL;
+                        return EventResult.interruptFalse();
                     } else {
-                        SnailBoxSavedData.getData(level.getServer()).removeBoxRaw(new Location(level, pos));
+                        SnailBoxSavedData.getOrCreate(level).removeBoxRaw(new Location(level, pos));
                     }
                 }
             }
-            return InteractionResult.PASS;
+            return EventResult.pass();
         });
         ExplosionEvent.DETONATE.register((level, explosion, affected) -> {
             ArrayList<BlockPos> list = new ArrayList<>();
@@ -81,7 +79,7 @@ public class SnailMail {
         });
         ChunkEvent.LOAD_DATA.register((chunk, level, nbt) -> {
             ChunkPos cPos = chunk.getPos();
-            Location[] posL = SnailBoxSavedData.getData(level.getServer()).getAllBoxes().toArray(new Location[0]);
+            Location[] posL = SnailBoxSavedData.getOrCreate(level).getAllBoxes().toArray(new Location[0]);
             for(int i = 0; i < posL.length; i++) {
                 Location loc = posL[i];
                 if(loc.getDimension().equals(level.dimension())) {
@@ -89,7 +87,7 @@ public class SnailMail {
                         if(cPos.getMinBlockZ() <= loc.getZ() && cPos.getMaxBlockZ() >= loc.getZ()) {
                             BlockState state = chunk.getBlockState(loc.toBP());
                             if(state.getBlock() != ModBlocks.SNAIL_BOX.get()) {
-                                SnailBoxSavedData.getData(level.getServer()).removeBoxRaw(loc);
+                                SnailBoxSavedData.getOrCreate(level).removeBoxRaw(loc);
                             }
                         }
                     }
@@ -100,13 +98,23 @@ public class SnailMail {
 
     public static class SnailBoxSavedData extends SavedData {
 
-        private final BiMultiMap<UUID, Location> snailBoxes = new BiMultiMap<>();
-        private final BiMultiMap<UUID, Location> members = new BiMultiMap<>();
-        private final Map<Location, String> names = new HashMap<>();
-        private final Map<Location, Boolean> publicM = new HashMap<>();
+        private final BiMultiMap<UUID, Location> snailBoxes;
+        private final BiMultiMap<UUID, Location> members;
+        private final Map<Location, String> names;
+        private final Map<Location, Boolean> publicM;
 
         public SnailBoxSavedData() {
-            super("SNAIL_BOXES");
+            snailBoxes = new BiMultiMap<>();
+            members = new BiMultiMap<>();
+            names = new HashMap<>();
+            publicM = new HashMap<>();
+        }
+
+        public SnailBoxSavedData(BiMultiMap<UUID, Location> snailBoxes, BiMultiMap<UUID, Location> members, Map<Location, String> names, Map<Location, Boolean> publicM) {
+            this.snailBoxes = snailBoxes;
+            this.members = members;
+            this.names = names;
+            this.publicM = publicM;
         }
 
         public void updateAll(UUID owner, String name, boolean publicBox, Set<UUID> membersIn, Location pos) {
@@ -200,27 +208,6 @@ public class SnailMail {
         }
 
         @Override
-        public void load(CompoundTag nbt) {
-            for(String key : nbt.getAllKeys()) {
-                UUID uuid = UUID.fromString(key);
-                if(uuid != null && nbt.contains(key, NbtType.LIST)) {
-                    ListTag list = nbt.getList(key, NbtType.COMPOUND);
-                    for(int i = 0; i < list.size(); i++) {
-                        CompoundTag comp = list.getCompound(i);
-                        Location pos = Location.read(comp);
-                        snailBoxes.put(uuid, pos);
-                        names.put(pos, comp.getString("name"));
-                        publicM.put(pos, comp.getBoolean("public"));
-                        ListTag mList = comp.getList("members", NbtType.STRING);
-                        for(int j = 0; j < mList.size(); j++) {
-                            members.put(UUID.fromString(mList.getString(j)), pos);
-                        }
-                    }
-                }
-            }
-        }
-
-        @Override
         public CompoundTag save(CompoundTag compound) {
             snailBoxes.getKeysToValues().keySet().forEach(key -> {
                 ListTag list = new ListTag();
@@ -241,11 +228,31 @@ public class SnailMail {
             return compound;
         }
 
-        public static SnailBoxSavedData getData(MinecraftServer server) {
-            ServerLevel world = server.getLevel(Level.OVERWORLD);
-            DimensionDataStorage data = world.getDataStorage();
-            SnailBoxSavedData a = data.computeIfAbsent(SnailBoxSavedData::new, "SNAIL_BOXES");
-            return a;
+        public static SnailBoxSavedData getOrCreate(Level level) {
+            return level.getServer().getLevel(Level.OVERWORLD).getDataStorage().computeIfAbsent(compoundTag -> {
+                BiMultiMap<UUID, Location> snailBoxes = new BiMultiMap<>();
+                BiMultiMap<UUID, Location> members = new BiMultiMap<>();
+                Map<Location, String> names = new HashMap<>();
+                Map<Location, Boolean> publicM = new HashMap<>();
+                for(String key : compoundTag.getAllKeys()) {
+                    UUID uuid = UUID.fromString(key);
+                    if(uuid != null && compoundTag.contains(key, Tag.TAG_LIST)) {
+                        ListTag list = compoundTag.getList(key, Tag.TAG_COMPOUND);
+                        for(int i = 0; i < list.size(); i++) {
+                            CompoundTag comp = list.getCompound(i);
+                            Location pos = Location.read(comp);
+                            snailBoxes.put(uuid, pos);
+                            names.put(pos, comp.getString("name"));
+                            publicM.put(pos, comp.getBoolean("public"));
+                            ListTag mList = comp.getList("members", Tag.TAG_STRING);
+                            for(int j = 0; j < mList.size(); j++) {
+                                members.put(UUID.fromString(mList.getString(j)), pos);
+                            }
+                        }
+                    }
+                }
+                return new SnailBoxSavedData(snailBoxes, members, names, publicM);
+            }, SnailBoxSavedData::new, "SNAIL_BOXES");
         }
 
     }

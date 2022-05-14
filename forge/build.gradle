@@ -2,6 +2,6 @@ apply from: "https://maven.itsmeow.dev/scripts/architectury-forge.gradle"
 
 loom {
     forge {
-        mixinConfig "snailmail-forge.mixins.json"
+        mixinConfig "snailmail.mixins.json", "snailmail-forge.mixins.json"
     }
 }

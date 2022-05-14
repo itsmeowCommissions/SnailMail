@@ -2,13 +2,13 @@ package dev.itsmeow.snailmail.block.entity;
 
 import com.mojang.authlib.GameProfile;
 import dev.architectury.injectables.annotations.ExpectPlatform;
+import dev.architectury.registry.menu.MenuRegistry;
 import dev.itsmeow.snailmail.SnailMail.SnailBoxSavedData;
 import dev.itsmeow.snailmail.block.SnailBoxBlock;
 import dev.itsmeow.snailmail.init.ModBlockEntities;
 import dev.itsmeow.snailmail.init.ModBlocks;
 import dev.itsmeow.snailmail.menu.SnailBoxMenu;
 import dev.itsmeow.snailmail.util.Location;
-import me.shedaniel.architectury.registry.MenuRegistry;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.FriendlyByteBuf;
@@ -26,6 +26,7 @@ import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 
 import java.util.HashSet;
+import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
 
@@ -34,12 +35,12 @@ public class SnailBoxBlockEntity extends BlockEntity {
     public static final int SLOT_COUNT = 28;
     public static final Component TITLE = new TranslatableComponent("container.snailmail.snail_box");
 
-    public SnailBoxBlockEntity() {
-        super(ModBlockEntities.SNAIL_BOX.get());
+    public SnailBoxBlockEntity(BlockPos blockPos, BlockState blockState) {
+        super(ModBlockEntities.SNAIL_BOX.get(), blockPos, blockState);
     }
 
     protected SnailBoxSavedData data() {
-        return SnailBoxSavedData.getData(this.getLevel().getServer());
+        return SnailBoxSavedData.getOrCreate(this.getLevel());
     }
 
     public boolean isPublic() {
@@ -89,33 +90,27 @@ public class SnailBoxBlockEntity extends BlockEntity {
     }
 
     @Override
-    public void setLevelAndPosition(Level newWorld, BlockPos newPos) {
-        if(worldPosition != null && level != null && (newWorld != level || newPos != worldPosition)) {
-            data().moveBox(this.getLocation(), new Location(newWorld, newPos));
+    public void setLevel(Level newLevel) {
+        if(level != null && (newLevel != level)) {
+            data().moveBox(this.getLocation(), new Location(newLevel, worldPosition));
         }
-        super.setLevelAndPosition(newWorld, newPos);
+        super.setLevel(newLevel);
     }
 
+    @SuppressWarnings("deprecation")
     @Override
-    public void setPosition(BlockPos newPos) {
-        if(worldPosition != null && level != null && newPos != worldPosition) {
-            data().moveBox(this.getLocation(), new Location(level, newPos));
-        }
-        super.setPosition(newPos);
-    }
-
-    @Override
-    public void clearCache() {
+    public void setBlockState(BlockState blockState) {
+        super.setBlockState(blockState);
         // remove if air
-        if(!this.getLevel().isClientSide && level.isLoaded(this.getBlockPos()) && level.getBlockState(this.getBlockPos()).getBlock() != ModBlocks.SNAIL_BOX.get()) {
-            SnailBoxSavedData.getData(this.getLevel().getServer()).removeBoxRaw(this.getLocation());
+        if(this.hasLevel() && !this.getLevel().isClientSide() && blockState.getBlock() != ModBlocks.SNAIL_BOX.get()) {
+            SnailBoxSavedData.getOrCreate(this.getLevel()).removeBoxRaw(this.getLocation());
         }
     }
 
     @Override
-    public void load(BlockState state, CompoundTag compound) {
-        super.load(state, compound);
-        loadStorage(this, compound);
+    public void load(CompoundTag compoundTag) {
+        super.load(compoundTag);
+        loadStorage(this, compoundTag);
     }
 
     @Override
@@ -148,9 +143,9 @@ public class SnailBoxBlockEntity extends BlockEntity {
                 Set<String> usernames = new HashSet<String>();
 
                 for(UUID member : this.getMembers()) {
-                    GameProfile profile = player.getServer().getProfileCache().get(member);
-                    if(profile != null && profile.getName() != null && !profile.getName().isEmpty()) {
-                        usernames.add(profile.getName());
+                    Optional<GameProfile> profile = player.getServer().getProfileCache().get(member);
+                    if(profile.isPresent() && profile.get().getName() != null && !profile.get().getName().isEmpty()) {
+                        usernames.add(profile.get().getName());
                     } else {
                         usernames.add(member.toString());
                     }

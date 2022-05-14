@@ -1,6 +1,8 @@
 package dev.itsmeow.snailmail.network;
 
 import com.mojang.authlib.GameProfile;
+import dev.architectury.networking.NetworkManager;
+import dev.architectury.utils.Env;
 import dev.itsmeow.snailmail.SnailMail;
 import dev.itsmeow.snailmail.SnailMail.SnailBoxSavedData;
 import dev.itsmeow.snailmail.block.entity.SnailBoxBlockEntity;
@@ -14,8 +16,6 @@ import dev.itsmeow.snailmail.item.EnvelopeItem;
 import dev.itsmeow.snailmail.menu.SnailBoxMenu;
 import dev.itsmeow.snailmail.util.BoxData;
 import dev.itsmeow.snailmail.util.Location;
-import me.shedaniel.architectury.networking.NetworkManager;
-import me.shedaniel.architectury.utils.Env;
 import net.minecraft.client.Minecraft;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.FriendlyByteBuf;
@@ -26,10 +26,7 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
-import java.util.UUID;
+import java.util.*;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
@@ -98,12 +95,12 @@ public class SendEnvelopePacket {
                                     reply(ctx, Type.WAIT);
                                     // move to another thread so as not to block server main thread
                                     new Thread(() -> {
-                                        GameProfile prof = sender.getServer().getProfileCache().get(to);
+                                        Optional<GameProfile> prof = sender.getServer().getProfileCache().get(to);
                                         // back to server main thread!
                                         ctx.get().queue(() -> {
-                                            if(prof != null && prof.getId() != null) {
-                                                UUID uuid = prof.getId();
-                                                SnailBoxSavedData data = SnailBoxSavedData.getData(sender.getServer());
+                                            if(prof.isPresent() && prof.get().getId() != null) {
+                                                UUID uuid = prof.get().getId();
+                                                SnailBoxSavedData data = SnailBoxSavedData.getOrCreate(sender.getLevel());
                                                 Set<Location> boxPos = data.getBoxes(uuid);
                                                 Set<BoxData> boxes = new HashSet<BoxData>();
                                                 for(Location pos : boxPos) {
@@ -151,7 +148,7 @@ public class SendEnvelopePacket {
                                                                             reply(ctx, Type.SUCCESS);
                                                                         } else {
                                                                             reply(ctx, Type.BOX_NO_EXIST);
-                                                                            SnailBoxSavedData.getData(sender.getServer()).removeBoxRaw(selectFinal);
+                                                                            SnailBoxSavedData.getOrCreate(sender.getLevel()).removeBoxRaw(selectFinal);
                                                                         }
                                                                     }
                                                                 });

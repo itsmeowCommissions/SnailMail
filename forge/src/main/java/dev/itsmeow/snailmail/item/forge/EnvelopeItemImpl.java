@@ -4,8 +4,8 @@ import dev.itsmeow.snailmail.init.ModItems;
 import dev.itsmeow.snailmail.item.EnvelopeItem;
 import dev.itsmeow.snailmail.menu.EnvelopeMenu;
 import dev.itsmeow.snailmail.menu.forge.EnvelopeMenuForge;
-import me.shedaniel.architectury.utils.NbtType;
 import net.minecraft.core.BlockPos;
+import net.minecraft.nbt.Tag;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
@@ -55,7 +55,7 @@ public class EnvelopeItemImpl {
     }
 
     protected static void copyTagString(ItemStack original, ItemStack newStack, String key) {
-        if(original.hasTag() && original.getTag().contains(key, NbtType.STRING)) {
+        if(original.hasTag() && original.getTag().contains(key, Tag.TAG_STRING)) {
             EnvelopeItem.putStringChecked(newStack, key, original.getTag().getString(key));
         }
     }

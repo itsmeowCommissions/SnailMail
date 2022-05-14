@@ -1,5 +1,6 @@
 package dev.itsmeow.snailmail.client.screen;
 
+import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.PoseStack;
 import dev.itsmeow.snailmail.init.ModItems;
 import dev.itsmeow.snailmail.item.EnvelopeItem;
@@ -9,6 +10,7 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiComponent;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.screens.Screen;
+import net.minecraft.client.renderer.GameRenderer;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.TextComponent;
 import net.minecraft.network.chat.TranslatableComponent;
@@ -34,7 +36,7 @@ public class SnailBoxModalScreen extends Screen implements IEnvelopePacketReceiv
     @Override
     protected void init() {
         super.init();
-        this.addButton(new Button((this.width - 200) / 2, this.height / 2 + 15, 200, 20, new TranslatableComponent("modal.snailmail.close"), btn -> {
+        this.addRenderableWidget(new Button((this.width - 200) / 2, this.height / 2 + 15, 200, 20, new TranslatableComponent("modal.snailmail.close"), btn -> {
             Minecraft.getInstance().setScreen(parent);
         }));
     }
@@ -46,7 +48,9 @@ public class SnailBoxModalScreen extends Screen implements IEnvelopePacketReceiv
         int modalYSize = 88;
         int modalXStart = (this.width - modalXSize) / 2;
         int modalYStart = (this.height - modalYSize) / 2;
-        Minecraft.getInstance().getTextureManager().bind(MODAL_TEXTURE);
+        RenderSystem.setShader(GameRenderer::getPositionTexShader);
+        RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
+        RenderSystem.setShaderTexture(0, MODAL_TEXTURE);
         this.blit(stack, modalXStart, modalYStart, 0, 0, modalXSize, modalYSize);
         if(type != Type.TO_SERVER && type != Type.WAIT) {
             String arg = "";

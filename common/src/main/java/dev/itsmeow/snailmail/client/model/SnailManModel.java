@@ -5,133 +5,88 @@ import com.mojang.blaze3d.vertex.VertexConsumer;
 import dev.itsmeow.snailmail.entity.SnailManEntity;
 import net.minecraft.client.model.EntityModel;
 import net.minecraft.client.model.geom.ModelPart;
+import net.minecraft.client.model.geom.PartPose;
+import net.minecraft.client.model.geom.builders.*;
 
 public class SnailManModel extends EntityModel<SnailManEntity> {
+
     public ModelPart body1;
     public ModelPart shell;
-    public ModelPart tail;
-    public ModelPart body2;
     public ModelPart harness;
     public ModelPart chestLeftSmall;
     public ModelPart chestLeftBig;
     public ModelPart chestRightSmall;
     public ModelPart chestRightBig;
     public ModelPart chestBack;
-    public ModelPart seat;
     public ModelPart chestFront;
+    public ModelPart seat;
     public ModelPart flagPole;
     public ModelPart flag;
+    public ModelPart tail;
+    public ModelPart body2;
     public ModelPart head;
-    public ModelPart strapLeft;
-    public ModelPart strapRight;
     public ModelPart eyeLeft;
     public ModelPart eyeRight;
     public ModelPart nubRight;
     public ModelPart nubLeft;
+    public ModelPart strapLeft;
+    public ModelPart strapRight;
     private float opacity;
 
-    public SnailManModel() {
-        this.texWidth = 180;
-        this.texHeight = 128;
-        this.strapLeft = new ModelPart(this, 0, 56);
-        this.strapLeft.setPos(3.0F, -3.5F, -8.0F);
-        this.strapLeft.addBox(0.0F, -6.0F, -0.5F, 0, 6, 13, 0.0F);
-        this.setRotateAngle(strapLeft, 0.0F, -0.17453292519943295F, 0.0F);
-        this.tail = new ModelPart(this, 0, 50);
-        this.tail.setPos(0.0F, 1.0F, 7.5F);
-        this.tail.addBox(-4.5F, -2.5F, 0.0F, 9, 5, 14, 0.0F);
-        this.eyeLeft = new ModelPart(this, 0, 33);
-        this.eyeLeft.setPos(3.0F, -3.0F, -10.0F);
-        this.eyeLeft.addBox(-1.0F, -1.0F, -8.0F, 2, 2, 9, 0.0F);
-        this.setRotateAngle(eyeLeft, -0.8726646259971648F, -0.4363323129985824F, 0.0F);
-        this.chestRightBig = new ModelPart(this, 128, 41);
-        this.chestRightBig.setPos(-9.0F, -7.5F, 0.5F);
-        this.chestRightBig.addBox(-7.0F, 0.0F, -8.0F, 7, 10, 16, 0.0F);
-        this.setRotateAngle(chestRightBig, 0.12217304763960307F, 0.0F, 0.0F);
-        this.flag = new ModelPart(this, 64, 51);
-        this.flag.setPos(0.0F, -7.5F, 0.5F);
-        this.flag.addBox(0.0F, -5.0F, 0.0F, 0, 10, 21, 0.0F);
-        this.chestLeftSmall = new ModelPart(this, 132, 22);
-        this.chestLeftSmall.setPos(9.0F, -17.0F, 0.0F);
-        this.chestLeftSmall.addBox(0.0F, 0.0F, -6.0F, 5, 7, 12, 0.0F);
-        this.setRotateAngle(chestLeftSmall, 0.08726646259971647F, 0.0F, 0.0F);
-        this.chestRightSmall = new ModelPart(this, 110, 38);
-        this.chestRightSmall.setPos(-9.0F, -17.0F, 0.0F);
-        this.chestRightSmall.addBox(-5.0F, 0.0F, -6.0F, 5, 7, 12, 0.0F);
-        this.setRotateAngle(chestRightSmall, 0.08726646259971647F, 0.0F, 0.0F);
-        this.strapRight = new ModelPart(this, 0, 56);
-        this.strapRight.setPos(-3.0F, -3.5F, -8.0F);
-        this.strapRight.addBox(0.0F, -6.0F, -0.5F, 0, 6, 13, 0.0F);
-        this.setRotateAngle(strapRight, 0.0F, 0.17453292519943295F, 0.0F);
-        this.harness = new ModelPart(this, 0, 69);
-        this.harness.setPos(0.0F, -10.5F, 0.0F);
-        this.harness.addBox(-9.5F, -13.0F, -13.0F, 19, 26, 26, 0.0F);
-        this.eyeRight = new ModelPart(this, 0, 22);
-        this.eyeRight.setPos(-3.0F, -3.0F, -10.0F);
-        this.eyeRight.addBox(-1.0F, -1.0F, -8.0F, 2, 2, 9, 0.0F);
-        this.setRotateAngle(eyeRight, -0.8726646259971648F, 0.4363323129985824F, 0.0F);
-        this.chestLeftBig = new ModelPart(this, 124, 80);
-        this.chestLeftBig.setPos(9.0F, -7.5F, 0.5F);
-        this.chestLeftBig.addBox(0.0F, 0.0F, -8.0F, 7, 10, 16, 0.0F);
-        this.setRotateAngle(chestLeftBig, 0.12217304763960307F, 0.0F, 0.0F);
-        this.chestFront = new ModelPart(this, 96, 82);
-        this.chestFront.setPos(0.0F, -17.0F, -12.5F);
-        this.chestFront.addBox(-8.0F, -3.0F, -6.0F, 16, 7, 6, 0.0F);
-        this.body2 = new ModelPart(this, 46, 50);
-        this.body2.setPos(0.0F, 0.0F, -7.5F);
-        this.body2.addBox(-5.0F, -3.5F, -10.0F, 10, 7, 10, 0.0F);
-        this.chestBack = new ModelPart(this, 120, 67);
-        this.chestBack.setPos(0.0F, -13.5F, 12.5F);
-        this.chestBack.addBox(-8.0F, -3.0F, 0.0F, 16, 7, 6, 0.0F);
-        this.setRotateAngle(chestBack, 0.06981317007977318F, 0.0F, 0.0F);
-        this.head = new ModelPart(this, 88, 0);
-        this.head.setPos(0.0F, 0.5F, -10.0F);
-        this.head.addBox(-4.0F, -3.0F, -10.0F, 8, 6, 10, 0.0F);
-        this.nubLeft = new ModelPart(this, 0, 4);
-        this.nubLeft.setPos(3.0F, 1.0F, -10.0F);
-        this.nubLeft.addBox(-1.0F, -1.0F, -2.0F, 2, 2, 2, 0.0F);
-        this.flagPole = new ModelPart(this, 8, 0);
-        this.flagPole.setPos(0.0F, -1.5F, -9.0F);
-        this.flagPole.addBox(-0.5F, -13.5F, -0.5F, 1, 14, 1, 0.0F);
-        this.setRotateAngle(flagPole, 0.17453292519943295F, 0.0F, 0.0F);
-        this.seat = new ModelPart(this, 73, 54);
-        this.seat.setPos(0.0F, -23.0F, 6.0F);
-        this.seat.addBox(-6.0F, -1.5F, -11.0F, 12, 2, 13, 0.0F);
-        this.nubRight = new ModelPart(this, 0, 0);
-        this.nubRight.setPos(-3.0F, 1.0F, -10.0F);
-        this.nubRight.addBox(-1.0F, -1.0F, -2.0F, 2, 2, 2, 0.0F);
-        this.body1 = new ModelPart(this, 0, 0);
-        this.body1.setPos(0.0F, 20.5F, 0.0F);
-        this.body1.addBox(-5.5F, -3.5F, -7.5F, 11, 7, 15, 0.0F);
-        this.shell = new ModelPart(this, 27, 0);
-        this.shell.setPos(0.0F, -3.5F, 3.0F);
-        this.shell.addBox(-9.0F, -23.0F, -12.5F, 18, 25, 25, 0.0F);
-        this.setRotateAngle(shell, -0.12217304763960307F, 0.0F, 0.0F);
-        this.body2.addChild(this.strapLeft);
-        this.body1.addChild(this.tail);
-        this.head.addChild(this.eyeLeft);
-        this.shell.addChild(this.chestRightBig);
-        this.flagPole.addChild(this.flag);
-        this.shell.addChild(this.chestLeftSmall);
-        this.shell.addChild(this.chestRightSmall);
-        this.body2.addChild(this.strapRight);
-        this.shell.addChild(this.harness);
-        this.head.addChild(this.eyeRight);
-        this.shell.addChild(this.chestLeftBig);
-        this.shell.addChild(this.chestFront);
-        this.body1.addChild(this.body2);
-        this.shell.addChild(this.chestBack);
-        this.body2.addChild(this.head);
-        this.head.addChild(this.nubLeft);
-        this.seat.addChild(this.flagPole);
-        this.shell.addChild(this.seat);
-        this.head.addChild(this.nubRight);
-        this.body1.addChild(this.shell);
+    public SnailManModel(ModelPart root) {
+        this.body1 = root.getChild("body1");
+        this.shell = body1.getChild("shell");
+        this.harness = shell.getChild("harness");
+        this.chestLeftSmall = shell.getChild("chestLeftSmall");
+        this.chestLeftBig = shell.getChild("chestLeftBig");
+        this.chestRightSmall = shell.getChild("chestRightSmall");
+        this.chestRightBig = shell.getChild("chestRightBig");
+        this.chestBack = shell.getChild("chestBack");
+        this.chestFront = shell.getChild("chestFront");
+        this.seat = shell.getChild("seat");
+        this.flagPole = seat.getChild("flagPole");
+        this.flag = flagPole.getChild("flag");
+        this.tail = body1.getChild("tail");
+        this.body2 = body1.getChild("body2");
+        this.head = body2.getChild("head");
+        this.eyeLeft = head.getChild("eyeLeft");
+        this.eyeRight = head.getChild("eyeRight");
+        this.nubRight = head.getChild("nubRight");
+        this.nubLeft = head.getChild("nubLeft");
+        this.strapLeft = body2.getChild("strapLeft");
+        this.strapRight = body2.getChild("strapRight");
+    }
+
+    public static LayerDefinition createBodyLayer() {
+        MeshDefinition meshdefinition = new MeshDefinition();
+        PartDefinition partdefinition = meshdefinition.getRoot();
+        PartDefinition body1 = partdefinition.addOrReplaceChild("body1", CubeListBuilder.create().texOffs(0, 0).addBox(-5.5F, -3.5F, -7.5F, 11.0F, 7.0F, 15.0F, new CubeDeformation(0.0F)), PartPose.offset(0.0F, 20.5F, 0.0F));
+        PartDefinition shell = body1.addOrReplaceChild("shell", CubeListBuilder.create().texOffs(27, 0).addBox(-9.0F, -23.0F, -12.5F, 18.0F, 25.0F, 25.0F, new CubeDeformation(0.0F)), PartPose.offsetAndRotation(0.0F, -3.5F, 3.0F, -0.1222F, 0.0F, 0.0F));
+        PartDefinition harness = shell.addOrReplaceChild("harness", CubeListBuilder.create().texOffs(0, 69).addBox(-9.5F, -13.0F, -13.0F, 19.0F, 26.0F, 26.0F, new CubeDeformation(0.0F)), PartPose.offset(0.0F, -10.5F, 0.0F));
+        PartDefinition chestLeftSmall = shell.addOrReplaceChild("chestLeftSmall", CubeListBuilder.create().texOffs(132, 22).mirror().addBox(-5.0F, 0.0F, -6.0F, 5.0F, 7.0F, 12.0F, new CubeDeformation(0.0F)).mirror(false), PartPose.offsetAndRotation(-9.0F, -17.0F, 0.0F, 0.0873F, 0.0F, 0.0F));
+        PartDefinition chestLeftBig = shell.addOrReplaceChild("chestLeftBig", CubeListBuilder.create().texOffs(124, 80).mirror().addBox(-7.0F, 0.0F, -8.0F, 7.0F, 10.0F, 16.0F, new CubeDeformation(0.0F)).mirror(false), PartPose.offsetAndRotation(-9.0F, -7.5F, 0.5F, 0.1222F, 0.0F, 0.0F));
+        PartDefinition chestRightSmall = shell.addOrReplaceChild("chestRightSmall", CubeListBuilder.create().texOffs(110, 38).mirror().addBox(0.0F, 0.0F, -6.0F, 5.0F, 7.0F, 12.0F, new CubeDeformation(0.0F)).mirror(false), PartPose.offsetAndRotation(9.0F, -17.0F, 0.0F, 0.0873F, 0.0F, 0.0F));
+        PartDefinition chestRightBig = shell.addOrReplaceChild("chestRightBig", CubeListBuilder.create().texOffs(128, 41).mirror().addBox(0.0F, 0.0F, -8.0F, 7.0F, 10.0F, 16.0F, new CubeDeformation(0.0F)).mirror(false), PartPose.offsetAndRotation(9.0F, -7.5F, 0.5F, 0.1222F, 0.0F, 0.0F));
+        PartDefinition chestBack = shell.addOrReplaceChild("chestBack", CubeListBuilder.create().texOffs(120, 67).addBox(-8.0F, -3.0F, 0.0F, 16.0F, 7.0F, 6.0F, new CubeDeformation(0.0F)), PartPose.offsetAndRotation(0.0F, -13.5F, 12.5F, 0.0698F, 0.0F, 0.0F));
+        PartDefinition seat = shell.addOrReplaceChild("seat", CubeListBuilder.create().texOffs(73, 54).addBox(-6.0F, -1.5F, -11.0F, 12.0F, 2.0F, 13.0F, new CubeDeformation(0.0F)), PartPose.offset(0.0F, -23.0F, 6.0F));
+        PartDefinition flagPole = seat.addOrReplaceChild("flagPole", CubeListBuilder.create().texOffs(8, 0).addBox(-0.5F, -13.5F, -0.5F, 1.0F, 14.0F, 1.0F, new CubeDeformation(0.0F)), PartPose.offsetAndRotation(0.0F, -1.5F, -9.0F, 0.1745F, 0.0F, 0.0F));
+        PartDefinition flag = flagPole.addOrReplaceChild("flag", CubeListBuilder.create().texOffs(64, 51).addBox(0.0F, -5.0F, 0.0F, 0.0F, 10.0F, 21.0F, new CubeDeformation(0.0F)), PartPose.offset(0.0F, -7.5F, 0.5F));
+        PartDefinition chestFront = shell.addOrReplaceChild("chestFront", CubeListBuilder.create().texOffs(96, 82).addBox(-8.0F, -3.0F, -6.0F, 16.0F, 7.0F, 6.0F, new CubeDeformation(0.0F)), PartPose.offset(0.0F, -17.0F, -12.5F));
+        PartDefinition tail = body1.addOrReplaceChild("tail", CubeListBuilder.create().texOffs(0, 50).addBox(-4.5F, -2.5F, 0.0F, 9.0F, 5.0F, 14.0F, new CubeDeformation(0.0F)), PartPose.offset(0.0F, 1.0F, 7.5F));
+        PartDefinition body2 = body1.addOrReplaceChild("body2", CubeListBuilder.create().texOffs(46, 50).addBox(-5.0F, -3.5F, -10.0F, 10.0F, 7.0F, 10.0F, new CubeDeformation(0.0F)), PartPose.offset(0.0F, 0.0F, -7.5F));
+        PartDefinition head = body2.addOrReplaceChild("head", CubeListBuilder.create().texOffs(88, 0).addBox(-4.0F, -3.0F, -10.0F, 8.0F, 6.0F, 10.0F, new CubeDeformation(0.0F)), PartPose.offset(0.0F, 0.5F, -10.0F));
+        PartDefinition eyeLeft = head.addOrReplaceChild("eyeLeft", CubeListBuilder.create().texOffs(0, 33).addBox(-1.0F, -1.0F, -8.0F, 2.0F, 2.0F, 9.0F, new CubeDeformation(0.0F)), PartPose.offsetAndRotation(-3.0F, -3.0F, -10.0F, -0.8727F, 0.4363F, 0.0F));
+        PartDefinition eyeRight = head.addOrReplaceChild("eyeRight", CubeListBuilder.create().texOffs(0, 22).addBox(-1.0F, -1.0F, -8.0F, 2.0F, 2.0F, 9.0F, new CubeDeformation(0.0F)), PartPose.offsetAndRotation(3.0F, -3.0F, -10.0F, -0.8727F, -0.4363F, 0.0F));
+        PartDefinition nubRight = head.addOrReplaceChild("nubRight", CubeListBuilder.create().texOffs(0, 0).addBox(-1.0F, -1.0F, -2.0F, 2.0F, 2.0F, 2.0F, new CubeDeformation(0.0F)), PartPose.offset(3.0F, 1.0F, -10.0F));
+        PartDefinition nubLeft = head.addOrReplaceChild("nubLeft", CubeListBuilder.create().texOffs(0, 4).addBox(-1.0F, -1.0F, -2.0F, 2.0F, 2.0F, 2.0F, new CubeDeformation(0.0F)), PartPose.offset(-3.0F, 1.0F, -10.0F));
+        PartDefinition strapLeft = body2.addOrReplaceChild("strapLeft", CubeListBuilder.create().texOffs(0, 56).addBox(0.0F, -6.0F, -0.5F, 0.0F, 6.0F, 13.0F, new CubeDeformation(0.0F)), PartPose.offsetAndRotation(-3.0F, -3.5F, -8.0F, 0.0F, 0.1745F, 0.0F));
+        PartDefinition strapRight = body2.addOrReplaceChild("strapRight", CubeListBuilder.create().texOffs(0, 56).addBox(0.0F, -6.0F, -0.5F, 0.0F, 6.0F, 13.0F, new CubeDeformation(0.0F)), PartPose.offsetAndRotation(3.0F, -3.5F, -8.0F, 0.0F, -0.1745F, 0.0F));
+        return LayerDefinition.create(meshdefinition, 180, 128);
     }
 
     @Override
-    public void renderToBuffer(PoseStack arg0, VertexConsumer arg1, int arg2, int arg3, float arg4, float arg5, float arg6, float arg7) {
-        this.body1.render(arg0, arg1, arg2, arg3, arg4, arg5, arg6, opacity);
+    public void renderToBuffer(PoseStack poseStack, VertexConsumer vertexConsumer, int packedLight, int packedOverlay, float red, float green, float blue, float alpha) {
+        this.body1.render(poseStack, vertexConsumer, packedLight, packedOverlay, red, green, blue, opacity);
     }
 
     @Override
@@ -139,9 +94,4 @@ public class SnailManModel extends EntityModel<SnailManEntity> {
         this.opacity = entity.getOpacity();
     }
 
-    public void setRotateAngle(ModelPart modelRenderer, float x, float y, float z) {
-        modelRenderer.xRot = x;
-        modelRenderer.yRot = y;
-        modelRenderer.zRot = z;
-    }
 }

@@ -85,7 +85,7 @@ public class SnailManEntity extends PathfinderMob {
     @Override
     public void tick() {
         super.tick();
-        this.yRot = this.entityData.get(YAW);
+        this.setYRot(this.entityData.get(YAW));
         this.yHeadRot = this.entityData.get(YAW);
     }
 
@@ -119,7 +119,7 @@ public class SnailManEntity extends PathfinderMob {
             this.leavingDeliveryPoint = compound.getBoolean("leaving");
             this.deliveryFailed = compound.getBoolean("failed");
         } else {
-            this.remove();
+            this.remove(RemovalReason.DISCARDED);
         }
     }
 
@@ -248,12 +248,12 @@ public class SnailManEntity extends PathfinderMob {
                 snail.deliveryFailed = true;
                 SnailMail.forceArea(snail.fromMailbox.getWorld(snail.getServer()), snail.fromMailbox.toBP(), true);
                 if(isInvalid) {
-                    SnailBoxSavedData.getData(snail.getServer()).removeBoxRaw(snail.mailbox);
+                    SnailBoxSavedData.getOrCreate(snail.level).removeBoxRaw(snail.mailbox);
                 }
                 // return to deliverer
             } else {
                 // delivery was successful, remove!
-                snail.remove();
+                snail.remove(RemovalReason.DISCARDED);
             }
             // remove chunkload so long as return position is not the same as delivery and we will be returning
             if(snail.deliveryFailed || !snail.fromMailbox.equals(snail.mailbox)) {
@@ -268,7 +268,7 @@ public class SnailManEntity extends PathfinderMob {
             BlockPos away = this.getAwayPos(getDirection());
             ServerLevel destWorld = snail.mailbox.getWorld(snail.getServer());
             BlockPos newPos = destWorld != null && destWorld.isLoaded(away) ? away : snail.mailbox.toBP();
-            if(destWorld != null && destWorld.hasChunk(newPos.getX() >> 4, newPos.getZ() >> 4) && destWorld.getChunkSource().isEntityTickingChunk(new ChunkPos(newPos.getX() >> 4, newPos.getZ() >> 4))) {
+            if(destWorld != null && destWorld.hasChunk(newPos.getX() >> 4, newPos.getZ() >> 4) && destWorld.isPositionEntityTicking(new ChunkPos(newPos.getX() >> 4, newPos.getZ() >> 4))) {
                 transportTo(snail, newPos, angle);
             } else {
                 // entity won't tick there, just do delivery without animation
@@ -279,7 +279,7 @@ public class SnailManEntity extends PathfinderMob {
         @Override
         public void tick() {
             if(totalTicks > 160) {
-                snail.moveTo(snail.mailbox.toBP().above(), angle, snail.xRot);
+                snail.moveTo(snail.mailbox.toBP().above(), angle, snail.getXRot());
                 snail.setDeltaMovement(0, 0, 0);
             } else {
                 snail.entityData.set(YAW, angle);
@@ -340,7 +340,7 @@ public class SnailManEntity extends PathfinderMob {
             boolean isInvalid = snail.level.getBlockState(pos).getBlock() != ModBlocks.SNAIL_BOX.get() || teB == null || !(teB instanceof SnailBoxBlockEntity);
             if(isInvalid || !SnailMail.deliverTo((SnailBoxBlockEntity) teB, snail.transport, true)) {
                 if(isInvalid) {
-                    SnailBoxSavedData.getData(snail.getServer()).removeBoxRaw(snail.fromMailbox);
+                    SnailBoxSavedData.getOrCreate(snail.level).removeBoxRaw(snail.fromMailbox);
                 }
                 ItemStack stack = snail.transport;
                 Optional<ItemStack> iOpt = EnvelopeItem.convert(snail.transport);
@@ -355,7 +355,7 @@ public class SnailManEntity extends PathfinderMob {
             }
             // remove chunkload
             SnailMail.forceArea(snail.fromMailbox.getWorld(snail.getServer()), pos, false);
-            snail.remove();
+            snail.remove(RemovalReason.DISCARDED);
         }
 
         @Override
@@ -365,7 +365,7 @@ public class SnailManEntity extends PathfinderMob {
             BlockPos away = this.getAwayPos(getDirection());
             ServerLevel destWorld = snail.fromMailbox.getWorld(snail.getServer());
             BlockPos newPos = destWorld.isLoaded(away) ? away : snail.fromMailbox.toBP();
-            if(destWorld.hasChunk(newPos.getX() >> 4, newPos.getZ() >> 4) && destWorld.getChunkSource().isEntityTickingChunk(new ChunkPos(newPos.getX() >> 4, newPos.getZ() >> 4))) {
+            if(destWorld.hasChunk(newPos.getX() >> 4, newPos.getZ() >> 4) && destWorld.isPositionEntityTicking(new ChunkPos(newPos.getX() >> 4, newPos.getZ() >> 4))) {
                 transportTo(snail, newPos, angle);
             } else {
                 // return instantly, somehow the original delivery chunk isn't ticking anymore
@@ -377,7 +377,7 @@ public class SnailManEntity extends PathfinderMob {
         @Override
         public void tick() {
             if(totalTicks > 160) {
-                snail.moveTo(snail.fromMailbox.toBP().above(), angle, snail.xRot);
+                snail.moveTo(snail.fromMailbox.toBP().above(), angle, snail.getXRot());
                 snail.setDeltaMovement(0, 0, 0);
             } else {
                 snail.entityData.set(YAW, angle);
@@ -411,16 +411,16 @@ public class SnailManEntity extends PathfinderMob {
             Entity entity = snail.getType().create(serverLevel);
             if (entity != null) {
                 entity.restoreFrom(snail);
-                entity.moveTo(newPos, yaw, entity.xRot);
+                entity.moveTo(newPos, yaw, entity.getXRot());
                 entity.setDeltaMovement(0, 0, 0);
-                serverLevel.addFromAnotherDimension(entity);
+                serverLevel.addDuringTeleport(entity);
             }
             snail.removeAfterChangingDimensions();
             ((ServerLevel)snail.level).resetEmptyTime();
             serverLevel.resetEmptyTime();
         } else {
             snail.setDeltaMovement(0, 0, 0);
-            snail.moveTo(newPos, yaw, snail.xRot);
+            snail.moveTo(newPos, yaw, snail.getXRot());
         }
     }
 

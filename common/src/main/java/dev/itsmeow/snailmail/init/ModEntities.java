@@ -1,10 +1,10 @@
 package dev.itsmeow.snailmail.init;
 
+import dev.architectury.registry.level.entity.EntityAttributeRegistry;
+import dev.architectury.registry.registries.DeferredRegister;
+import dev.architectury.registry.registries.RegistrySupplier;
 import dev.itsmeow.snailmail.SnailMail;
 import dev.itsmeow.snailmail.entity.SnailManEntity;
-import me.shedaniel.architectury.registry.DeferredRegister;
-import me.shedaniel.architectury.registry.RegistrySupplier;
-import me.shedaniel.architectury.registry.entity.EntityAttributes;
 import net.minecraft.core.Registry;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.Mob;
@@ -19,6 +19,6 @@ public class ModEntities {
 
     public static void init() {
         ENTITIES.register();
-        EntityAttributes.register(SNAIL_MAN::get, () -> Mob.createMobAttributes().add(Attributes.MAX_HEALTH, 100D).add(Attributes.MOVEMENT_SPEED, 0.25D));
+        EntityAttributeRegistry.register(SNAIL_MAN::get, () -> Mob.createMobAttributes().add(Attributes.MAX_HEALTH, 100D).add(Attributes.MOVEMENT_SPEED, 0.25D));
     }
 }

@@ -20,12 +20,13 @@
         "modmenu": ["dev.itsmeow.snailmail.util.ModMenuCompat"]
     },
     "depends": {
-        "minecraft": "1.16.5",
-        "architectury": ">=1.26.42",
+        "minecraft": "1.17.1",
+        "architectury": ">=2.5.0",
         "fabricloader": ">=0.12.0",
         "fabric": ">=0.32.0"
     },
     "mixins": [
+        "snailmail.mixins.json",
         "snailmail-fabric.mixins.json"
     ],
     "custom": {

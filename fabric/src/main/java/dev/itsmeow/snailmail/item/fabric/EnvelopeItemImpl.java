@@ -4,7 +4,6 @@ import dev.itsmeow.snailmail.init.ModItems;
 import dev.itsmeow.snailmail.item.EnvelopeItem;
 import dev.itsmeow.snailmail.menu.EnvelopeMenu;
 import dev.itsmeow.snailmail.menu.EnvelopeMenuFabric;
-import me.shedaniel.architectury.utils.NbtType;
 import net.fabricmc.fabric.api.transfer.v1.item.InventoryStorage;
 import net.fabricmc.fabric.api.transfer.v1.item.ItemVariant;
 import net.fabricmc.fabric.api.transfer.v1.item.PlayerInventoryStorage;
@@ -12,6 +11,7 @@ import net.fabricmc.fabric.api.transfer.v1.storage.base.SingleSlotStorage;
 import net.fabricmc.fabric.api.transfer.v1.transaction.Transaction;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.Tag;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.world.SimpleContainer;
 import net.minecraft.world.entity.player.Inventory;
@@ -36,14 +36,14 @@ public class EnvelopeItemImpl {
 
     public static Optional<ItemStack> doConvert(ItemStack stack, boolean fromOpen) {
         ItemStack newStack = new ItemStack(fromOpen ? ModItems.ENVELOPE_CLOSED.get() : ModItems.ENVELOPE_OPEN.get());
-        newStack.getOrCreateTag().put("item_storage", stack.hasTag() && stack.getTag().contains("item_storage", NbtType.COMPOUND) ? stack.getTag().getCompound("item_storage") : new CompoundTag());
+        newStack.getOrCreateTag().put("item_storage", stack.hasTag() && stack.getTag().contains("item_storage", Tag.TAG_COMPOUND) ? stack.getTag().getCompound("item_storage") : new CompoundTag());
         copyTagString(stack, newStack, "AddressedTo");
         copyTagString(stack, newStack, "AddressedFrom");
         return Optional.of(newStack);
     }
 
     protected static void copyTagString(ItemStack original, ItemStack newStack, String key) {
-        if(original.hasTag() && original.getTag().contains(key, NbtType.STRING)) {
+        if(original.hasTag() && original.getTag().contains(key, Tag.TAG_STRING)) {
             EnvelopeItem.putStringChecked(newStack, key, original.getTag().getString(key));
         }
     }

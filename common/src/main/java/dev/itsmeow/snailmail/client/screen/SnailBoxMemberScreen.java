@@ -29,7 +29,7 @@ public class SnailBoxMemberScreen extends Screen {
     protected void init() {
         super.init();
         list = new SnailBoxMemberListWidget(this);
-        this.children.add(list);
+        this.addRenderableWidget(list);
 
         Minecraft.getInstance().keyboardHandler.setSendRepeatsToGui(true);
         this.nameField = new EditBox(this.font, (this.width - 100) / 2 - 75, 3, 100, 18, new TranslatableComponent("container.snailmail.snail_box.textfield.name")) {
@@ -53,19 +53,19 @@ public class SnailBoxMemberScreen extends Screen {
         this.nameField.setTextColorUneditable(0xFFFFFF);
         this.nameField.setBordered(true);
         this.nameField.setMaxLength(35);
-        this.children.add(this.nameField);
+        this.addRenderableWidget(this.nameField);
 
-        this.addButton(new Button((this.width - 100) / 2 + 75, 2, 100, 20, new TranslatableComponent("modal.snailmail.add"), btn -> {
+        this.addRenderableWidget(new Button((this.width - 100) / 2 + 75, 2, 100, 20, new TranslatableComponent("modal.snailmail.add"), btn -> {
             if(!this.nameField.getValue().isEmpty()) {
                 ModNetwork.HANDLER.sendToServer(new UpdateSnailBoxPacket(this.nameField.getValue(), true));
             }
         }));
-        this.addButton(new Button((this.width - 150) / 2, this.height - 50, 150, 20, new TranslatableComponent("modal.snailmail.remove_selected"), btn -> {
+        this.addRenderableWidget(new Button((this.width - 150) / 2, this.height - 50, 150, 20, new TranslatableComponent("modal.snailmail.remove_selected"), btn -> {
             if(this.list != null && this.list.getSelected() != null) {
                 ModNetwork.HANDLER.sendToServer(new UpdateSnailBoxPacket(list.getSelected().getNameOrId(), false));
             }
         }));
-        this.addButton(new Button((this.width - 200) / 2, this.height - 25, 200, 20, new TranslatableComponent("modal.snailmail.done"), btn -> {
+        this.addRenderableWidget(new Button((this.width - 200) / 2, this.height - 25, 200, 20, new TranslatableComponent("modal.snailmail.done"), btn -> {
             Minecraft.getInstance().setScreen(parent);
         }));
     }

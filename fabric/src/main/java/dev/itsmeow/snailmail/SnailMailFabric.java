@@ -1,5 +1,6 @@
 package dev.itsmeow.snailmail;
 
+import dev.architectury.event.events.common.LifecycleEvent;
 import dev.itsmeow.snailmail.block.entity.fabric.SnailBoxInterfaceFabric;
 import dev.itsmeow.snailmail.init.ModBlockEntities;
 import dev.itsmeow.snailmail.util.ConfigInterface;
@@ -13,7 +14,6 @@ import io.github.fablabsmc.fablabs.api.fiber.v1.serialization.JanksonValueSerial
 import io.github.fablabsmc.fablabs.api.fiber.v1.tree.ConfigBranch;
 import io.github.fablabsmc.fablabs.api.fiber.v1.tree.ConfigTree;
 import io.github.fablabsmc.fablabs.api.fiber.v1.tree.PropertyMirror;
-import me.shedaniel.architectury.event.events.LifecycleEvent;
 import net.fabricmc.api.ModInitializer;
 import net.fabricmc.fabric.api.transfer.v1.item.ItemStorage;
 import net.fabricmc.loader.api.FabricLoader;

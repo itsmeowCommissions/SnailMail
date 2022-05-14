@@ -1,18 +1,19 @@
 package dev.itsmeow.snailmail.network;
 
 import com.mojang.authlib.GameProfile;
+import dev.architectury.networking.NetworkManager;
+import dev.architectury.utils.Env;
 import dev.itsmeow.snailmail.block.entity.SnailBoxBlockEntity;
 import dev.itsmeow.snailmail.client.screen.SnailBoxMemberScreen;
 import dev.itsmeow.snailmail.init.ModNetwork;
 import dev.itsmeow.snailmail.menu.SnailBoxMenu;
 import dev.itsmeow.snailmail.util.RandomUtil;
-import me.shedaniel.architectury.networking.NetworkManager;
-import me.shedaniel.architectury.utils.Env;
 import net.minecraft.client.Minecraft;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.player.Player;
 
+import java.util.Optional;
 import java.util.UUID;
 import java.util.function.Supplier;
 
@@ -94,11 +95,11 @@ public class UpdateSnailBoxPacket {
                                 String username = msg.memberUsername;
                                 // move to another thread so as not to block server main thread
                                 new Thread(() -> {
-                                    GameProfile profile = sender.getServer().getProfileCache().get(username);
+                                    Optional<GameProfile> profile = sender.getServer().getProfileCache().get(username);
                                     // back to server main thread!
                                     ctx.get().queue(() -> {
                                         UUID uuid = null;
-                                        if((profile == null || profile.getId() == null) && UUID.fromString(username) != null) {
+                                        if((profile.isEmpty() || profile.get().getId() == null) && UUID.fromString(username) != null) {
                                             uuid = UUID.fromString(username);
                                             if(!uuid.equals(te.getOwner())) {
                                                 if(msg.addMember) {
@@ -107,13 +108,13 @@ public class UpdateSnailBoxPacket {
                                                     te.removeMember(uuid);
                                                 }
                                             }
-                                        } else if(profile != null && profile.getId() != null) {
-                                            uuid = profile.getId();
+                                        } else if(profile.isPresent() && profile.get().getId() != null) {
+                                            uuid = profile.get().getId();
                                             if(!uuid.equals(te.getOwner())) {
                                                 if(msg.addMember) {
-                                                    te.addMember(profile.getId());
+                                                    te.addMember(profile.get().getId());
                                                 } else {
-                                                    te.removeMember(profile.getId());
+                                                    te.removeMember(profile.get().getId());
                                                 }
                                             }
                                         } else if(msg.addMember) {

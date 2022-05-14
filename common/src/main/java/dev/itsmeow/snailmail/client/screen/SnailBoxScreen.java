@@ -1,5 +1,6 @@
 package dev.itsmeow.snailmail.client.screen;
 
+import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.PoseStack;
 import dev.itsmeow.snailmail.init.ModItems;
 import dev.itsmeow.snailmail.init.ModNetwork;
@@ -16,6 +17,7 @@ import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.components.Checkbox;
 import net.minecraft.client.gui.components.EditBox;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
+import net.minecraft.client.renderer.GameRenderer;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraft.resources.ResourceLocation;
@@ -39,7 +41,7 @@ public class SnailBoxScreen extends AbstractContainerScreen<SnailBoxMenu> implem
         super.init();
         int xStart = (this.width - this.imageWidth) / 2;
         int yStart = (this.height - this.imageHeight) / 2;
-        this.addButton(new Button(xStart + 84, yStart + 4, 67, 20, new TranslatableComponent("container.snailmail.snail_box.send"), (bt) -> {
+        this.addRenderableWidget(new Button(xStart + 84, yStart + 4, 67, 20, new TranslatableComponent("container.snailmail.snail_box.send"), (bt) -> {
             ItemStack envelope = this.menu.getSlot(27).getItem();
             if(!envelope.isEmpty() && envelope.getItem() == ModItems.ENVELOPE_OPEN.get()) {
                 SendEnvelopePacket packet = new SendEnvelopePacket(Type.TO_SERVER);
@@ -53,9 +55,9 @@ public class SnailBoxScreen extends AbstractContainerScreen<SnailBoxMenu> implem
                 ModNetwork.HANDLER.sendToServer(new OpenEnvelopeGUIPacket(menu.pos));
             }
         });
-        this.addButton(envelopeButton);
+        this.addRenderableWidget(envelopeButton);
         if(this.menu.isOwner) {
-            this.addButton(new Button(xStart + 88, yStart + 95, 82, 20, new TranslatableComponent("container.snailmail.snail_box.members"), (bt) -> {
+            this.addRenderableWidget(new Button(xStart + 88, yStart + 95, 82, 20, new TranslatableComponent("container.snailmail.snail_box.members"), (bt) -> {
                 Minecraft.getInstance().setScreen(new SnailBoxMemberScreen(this));
             }));
             Checkbox button = new Checkbox(xStart + 7, yStart + 82, 79, 14, new TranslatableComponent("container.snailmail.snail_box.public"), this.menu.isPublic) {
@@ -69,17 +71,18 @@ public class SnailBoxScreen extends AbstractContainerScreen<SnailBoxMenu> implem
 
                 @Override
                 public void renderButton(PoseStack stack, int p_renderButton_1_, int p_renderButton_2_, float p_renderButton_3_) {
-                    Minecraft minecraft = Minecraft.getInstance();
-                    minecraft.getTextureManager().bind(CHECK_TEXTURE);
+                    RenderSystem.setShader(GameRenderer::getPositionTexShader);
+                    RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
+                    RenderSystem.setShaderTexture(0, CHECK_TEXTURE);
                     GuiComponent.blit(stack, this.x, this.y, this.selected() ? 14 : 0, 0, 14, 14, 28, 14);
                     stack.pushPose();
                     stack.scale(0.8F, 0.8F, 1F);
-                    minecraft.font.draw(stack, this.getMessage(), (this.x + 14 + 4) * 1.25F, (this.y + 4) * 1.25F, 0xFF404040);
+                    SnailBoxScreen.this.font.draw(stack, this.getMessage(), (this.x + 14 + 4) * 1.25F, (this.y + 4) * 1.25F, 0xFF404040);
                     stack.popPose();
                 }
 
             };
-            this.addButton(button);
+            this.addRenderableWidget(button);
         }
         Minecraft.getInstance().keyboardHandler.setSendRepeatsToGui(true);
         this.nameField = new EditBox(this.font, xStart + 88, yStart + 83, 82, 10, new TranslatableComponent("container.snailmail.snail_box.textfield.name")) {
@@ -110,7 +113,7 @@ public class SnailBoxScreen extends AbstractContainerScreen<SnailBoxMenu> implem
             this.menu.startingName = newText;
         });
         this.nameField.setVisible(menu.isOwner);
-        this.children.add(this.nameField);
+        this.addRenderableWidget(this.nameField);
     }
 
     @Override
@@ -121,7 +124,7 @@ public class SnailBoxScreen extends AbstractContainerScreen<SnailBoxMenu> implem
     }
 
     @Override
-    public void tick() {
+    public void containerTick() {
         this.nameField.tick();
         this.envelopeButton.active = this.menu.getSlot(27).getItem().getItem() == ModItems.ENVELOPE_OPEN.get();
     }
@@ -157,16 +160,18 @@ public class SnailBoxScreen extends AbstractContainerScreen<SnailBoxMenu> implem
 
     @Override
     protected void renderBg(PoseStack stack, float partialTicks, int mouseX, int mouseY) {
+        RenderSystem.setShader(GameRenderer::getPositionTexShader);
+        RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
+        RenderSystem.setShaderTexture(0, GUI_TEXTURE);
         int xStart = (this.width - this.imageWidth) / 2;
         int yStart = (this.height - this.imageHeight) / 2;
-        Minecraft.getInstance().getTextureManager().bind(GUI_TEXTURE);
         this.blit(stack, xStart, yStart, 0, 0, this.imageWidth, this.imageHeight);
     }
 
     @Override
     protected void renderLabels(PoseStack stack, int mouseX, int mouseY) {
         this.font.draw(stack, this.title, 8, 11, 0x404040);
-        this.font.draw(stack, this.inventory.getDisplayName(), 8, 104, 0x404040);
+        this.font.draw(stack, this.playerInventoryTitle, 8, 104, 0x404040);
     }
 
     @Override

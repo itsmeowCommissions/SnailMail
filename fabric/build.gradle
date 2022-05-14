@@ -25,10 +25,10 @@ repositories {
 }
 
 dependencies {
-    modImplementation("com.terraformersmc:modmenu:1.16.22") {
+    modImplementation("com.terraformersmc:modmenu:2.0.14") {
         transitive = false
     }
-    modApi("curse.maven:cloth-config-319057:3559633") {
+    modApi("curse.maven:cloth-config-319057:3559636") {
         transitive = false
     }
     runtimeOnly("me.shedaniel.cloth:basic-math:0.6.0") {

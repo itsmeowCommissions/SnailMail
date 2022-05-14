@@ -1,9 +1,9 @@
 package dev.itsmeow.snailmail.init;
 
+import dev.architectury.registry.registries.DeferredRegister;
+import dev.architectury.registry.registries.RegistrySupplier;
 import dev.itsmeow.snailmail.SnailMail;
 import dev.itsmeow.snailmail.block.SnailBoxBlock;
-import me.shedaniel.architectury.registry.DeferredRegister;
-import me.shedaniel.architectury.registry.RegistrySupplier;
 import net.minecraft.core.Registry;
 import net.minecraft.world.level.block.Block;
 

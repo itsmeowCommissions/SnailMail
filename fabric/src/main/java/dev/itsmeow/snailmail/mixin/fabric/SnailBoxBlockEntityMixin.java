@@ -4,12 +4,14 @@ import dev.itsmeow.snailmail.block.entity.SnailBoxBlockEntity;
 import dev.itsmeow.snailmail.block.entity.fabric.SnailBoxInterfaceFabric;
 import dev.itsmeow.snailmail.init.ModItems;
 import net.fabricmc.fabric.api.transfer.v1.item.InventoryStorage;
+import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.ContainerHelper;
 import net.minecraft.world.SimpleContainer;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityType;
+import net.minecraft.world.level.block.state.BlockState;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Unique;
 
@@ -36,8 +38,8 @@ public abstract class SnailBoxBlockEntityMixin extends BlockEntity implements Sn
     @Unique
     private final InventoryStorage containerWrapper = InventoryStorage.of(container, null);
 
-    public SnailBoxBlockEntityMixin(BlockEntityType<?> arg) {
-        super(arg);
+    public SnailBoxBlockEntityMixin(BlockEntityType<?> blockEntityType, BlockPos blockPos, BlockState blockState) {
+        super(blockEntityType, blockPos, blockState);
     }
 
     @Override

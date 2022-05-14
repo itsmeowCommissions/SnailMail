@@ -97,11 +97,11 @@ public abstract class SnailBoxMenu extends AbstractContainerMenu {
         // the player might have filled the envelope then moved it to their inventory - in this case, dump out all the items in the envelope
         if (!playerIn.level.isClientSide()) {
             playerIn.getServer().execute(() -> {
-                for (int i = 0; i < playerIn.inventory.getContainerSize(); i++) {
-                    ItemStack stack = playerIn.inventory.getItem(i);
+                for (int i = 0; i < playerIn.getInventory().getContainerSize(); i++) {
+                    ItemStack stack = playerIn.getInventory().getItem(i);
                     if (stack.getItem() == ModItems.ENVELOPE_OPEN.get()) {
                         EnvelopeItem.emptyEnvelope(stack, playerIn);
-                        playerIn.inventory.setItem(i, new ItemStack(ModItems.ENVELOPE_OPEN.get()));
+                        playerIn.getInventory().setItem(i, new ItemStack(ModItems.ENVELOPE_OPEN.get()));
                     }
                 }
             });

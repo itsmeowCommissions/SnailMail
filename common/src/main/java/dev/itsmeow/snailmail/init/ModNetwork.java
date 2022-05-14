@@ -1,8 +1,8 @@
 package dev.itsmeow.snailmail.init;
 
+import dev.architectury.networking.NetworkChannel;
 import dev.itsmeow.snailmail.SnailMail;
 import dev.itsmeow.snailmail.network.*;
-import me.shedaniel.architectury.networking.NetworkChannel;
 import net.minecraft.resources.ResourceLocation;
 
 public class ModNetwork {

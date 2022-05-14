@@ -1,13 +1,13 @@
 package dev.itsmeow.snailmail.init;
 
+import dev.architectury.registry.menu.MenuRegistry;
+import dev.architectury.registry.registries.DeferredRegister;
+import dev.architectury.registry.registries.RegistrySupplier;
 import dev.itsmeow.snailmail.SnailMail;
 import dev.itsmeow.snailmail.block.entity.SnailBoxBlockEntity;
 import dev.itsmeow.snailmail.item.EnvelopeItem;
 import dev.itsmeow.snailmail.menu.EnvelopeMenu;
 import dev.itsmeow.snailmail.menu.SnailBoxMenu;
-import me.shedaniel.architectury.registry.DeferredRegister;
-import me.shedaniel.architectury.registry.MenuRegistry;
-import me.shedaniel.architectury.registry.RegistrySupplier;
 import net.minecraft.core.Registry;
 import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.inventory.MenuType;

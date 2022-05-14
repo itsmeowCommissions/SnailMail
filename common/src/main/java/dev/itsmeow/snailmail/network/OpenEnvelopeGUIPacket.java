@@ -1,11 +1,10 @@
 package dev.itsmeow.snailmail.network;
 
+import dev.architectury.networking.NetworkManager;
+import dev.architectury.utils.Env;
 import dev.itsmeow.snailmail.block.entity.SnailBoxBlockEntity;
 import dev.itsmeow.snailmail.init.ModItems;
 import dev.itsmeow.snailmail.item.EnvelopeItem;
-import dev.itsmeow.snailmail.menu.SnailBoxMenu;
-import me.shedaniel.architectury.networking.NetworkManager;
-import me.shedaniel.architectury.utils.Env;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.server.level.ServerPlayer;

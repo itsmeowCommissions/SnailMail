@@ -26,8 +26,8 @@ public class SnailBoxSelectionScreen extends Screen {
     protected void init() {
         super.init();
         list = new SnailBoxListWidget(this);
-        this.children.add(list);
-        this.addButton(new Button((this.width - 200) / 2, this.height - 25, 200, 20, new TranslatableComponent("modal.snailmail.select"), btn -> {
+        this.addRenderableWidget(list);
+        this.addRenderableWidget(new Button((this.width - 200) / 2, this.height - 25, 200, 20, new TranslatableComponent("modal.snailmail.select"), btn -> {
             if(list.getSelected() != null) {
                 this.finishSelection(list.getSelected().getBox());
             }
