@@ -8,7 +8,6 @@ import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.GuiComponent;
 import net.minecraft.client.gui.components.ObjectSelectionList;
 import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.TextComponent;
 import net.minecraft.util.Mth;
 
 public class SnailBoxMemberListWidget extends ObjectSelectionList<SnailBoxMemberListWidget.MemberEntry> {
@@ -102,11 +101,11 @@ public class SnailBoxMemberListWidget extends ObjectSelectionList<SnailBoxMember
 
     public class MemberEntry extends ObjectSelectionList.Entry<MemberEntry> {
         private final String nameOrId;
-        private final TextComponent nameComponent;
+        private final Component nameComponent;
 
         MemberEntry(String nameOrId) {
             this.nameOrId = nameOrId;
-            this.nameComponent = new TextComponent(nameOrId);
+            this.nameComponent = Component.literal(nameOrId);
         }
 
         @Override

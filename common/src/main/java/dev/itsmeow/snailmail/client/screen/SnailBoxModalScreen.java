@@ -12,8 +12,6 @@ import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.renderer.GameRenderer;
 import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.TextComponent;
-import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.FormattedCharSequence;
 import net.minecraft.world.item.ItemStack;
@@ -21,7 +19,7 @@ import net.minecraft.world.item.ItemStack;
 import java.util.List;
 
 public class SnailBoxModalScreen extends Screen implements IEnvelopePacketReceiver {
-    private static final Component TITLE = new TranslatableComponent("container.snailmail.snail_box");
+    private static final Component TITLE = Component.translatable("container.snailmail.snail_box");
     public static final ResourceLocation MODAL_TEXTURE = new ResourceLocation("snailmail:textures/gui/modal.png");
 
     private Type type;
@@ -36,7 +34,7 @@ public class SnailBoxModalScreen extends Screen implements IEnvelopePacketReceiv
     @Override
     protected void init() {
         super.init();
-        this.addRenderableWidget(new Button((this.width - 200) / 2, this.height / 2 + 15, 200, 20, new TranslatableComponent("modal.snailmail.close"), btn -> {
+        this.addRenderableWidget(new Button((this.width - 200) / 2, this.height / 2 + 15, 200, 20, Component.translatable("modal.snailmail.close"), btn -> {
             Minecraft.getInstance().setScreen(parent);
         }));
     }
@@ -60,7 +58,7 @@ public class SnailBoxModalScreen extends Screen implements IEnvelopePacketReceiv
                     arg = EnvelopeItem.getString(istack, "AddressedTo");
                 }
             }
-            List<FormattedCharSequence> text = this.font.split(new TranslatableComponent("modal.snailmail." + type.name().toLowerCase(), arg), 240);
+            List<FormattedCharSequence> text = this.font.split(Component.translatable("modal.snailmail." + type.name().toLowerCase(), arg), 240);
             for(int i = 0; i < text.size(); i++) {
                 this.font.draw(stack, text.get(i), modalXStart + (modalXSize / 2) - (this.font.width(text.get(i)) / 2), modalYStart + (modalYSize / 2) - (this.font.lineHeight * (text.size() - i)), 0xFFFFFF);
             }
@@ -71,7 +69,7 @@ public class SnailBoxModalScreen extends Screen implements IEnvelopePacketReceiv
             for(int i = 0; i < dotAmount; i++) {
                 dots += ".";
             }
-            GuiComponent.drawCenteredString(stack, this.font, new TranslatableComponent("modal.snailmail.sending").append(new TextComponent(dots)).getString(), modalXStart + (modalXSize / 2), modalYStart + (modalYSize / 2), 0xFFFFFF);
+            GuiComponent.drawCenteredString(stack, this.font, Component.translatable("modal.snailmail.sending").append(Component.literal(dots)).getString(), modalXStart + (modalXSize / 2), modalYStart + (modalYSize / 2), 0xFFFFFF);
         }
     }
 

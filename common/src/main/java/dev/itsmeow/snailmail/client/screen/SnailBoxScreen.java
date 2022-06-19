@@ -24,7 +24,6 @@ import net.minecraft.client.gui.narration.NarratableEntry;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
 import net.minecraft.client.renderer.GameRenderer;
 import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.item.ItemStack;
@@ -46,7 +45,7 @@ public class SnailBoxScreen extends AbstractContainerScreen<SnailBoxMenu> implem
         super.init();
         int xStart = (this.width - this.imageWidth) / 2;
         int yStart = (this.height - this.imageHeight) / 2;
-        this.addRenderableWidget(new Button(xStart + 84, yStart + 4, 67, 20, new TranslatableComponent("container.snailmail.snail_box.send"), (bt) -> {
+        this.addRenderableWidget(new Button(xStart + 84, yStart + 4, 67, 20, Component.translatable("container.snailmail.snail_box.send"), (bt) -> {
             ItemStack envelope = this.menu.getSlot(27).getItem();
             if(!envelope.isEmpty() && envelope.getItem() == ModItems.ENVELOPE_OPEN.get()) {
                 SendEnvelopePacket packet = new SendEnvelopePacket(Type.TO_SERVER);
@@ -54,7 +53,7 @@ public class SnailBoxScreen extends AbstractContainerScreen<SnailBoxMenu> implem
                 ModNetwork.HANDLER.sendToServer(packet);
             }
         }));
-        this.envelopeButton = new Button(xStart + this.imageWidth - 80, yStart - 20, 80, 20, new TranslatableComponent("container.snailmail.snail_box.open_envelope"), (bt) -> {
+        this.envelopeButton = new Button(xStart + this.imageWidth - 80, yStart - 20, 80, 20, Component.translatable("container.snailmail.snail_box.open_envelope"), (bt) -> {
             ItemStack envelope = this.menu.getSlot(27).getItem();
             if (envelope.getItem() == ModItems.ENVELOPE_OPEN.get()) {
                 ModNetwork.HANDLER.sendToServer(new OpenEnvelopeGUIPacket(menu.pos));
@@ -63,10 +62,10 @@ public class SnailBoxScreen extends AbstractContainerScreen<SnailBoxMenu> implem
         this.envelopeButton.active = this.menu.getSlot(27).getItem().getItem() == ModItems.ENVELOPE_OPEN.get();
         this.addRenderableWidget(envelopeButton);
         if(this.menu.isOwner) {
-            this.addRenderableWidget(new Button(xStart + 88, yStart + 95, 82, 20, new TranslatableComponent("container.snailmail.snail_box.members"), (bt) -> {
+            this.addRenderableWidget(new Button(xStart + 88, yStart + 95, 82, 20, Component.translatable("container.snailmail.snail_box.members"), (bt) -> {
                 Minecraft.getInstance().setScreen(new SnailBoxMemberScreen(this));
             }));
-            Checkbox button = new Checkbox(xStart + 7, yStart + 82, 79, 14, new TranslatableComponent("container.snailmail.snail_box.public"), this.menu.isPublic) {
+            Checkbox button = new Checkbox(xStart + 7, yStart + 82, 79, 14, Component.translatable("container.snailmail.snail_box.public"), this.menu.isPublic) {
 
                 @Override
                 public void onPress() {
@@ -91,7 +90,7 @@ public class SnailBoxScreen extends AbstractContainerScreen<SnailBoxMenu> implem
             this.addRenderableWidget(button);
         }
         Minecraft.getInstance().keyboardHandler.setSendRepeatsToGui(true);
-        this.nameField = new EditBox(this.font, xStart + 88, yStart + 83, 82, 10, new TranslatableComponent("container.snailmail.snail_box.textfield.name")) {
+        this.nameField = new EditBox(this.font, xStart + 88, yStart + 83, 82, 10, Component.translatable("container.snailmail.snail_box.textfield.name")) {
 
             @Override
             public boolean charTyped(char c, int p_charTyped_2_) {

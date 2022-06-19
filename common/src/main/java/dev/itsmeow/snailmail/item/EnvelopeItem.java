@@ -12,8 +12,6 @@ import net.minecraft.nbt.Tag;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.Style;
-import net.minecraft.network.chat.TextComponent;
-import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResultHolder;
@@ -33,7 +31,7 @@ import java.util.Optional;
 public class EnvelopeItem extends Item {
 
     private final boolean isOpen;
-    private static final Component title = new TranslatableComponent("container.snailmail.envelope");
+    private static final Component title = Component.translatable("container.snailmail.envelope");
     public static final int SLOT_COUNT = 28;
 
     public EnvelopeItem(boolean isOpen) {
@@ -44,17 +42,17 @@ public class EnvelopeItem extends Item {
     @Override
     public void appendHoverText(ItemStack stack, Level worldIn, List<Component> tooltip, TooltipFlag flagIn) {
         if(stack.hasTag() && stack.getTag().contains("AddressedTo", Tag.TAG_STRING) && !stack.getTag().getString("AddressedTo").isEmpty()) {
-            tooltip.add(new TranslatableComponent("tooltip.snailmail.to", new TextComponent(stack.getTag().getString("AddressedTo")).setStyle(Style.EMPTY.applyFormat(ChatFormatting.GRAY))).setStyle(Style.EMPTY.applyFormat(ChatFormatting.GREEN).withItalic(true)));
+            tooltip.add(Component.translatable("tooltip.snailmail.to", Component.literal(stack.getTag().getString("AddressedTo")).setStyle(Style.EMPTY.applyFormat(ChatFormatting.GRAY))).setStyle(Style.EMPTY.applyFormat(ChatFormatting.GREEN).withItalic(true)));
         }
         if(stack.hasTag() && stack.getTag().contains("AddressedFrom", Tag.TAG_STRING) && !stack.getTag().getString("AddressedFrom").isEmpty()) {
-            tooltip.add(new TranslatableComponent("tooltip.snailmail.from", new TextComponent(stack.getTag().getString("AddressedFrom")).setStyle(Style.EMPTY.applyFormat(ChatFormatting.GRAY))).setStyle(Style.EMPTY.applyFormat(ChatFormatting.RED).withItalic(true)));
+            tooltip.add(Component.translatable("tooltip.snailmail.from", Component.literal(stack.getTag().getString("AddressedFrom")).setStyle(Style.EMPTY.applyFormat(ChatFormatting.GRAY))).setStyle(Style.EMPTY.applyFormat(ChatFormatting.RED).withItalic(true)));
         }
         if(stack.hasTag() && stack.getTag().contains("delivery_failed", Tag.TAG_BYTE) && stack.getTag().getBoolean("delivery_failed")) {
-            tooltip.add(new TranslatableComponent("tooltip.snailmail.delivery_failed").setStyle(Style.EMPTY.applyFormat(ChatFormatting.RED).withBold(true)));
+            tooltip.add(Component.translatable("tooltip.snailmail.delivery_failed").setStyle(Style.EMPTY.applyFormat(ChatFormatting.RED).withBold(true)));
         }
         if(stack.getItem() == ModItems.ENVELOPE_OPEN.get()) {
             if(isStamped(stack)) {
-                tooltip.add(new TranslatableComponent("tooltip.snailmail.stamped").setStyle(Style.EMPTY.applyFormat(ChatFormatting.GOLD).withItalic(true)));
+                tooltip.add(Component.translatable("tooltip.snailmail.stamped").setStyle(Style.EMPTY.applyFormat(ChatFormatting.GOLD).withItalic(true)));
             }
         }
     }

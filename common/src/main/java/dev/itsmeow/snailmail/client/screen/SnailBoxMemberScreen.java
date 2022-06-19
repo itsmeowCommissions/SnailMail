@@ -1,7 +1,6 @@
 package dev.itsmeow.snailmail.client.screen;
 
 import com.mojang.blaze3d.vertex.PoseStack;
-import dev.itsmeow.snailmail.SnailMail;
 import dev.itsmeow.snailmail.init.ModNetwork;
 import dev.itsmeow.snailmail.network.UpdateSnailBoxPacket;
 import dev.itsmeow.snailmail.util.RandomUtil;
@@ -11,10 +10,9 @@ import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.components.EditBox;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.TranslatableComponent;
 
 public class SnailBoxMemberScreen extends Screen {
-    private static final Component TITLE = new TranslatableComponent("container.snailmail.snail_box");
+    private static final Component TITLE = Component.translatable("container.snailmail.snail_box");
 
     private SnailBoxMemberListWidget list;
     public SnailBoxScreen parent;
@@ -32,7 +30,7 @@ public class SnailBoxMemberScreen extends Screen {
         this.addRenderableWidget(list);
 
         Minecraft.getInstance().keyboardHandler.setSendRepeatsToGui(true);
-        this.nameField = new EditBox(this.font, (this.width - 100) / 2 - 75, 3, 100, 18, new TranslatableComponent("container.snailmail.snail_box.textfield.name")) {
+        this.nameField = new EditBox(this.font, (this.width - 100) / 2 - 75, 3, 100, 18, Component.translatable("container.snailmail.snail_box.textfield.name")) {
 
             @Override
             public boolean charTyped(char c, int p_charTyped_2_) {
@@ -55,17 +53,17 @@ public class SnailBoxMemberScreen extends Screen {
         this.nameField.setMaxLength(35);
         this.addRenderableWidget(this.nameField);
 
-        this.addRenderableWidget(new Button((this.width - 100) / 2 + 75, 2, 100, 20, new TranslatableComponent("modal.snailmail.add"), btn -> {
+        this.addRenderableWidget(new Button((this.width - 100) / 2 + 75, 2, 100, 20, Component.translatable("modal.snailmail.add"), btn -> {
             if(!this.nameField.getValue().isEmpty()) {
                 ModNetwork.HANDLER.sendToServer(new UpdateSnailBoxPacket(this.nameField.getValue(), true));
             }
         }));
-        this.addRenderableWidget(new Button((this.width - 150) / 2, this.height - 50, 150, 20, new TranslatableComponent("modal.snailmail.remove_selected"), btn -> {
+        this.addRenderableWidget(new Button((this.width - 150) / 2, this.height - 50, 150, 20, Component.translatable("modal.snailmail.remove_selected"), btn -> {
             if(this.list != null && this.list.getSelected() != null) {
                 ModNetwork.HANDLER.sendToServer(new UpdateSnailBoxPacket(list.getSelected().getNameOrId(), false));
             }
         }));
-        this.addRenderableWidget(new Button((this.width - 200) / 2, this.height - 25, 200, 20, new TranslatableComponent("modal.snailmail.done"), btn -> {
+        this.addRenderableWidget(new Button((this.width - 200) / 2, this.height - 25, 200, 20, Component.translatable("modal.snailmail.done"), btn -> {
             Minecraft.getInstance().setScreen(parent);
         }));
     }

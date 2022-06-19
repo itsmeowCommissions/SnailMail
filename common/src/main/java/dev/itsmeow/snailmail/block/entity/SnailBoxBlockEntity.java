@@ -10,15 +10,14 @@ import dev.itsmeow.snailmail.init.ModBlocks;
 import dev.itsmeow.snailmail.menu.SnailBoxMenu;
 import dev.itsmeow.snailmail.util.Location;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.UUIDUtil;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.MenuProvider;
 import net.minecraft.world.SimpleMenuProvider;
 import net.minecraft.world.entity.player.Inventory;
-import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.MenuConstructor;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
@@ -33,7 +32,7 @@ import java.util.UUID;
 public class SnailBoxBlockEntity extends BlockEntity {
 
     public static final int SLOT_COUNT = 28;
-    public static final Component TITLE = new TranslatableComponent("container.snailmail.snail_box");
+    public static final Component TITLE = Component.translatable("container.snailmail.snail_box");
 
     public SnailBoxBlockEntity(BlockPos blockPos, BlockState blockState) {
         super(ModBlockEntities.SNAIL_BOX.get(), blockPos, blockState);
@@ -137,7 +136,7 @@ public class SnailBoxBlockEntity extends BlockEntity {
                     name = "";
                 }
                 buf.writeUtf(name, 35);
-                buf.writeBoolean(Player.createPlayerUUID(player.getGameProfile()).equals(this.getOwner()));
+                buf.writeBoolean(UUIDUtil.getOrCreatePlayerUUID(player.getGameProfile()).equals(this.getOwner()));
                 buf.writeBoolean(this.isPublic());
                 Set<String> usernames = new HashSet<String>();
 

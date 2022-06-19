@@ -9,9 +9,9 @@ import dev.itsmeow.snailmail.init.ModNetwork;
 import dev.itsmeow.snailmail.menu.SnailBoxMenu;
 import dev.itsmeow.snailmail.util.RandomUtil;
 import net.minecraft.client.Minecraft;
+import net.minecraft.core.UUIDUtil;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.server.level.ServerPlayer;
-import net.minecraft.world.entity.player.Player;
 
 import java.util.Optional;
 import java.util.UUID;
@@ -83,7 +83,7 @@ public class UpdateSnailBoxPacket {
                     ServerPlayer sender = (ServerPlayer) ctx.get().getPlayer();
                     if(sender.containerMenu instanceof SnailBoxMenu) {
                         SnailBoxBlockEntity te = ((SnailBoxMenu) sender.containerMenu).getTile(sender);
-                        if(te != null && te.getOwner().equals(Player.createPlayerUUID(sender.getGameProfile()))) {
+                        if(te != null && te.getOwner().equals(UUIDUtil.getOrCreatePlayerUUID(sender.getGameProfile()))) {
                             switch(msg.type) {
                             case NAME:
                                 String newName = RandomUtil.filterAllowedCharacters(msg.name, true);

@@ -17,7 +17,6 @@ import net.minecraft.client.gui.narration.NarratableEntry;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
 import net.minecraft.client.renderer.GameRenderer;
 import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.level.block.entity.BlockEntity;
@@ -39,7 +38,7 @@ public class EnvelopeScreen extends AbstractContainerScreen<EnvelopeMenu> {
         Minecraft.getInstance().keyboardHandler.setSendRepeatsToGui(true);
         int i = (this.width - this.imageWidth) / 2;
         int j = (this.height - this.imageHeight) / 2;
-        this.toField = new EditBox(this.font, i + 92, j + 10, 58, 10, new TranslatableComponent("container.snailmail.envelope.textfield.to")) {
+        this.toField = new EditBox(this.font, i + 92, j + 10, 58, 10, Component.translatable("container.snailmail.envelope.textfield.to")) {
 
             @Override
             public boolean charTyped(char c, int p_charTyped_2_) {
@@ -66,7 +65,7 @@ public class EnvelopeScreen extends AbstractContainerScreen<EnvelopeMenu> {
         });
         this.addRenderableWidget(this.toField);
 
-        this.fromField = new EditBox(this.font, i + 111, j + 84, 58, 10, new TranslatableComponent("container.snailmail.envelope.textfield.from")) {
+        this.fromField = new EditBox(this.font, i + 111, j + 84, 58, 10, Component.translatable("container.snailmail.envelope.textfield.from")) {
             @Override
             public boolean charTyped(char c, int p_charTyped_2_) {
                 if(!this.canConsumeInput()) {

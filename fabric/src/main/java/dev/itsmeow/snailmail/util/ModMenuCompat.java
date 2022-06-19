@@ -9,7 +9,7 @@ import io.github.fablabsmc.fablabs.api.fiber.v1.tree.ConfigTree;
 import me.shedaniel.fiber2cloth.api.Fiber2Cloth;
 import net.fabricmc.loader.api.FabricLoader;
 import net.minecraft.client.gui.screens.Screen;
-import net.minecraft.network.chat.TranslatableComponent;
+import net.minecraft.network.chat.Component;
 
 import java.util.function.Supplier;
 
@@ -32,7 +32,7 @@ public class ModMenuCompat implements ModMenuApi {
                 c.getBranch().detach();
                 b.withChild(c.getBranch());
             }
-            Fiber2Cloth fiber2Cloth = Fiber2Cloth.create(parent, SnailMail.MODID, b.build(), SnailMail.MODID).setTitleText(new TranslatableComponent("config." + SnailMail.MODID)).setSaveRunnable(() -> {
+            Fiber2Cloth fiber2Cloth = Fiber2Cloth.create(parent, SnailMail.MODID, b.build(), SnailMail.MODID).setTitleText(Component.translatable("config." + SnailMail.MODID)).setSaveRunnable(() -> {
                 for (SnailMailFabric.FabricCommonConfig c : SnailMailFabric.FabricCommonConfig.INSTANCES) {
                     c.saveBranch(c.getConfigFile(), b.lookupBranch(c.getConfigName()));
                 }

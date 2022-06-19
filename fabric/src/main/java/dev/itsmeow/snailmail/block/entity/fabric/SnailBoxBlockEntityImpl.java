@@ -66,7 +66,7 @@ public class SnailBoxBlockEntityImpl {
     public static void dropItems(SnailBoxBlockEntity blockEntity) {
         try (Transaction transaction = Transaction.openOuter()) {
             for (int i = 0; i < ((SnailBoxInterfaceFabric) blockEntity).getItemHandler().getSlots().size(); ++i) {
-                ((SnailBoxInterfaceFabric) blockEntity).getItemHandler().getSlot(i).iterator(transaction).forEachRemaining(view -> {
+                ((SnailBoxInterfaceFabric) blockEntity).getItemHandler().getSlot(i).iterator().forEachRemaining(view -> {
                     Containers.dropItemStack(blockEntity.getLevel(), blockEntity.getBlockPos().getX(), blockEntity.getBlockPos().getY(), blockEntity.getBlockPos().getZ(), view.getResource().toStack((int) view.getAmount()));
                 });
             }

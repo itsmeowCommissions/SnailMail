@@ -10,7 +10,6 @@ import net.minecraft.client.gui.GuiComponent;
 import net.minecraft.client.gui.components.ObjectSelectionList;
 import net.minecraft.client.resources.language.I18n;
 import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.TextComponent;
 import net.minecraft.util.Mth;
 
 public class SnailBoxListWidget extends ObjectSelectionList<SnailBoxListWidget.BoxEntry> {
@@ -103,7 +102,7 @@ public class SnailBoxListWidget extends ObjectSelectionList<SnailBoxListWidget.B
     public class BoxEntry extends ObjectSelectionList.Entry<BoxEntry> {
         private final BoxData box;
         private String locStringL = "";
-        private TextComponent locStringComponent;
+        private Component locStringComponent;
 
         BoxEntry(BoxData box) {
             this.box = box;
@@ -124,7 +123,7 @@ public class SnailBoxListWidget extends ObjectSelectionList<SnailBoxListWidget.B
             }
             if(!locString.equals(locStringL)) {
                 locStringL = locString;
-                locStringComponent = new TextComponent(locString);
+                locStringComponent = Component.literal(locString);
             }
             font.draw(stack, font.plainSubstrByWidth(locString, 256), left + 3, top + 2 + font.lineHeight, 0xCCCCCC);
             String s;

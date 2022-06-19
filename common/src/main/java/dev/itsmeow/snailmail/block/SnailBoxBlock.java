@@ -1,14 +1,13 @@
 package dev.itsmeow.snailmail.block;
 
 import dev.itsmeow.snailmail.block.entity.SnailBoxBlockEntity;
-import dev.itsmeow.snailmail.init.ModBlockEntities;
 import dev.itsmeow.snailmail.util.SnailMailCommonConfig;
 import net.minecraft.ChatFormatting;
-import net.minecraft.Util;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
+import net.minecraft.core.UUIDUtil;
+import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.Style;
-import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
@@ -100,7 +99,7 @@ public class SnailBoxBlock extends Block implements SimpleWaterloggedBlock, Enti
                     lastClickedBox.put(player.getUUID(), new BlockPos(pos));
                     ((SnailBoxBlockEntity) level.getBlockEntity(pos)).openGUI((ServerPlayer) player);
                 } else if (hand == InteractionHand.MAIN_HAND) {
-                    player.sendMessage(new TranslatableComponent("message.snailmail.noperm").setStyle(Style.EMPTY.withColor(ChatFormatting.RED)), Util.NIL_UUID);
+                    player.sendSystemMessage(Component.translatable("message.snailmail.noperm").setStyle(Style.EMPTY.withColor(ChatFormatting.RED)));
                 }
             }
             return InteractionResult.CONSUME;
@@ -117,7 +116,7 @@ public class SnailBoxBlock extends Block implements SimpleWaterloggedBlock, Enti
         if(!SnailMailCommonConfig.lockBoxes()) {
             return true;
         }
-        UUID uuid = Player.createPlayerUUID(player.getGameProfile());
+        UUID uuid = UUIDUtil.getOrCreatePlayerUUID(player.getGameProfile());
         if(uuid.equals(te.getOwner()) || te.isMember(uuid)) {
             return true;
         }

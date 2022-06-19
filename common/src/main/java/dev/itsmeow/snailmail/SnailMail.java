@@ -12,6 +12,7 @@ import dev.itsmeow.snailmail.util.BiMultiMap;
 import dev.itsmeow.snailmail.util.Location;
 import dev.itsmeow.snailmail.util.SnailMailCommonConfig;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.UUIDUtil;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.StringTag;
@@ -43,7 +44,7 @@ public class SnailMail {
         ModNetwork.init();
         BlockEvent.PLACE.register((level, pos, state, entity) -> {
             if(entity instanceof Player && !level.isClientSide()) {
-                UUID uuid = Player.createPlayerUUID(((Player) entity).getGameProfile());
+                UUID uuid = UUIDUtil.getOrCreatePlayerUUID(((Player) entity).getGameProfile());
                 BlockEntity teB = level.getBlockEntity(pos);
                 if(teB != null && teB instanceof SnailBoxBlockEntity) {
                     Set<Location> box = SnailBoxSavedData.getOrCreate(level).getBoxes(uuid);
