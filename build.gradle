@@ -9,3 +9,4 @@ allprojects {
     apply plugin: "architectury-plugin"
 }
 apply from: 'https://maven.itsmeow.dev/scripts/architectury-base.gradle'
+apply from: 'https://maven.itsmeow.dev/scripts/architectury-alphas.gradle'
