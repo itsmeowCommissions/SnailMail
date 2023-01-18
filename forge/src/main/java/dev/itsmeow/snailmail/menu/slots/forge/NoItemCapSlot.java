@@ -2,7 +2,7 @@ package dev.itsmeow.snailmail.menu.slots.forge;
 
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
-import net.minecraftforge.items.CapabilityItemHandler;
+import net.minecraftforge.common.capabilities.ForgeCapabilities;
 import net.minecraftforge.items.IItemHandler;
 import net.minecraftforge.items.SlotItemHandler;
 
@@ -14,7 +14,7 @@ public class NoItemCapSlot extends SlotItemHandler {
 
     @Override
     public boolean mayPlace(ItemStack stack) {
-        return !stack.getCapability(CapabilityItemHandler.ITEM_HANDLER_CAPABILITY).isPresent() && stack.getItem() != Items.SHULKER_BOX;
+        return !stack.getCapability(ForgeCapabilities.ITEM_HANDLER).isPresent() && stack.getItem() != Items.SHULKER_BOX;
     }
 
 }

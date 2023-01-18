@@ -11,8 +11,8 @@ import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.MenuConstructor;
 import net.minecraft.world.item.ItemStack;
+import net.minecraftforge.common.capabilities.ForgeCapabilities;
 import net.minecraftforge.common.util.LazyOptional;
-import net.minecraftforge.items.CapabilityItemHandler;
 import net.minecraftforge.items.IItemHandler;
 import net.minecraftforge.items.ItemHandlerHelper;
 import net.minecraftforge.items.ItemStackHandler;
@@ -22,7 +22,7 @@ import java.util.Optional;
 public class EnvelopeItemImpl {
 
     public static boolean isStamped(ItemStack stack) {
-        LazyOptional<IItemHandler> cap = stack.getCapability(CapabilityItemHandler.ITEM_HANDLER_CAPABILITY);
+        LazyOptional<IItemHandler> cap = stack.getCapability(ForgeCapabilities.ITEM_HANDLER);
         if(cap.isPresent()) {
             ItemStack stampSlot = cap.orElse(null).getStackInSlot(27);
             if(!stampSlot.isEmpty() && stampSlot.getItem() == ModItems.STAMP.get()) {
@@ -33,11 +33,11 @@ public class EnvelopeItemImpl {
     }
 
     public static Optional<ItemStack> doConvert(ItemStack stack, boolean fromOpen) {
-        LazyOptional<IItemHandler> hOpt = stack.getCapability(CapabilityItemHandler.ITEM_HANDLER_CAPABILITY);
+        LazyOptional<IItemHandler> hOpt = stack.getCapability(ForgeCapabilities.ITEM_HANDLER);
         if(hOpt.isPresent()) {
             IItemHandler handler = hOpt.orElse(null);
             ItemStack newStack = new ItemStack(fromOpen ? ModItems.ENVELOPE_CLOSED.get() : ModItems.ENVELOPE_OPEN.get());
-            LazyOptional<IItemHandler> nHOpt = newStack.getCapability(CapabilityItemHandler.ITEM_HANDLER_CAPABILITY);
+            LazyOptional<IItemHandler> nHOpt = newStack.getCapability(ForgeCapabilities.ITEM_HANDLER);
             if(nHOpt.isPresent()) {
                 IItemHandler newHandler = nHOpt.orElse(null);
                 if(newHandler instanceof ItemStackHandler) {
@@ -61,7 +61,7 @@ public class EnvelopeItemImpl {
     }
 
     public static boolean hasItems(ItemStack stack) {
-        return stack.getCapability(CapabilityItemHandler.ITEM_HANDLER_CAPABILITY) != null;
+        return stack.getCapability(ForgeCapabilities.ITEM_HANDLER) != null;
     }
 
     public static EnvelopeMenu getClientMenu(int id, Inventory playerInventory, FriendlyByteBuf extra) {
@@ -84,11 +84,11 @@ public class EnvelopeItemImpl {
     }
 
     public static MenuConstructor getServerMenuProvider(ItemStack stack) {
-        return (id, playerInventory, serverPlayer) -> new EnvelopeMenuForge(id, playerInventory, stack.getCapability(CapabilityItemHandler.ITEM_HANDLER_CAPABILITY).orElse(null));
+        return (id, playerInventory, serverPlayer) -> new EnvelopeMenuForge(id, playerInventory, stack.getCapability(ForgeCapabilities.ITEM_HANDLER).orElse(null));
     }
 
     public static void emptyEnvelope(ItemStack stack, Player playerIn) {
-        stack.getCapability(CapabilityItemHandler.ITEM_HANDLER_CAPABILITY).ifPresent((inv) -> {
+        stack.getCapability(ForgeCapabilities.ITEM_HANDLER).ifPresent((inv) -> {
             for (int i = 0; i < inv.getSlots(); i++) {
                 ItemHandlerHelper.giveItemToPlayer(playerIn, inv.getStackInSlot(i));
             }

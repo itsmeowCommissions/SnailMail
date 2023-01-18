@@ -10,8 +10,8 @@ import net.minecraft.world.Containers;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.inventory.MenuConstructor;
 import net.minecraft.world.item.ItemStack;
+import net.minecraftforge.common.capabilities.ForgeCapabilities;
 import net.minecraftforge.common.util.LazyOptional;
-import net.minecraftforge.items.CapabilityItemHandler;
 import net.minecraftforge.items.IItemHandler;
 import net.minecraftforge.items.ItemStackHandler;
 
@@ -69,7 +69,7 @@ public class SnailBoxBlockEntityImpl {
     }
 
     public static boolean setEnvelopeServer(SnailBoxBlockEntity blockEntity, ItemStack stack) {
-        LazyOptional<IItemHandler> hOpt = blockEntity.getCapability(CapabilityItemHandler.ITEM_HANDLER_CAPABILITY);
+        LazyOptional<IItemHandler> hOpt = blockEntity.getCapability(ForgeCapabilities.ITEM_HANDLER);
         if (hOpt.isPresent()) {
             IItemHandler handlerRaw = hOpt.orElse(null);
             if (handlerRaw instanceof ItemStackHandler) {
@@ -86,7 +86,7 @@ public class SnailBoxBlockEntityImpl {
     }
 
     private static ItemStackHandler getCapability(SnailBoxBlockEntity te) {
-        LazyOptional<IItemHandler> hOpt = te.getCapability(CapabilityItemHandler.ITEM_HANDLER_CAPABILITY);
+        LazyOptional<IItemHandler> hOpt = te.getCapability(ForgeCapabilities.ITEM_HANDLER);
         if (hOpt.isPresent()) {
             if (hOpt.orElse(null) instanceof ItemStackHandler) {
                 return (ItemStackHandler) hOpt.orElse(null);

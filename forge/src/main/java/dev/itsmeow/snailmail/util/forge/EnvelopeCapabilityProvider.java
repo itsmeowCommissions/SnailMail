@@ -6,9 +6,9 @@ import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraftforge.common.capabilities.Capability;
+import net.minecraftforge.common.capabilities.ForgeCapabilities;
 import net.minecraftforge.common.capabilities.ICapabilitySerializable;
 import net.minecraftforge.common.util.LazyOptional;
-import net.minecraftforge.items.CapabilityItemHandler;
 import net.minecraftforge.items.ItemStackHandler;
 
 public class EnvelopeCapabilityProvider implements ICapabilitySerializable<CompoundTag> {
@@ -24,7 +24,7 @@ public class EnvelopeCapabilityProvider implements ICapabilitySerializable<Compo
                 if(slot == 27) {
                     return stack.getItem() == ModItems.STAMP.get();
                 }
-                return !stack.getCapability(CapabilityItemHandler.ITEM_HANDLER_CAPABILITY).isPresent() && stack.getItem() != Items.SHULKER_BOX;
+                return !stack.getCapability(ForgeCapabilities.ITEM_HANDLER).isPresent() && stack.getItem() != Items.SHULKER_BOX;
             }
         };
         this.handlerOptional = LazyOptional.of(() -> handler);
@@ -33,7 +33,7 @@ public class EnvelopeCapabilityProvider implements ICapabilitySerializable<Compo
 
     @Override
     public <T> LazyOptional<T> getCapability(Capability<T> cap, Direction dir) {
-        if(cap == CapabilityItemHandler.ITEM_HANDLER_CAPABILITY && !stack.isEmpty()) {
+        if(cap == ForgeCapabilities.ITEM_HANDLER && !stack.isEmpty()) {
             return handlerOptional.cast();
         }
         return LazyOptional.empty();
