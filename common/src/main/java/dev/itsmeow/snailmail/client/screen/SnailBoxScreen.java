@@ -15,10 +15,7 @@ import dev.itsmeow.snailmail.util.BoxData;
 import dev.itsmeow.snailmail.util.RandomUtil;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiComponent;
-import net.minecraft.client.gui.components.Button;
-import net.minecraft.client.gui.components.Checkbox;
-import net.minecraft.client.gui.components.EditBox;
-import net.minecraft.client.gui.components.Widget;
+import net.minecraft.client.gui.components.*;
 import net.minecraft.client.gui.components.events.GuiEventListener;
 import net.minecraft.client.gui.narration.NarratableEntry;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
@@ -45,26 +42,26 @@ public class SnailBoxScreen extends AbstractContainerScreen<SnailBoxMenu> implem
         super.init();
         int xStart = (this.width - this.imageWidth) / 2;
         int yStart = (this.height - this.imageHeight) / 2;
-        this.addRenderableWidget(new Button(xStart + 84, yStart + 4, 67, 20, Component.translatable("container.snailmail.snail_box.send"), (bt) -> {
+        this.addRenderableWidget(Button.builder(Component.translatable("container.snailmail.snail_box.send"), (bt) -> {
             ItemStack envelope = this.menu.getSlot(27).getItem();
             if(!envelope.isEmpty() && envelope.getItem() == ModItems.ENVELOPE_OPEN.get()) {
                 SendEnvelopePacket packet = new SendEnvelopePacket(Type.TO_SERVER);
                 this.receivePacket(packet);
                 ModNetwork.HANDLER.sendToServer(packet);
             }
-        }));
-        this.envelopeButton = new Button(xStart + this.imageWidth - 80, yStart - 20, 80, 20, Component.translatable("container.snailmail.snail_box.open_envelope"), (bt) -> {
+        }).pos(xStart + 84, yStart + 4).size(67, 20).build());
+        this.envelopeButton = Button.builder(Component.translatable("container.snailmail.snail_box.open_envelope"), (bt) -> {
             ItemStack envelope = this.menu.getSlot(27).getItem();
             if (envelope.getItem() == ModItems.ENVELOPE_OPEN.get()) {
                 ModNetwork.HANDLER.sendToServer(new OpenEnvelopeGUIPacket(menu.pos));
             }
-        });
+        }).pos(xStart + this.imageWidth - 80, yStart - 20).size(80, 20).build();
         this.envelopeButton.active = this.menu.getSlot(27).getItem().getItem() == ModItems.ENVELOPE_OPEN.get();
         this.addRenderableWidget(envelopeButton);
         if(this.menu.isOwner) {
-            this.addRenderableWidget(new Button(xStart + 88, yStart + 95, 82, 20, Component.translatable("container.snailmail.snail_box.members"), (bt) -> {
+            this.addRenderableWidget(Button.builder(Component.translatable("container.snailmail.snail_box.members"), (bt) -> {
                 Minecraft.getInstance().setScreen(new SnailBoxMemberScreen(this));
-            }));
+            }).pos(xStart + 88, yStart + 95).size(82, 20).build());
             Checkbox button = new Checkbox(xStart + 7, yStart + 82, 79, 14, Component.translatable("container.snailmail.snail_box.public"), this.menu.isPublic) {
 
                 @Override
@@ -79,17 +76,16 @@ public class SnailBoxScreen extends AbstractContainerScreen<SnailBoxMenu> implem
                     RenderSystem.setShader(GameRenderer::getPositionTexShader);
                     RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
                     RenderSystem.setShaderTexture(0, CHECK_TEXTURE);
-                    GuiComponent.blit(stack, this.x, this.y, this.selected() ? 14 : 0, 0, 14, 14, 28, 14);
+                    GuiComponent.blit(stack, this.getX(), this.getY(), this.selected() ? 14 : 0, 0, 14, 14, 28, 14);
                     stack.pushPose();
                     stack.scale(0.8F, 0.8F, 1F);
-                    SnailBoxScreen.this.font.draw(stack, this.getMessage(), (this.x + 14 + 4) * 1.25F, (this.y + 4) * 1.25F, 0xFF404040);
+                    SnailBoxScreen.this.font.draw(stack, this.getMessage(), (this.getX() + 14 + 4) * 1.25F, (this.getY() + 4) * 1.25F, 0xFF404040);
                     stack.popPose();
                 }
 
             };
             this.addRenderableWidget(button);
         }
-        Minecraft.getInstance().keyboardHandler.setSendRepeatsToGui(true);
         this.nameField = new EditBox(this.font, xStart + 88, yStart + 83, 82, 10, Component.translatable("container.snailmail.snail_box.textfield.name")) {
 
             @Override
@@ -122,7 +118,7 @@ public class SnailBoxScreen extends AbstractContainerScreen<SnailBoxMenu> implem
     }
 
     @Override
-    protected <T extends GuiEventListener & Widget & NarratableEntry> T addRenderableWidget(T guiEventListener) {
+    protected <T extends GuiEventListener & Renderable & NarratableEntry> T addRenderableWidget(T guiEventListener) {
         if(Platform.isForge() && Platform.isModLoaded("quark")) {
             if(SnailBoxScreen.checkButton(guiEventListener)) {
                 return null;
@@ -132,7 +128,7 @@ public class SnailBoxScreen extends AbstractContainerScreen<SnailBoxMenu> implem
     }
 
     @ExpectPlatform
-    public static <T extends GuiEventListener & Widget & NarratableEntry> boolean checkButton(T guiEventListener) {
+    public static <T extends GuiEventListener & Renderable & NarratableEntry> boolean checkButton(T guiEventListener) {
         return true;
     }
 
@@ -147,12 +143,6 @@ public class SnailBoxScreen extends AbstractContainerScreen<SnailBoxMenu> implem
     public void containerTick() {
         this.nameField.tick();
         this.envelopeButton.active = this.menu.getSlot(27).getItem().getItem() == ModItems.ENVELOPE_OPEN.get();
-    }
-
-    @Override
-    public void removed() {
-        super.removed();
-        Minecraft.getInstance().keyboardHandler.setSendRepeatsToGui(false);
     }
 
     @Override

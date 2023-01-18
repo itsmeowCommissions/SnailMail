@@ -34,9 +34,9 @@ public class SnailBoxModalScreen extends Screen implements IEnvelopePacketReceiv
     @Override
     protected void init() {
         super.init();
-        this.addRenderableWidget(new Button((this.width - 200) / 2, this.height / 2 + 15, 200, 20, Component.translatable("modal.snailmail.close"), btn -> {
+        this.addRenderableWidget(Button.builder(Component.translatable("modal.snailmail.close"), btn -> {
             Minecraft.getInstance().setScreen(parent);
-        }));
+        }).pos((this.width - 200) / 2, this.height / 2 + 15).size(200, 20).build());
     }
 
     @Override

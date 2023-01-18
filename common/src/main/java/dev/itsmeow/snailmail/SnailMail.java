@@ -20,7 +20,6 @@ import net.minecraft.nbt.Tag;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.item.CreativeModeTab;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.Level;
@@ -33,7 +32,7 @@ import java.util.*;
 public class SnailMail {
 
     public static final String MODID = "snailmail";
-    public static CreativeModeTab ITEM_GROUP = CreativeTabRegistry.create(new ResourceLocation(MODID, "main"), () -> new ItemStack(ModItems.ENVELOPE_CLOSED.get()));;
+    public static CreativeTabRegistry.TabSupplier ITEM_GROUP = CreativeTabRegistry.create(new ResourceLocation(MODID, "main"), () -> new ItemStack(ModItems.ENVELOPE_CLOSED.get()));
 
     public static void construct() {
         ModEntities.init();

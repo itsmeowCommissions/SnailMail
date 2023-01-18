@@ -1,6 +1,6 @@
 {
 	"parent": "item/generated",
     "textures": {
-        "layer0": "snailmail:items/stamp"
+        "layer0": "snailmail:item/stamp"
     }
 }

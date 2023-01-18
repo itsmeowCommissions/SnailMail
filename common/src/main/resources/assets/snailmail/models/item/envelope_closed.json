@@ -1,6 +1,6 @@
 {
 	"parent": "item/generated",
     "textures": {
-        "layer0": "snailmail:items/envelope_closed"
+        "layer0": "snailmail:item/envelope_closed"
     }
 }

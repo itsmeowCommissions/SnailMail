@@ -28,8 +28,6 @@ public class SnailBoxMemberScreen extends Screen {
         super.init();
         list = new SnailBoxMemberListWidget(this);
         this.addRenderableWidget(list);
-
-        Minecraft.getInstance().keyboardHandler.setSendRepeatsToGui(true);
         this.nameField = new EditBox(this.font, (this.width - 100) / 2 - 75, 3, 100, 18, Component.translatable("container.snailmail.snail_box.textfield.name")) {
 
             @Override
@@ -53,19 +51,19 @@ public class SnailBoxMemberScreen extends Screen {
         this.nameField.setMaxLength(35);
         this.addRenderableWidget(this.nameField);
 
-        this.addRenderableWidget(new Button((this.width - 100) / 2 + 75, 2, 100, 20, Component.translatable("modal.snailmail.add"), btn -> {
+        this.addRenderableWidget(Button.builder(Component.translatable("modal.snailmail.add"), btn -> {
             if(!this.nameField.getValue().isEmpty()) {
                 ModNetwork.HANDLER.sendToServer(new UpdateSnailBoxPacket(this.nameField.getValue(), true));
             }
-        }));
-        this.addRenderableWidget(new Button((this.width - 150) / 2, this.height - 50, 150, 20, Component.translatable("modal.snailmail.remove_selected"), btn -> {
+        }).pos((this.width - 100) / 2 + 75, 2).size(100, 20).build());
+        this.addRenderableWidget(Button.builder(Component.translatable("modal.snailmail.remove_selected"), btn -> {
             if(this.list != null && this.list.getSelected() != null) {
                 ModNetwork.HANDLER.sendToServer(new UpdateSnailBoxPacket(list.getSelected().getNameOrId(), false));
             }
-        }));
-        this.addRenderableWidget(new Button((this.width - 200) / 2, this.height - 25, 200, 20, Component.translatable("modal.snailmail.done"), btn -> {
+        }).pos((this.width - 150) / 2, this.height - 50).size(150, 20).build());
+        this.addRenderableWidget(Button.builder(Component.translatable("modal.snailmail.done"), btn -> {
             Minecraft.getInstance().setScreen(parent);
-        }));
+        }).pos((this.width - 200) / 2, this.height - 25).size(200, 20).build());
     }
 
     @Override
@@ -78,12 +76,6 @@ public class SnailBoxMemberScreen extends Screen {
     @Override
     public void tick() {
         this.nameField.tick();
-    }
-
-    @Override
-    public void removed() {
-        super.removed();
-        Minecraft.getInstance().keyboardHandler.setSendRepeatsToGui(false);
     }
 
     @Override

@@ -4,7 +4,7 @@ import dev.architectury.registry.registries.DeferredRegister;
 import dev.architectury.registry.registries.RegistrySupplier;
 import dev.itsmeow.snailmail.SnailMail;
 import dev.itsmeow.snailmail.block.entity.SnailBoxBlockEntity;
-import net.minecraft.core.Registry;
+import net.minecraft.core.registries.Registries;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 
@@ -12,7 +12,7 @@ import java.util.function.Supplier;
 
 public class ModBlockEntities {
 
-    private static final DeferredRegister<BlockEntityType<?>> BLOCK_ENTITIES = DeferredRegister.create(SnailMail.MODID, Registry.BLOCK_ENTITY_TYPE_REGISTRY);
+    private static final DeferredRegister<BlockEntityType<?>> BLOCK_ENTITIES = DeferredRegister.create(SnailMail.MODID, Registries.BLOCK_ENTITY_TYPE);
 
     public static RegistrySupplier<BlockEntityType<SnailBoxBlockEntity>> SNAIL_BOX = r("snail_box", () -> BlockEntityType.Builder.of(SnailBoxBlockEntity::new, ModBlocks.SNAIL_BOX.get()).build(null));
 

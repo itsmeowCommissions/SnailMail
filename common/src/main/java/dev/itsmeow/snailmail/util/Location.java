@@ -1,8 +1,7 @@
 package dev.itsmeow.snailmail.util;
 
-import java.util.Objects;
 import net.minecraft.core.BlockPos;
-import net.minecraft.core.Registry;
+import net.minecraft.core.registries.Registries;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.resources.ResourceKey;
@@ -11,6 +10,8 @@ import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.Vec3;
+
+import java.util.Objects;
 
 public class Location {
 
@@ -63,7 +64,7 @@ public class Location {
     }
 
     public static Location read(FriendlyByteBuf buf) {
-        return new Location(ResourceKey.create(Registry.DIMENSION_REGISTRY, new ResourceLocation(buf.readUtf(60))), buf.readInt(), buf.readInt(), buf.readInt());
+        return new Location(ResourceKey.create(Registries.DIMENSION, new ResourceLocation(buf.readUtf(60))), buf.readInt(), buf.readInt(), buf.readInt());
     }
 
     public CompoundTag write(CompoundTag tag) {
@@ -75,7 +76,7 @@ public class Location {
     }
 
     public static Location read(CompoundTag tag) {
-        return new Location(ResourceKey.create(Registry.DIMENSION_REGISTRY, new ResourceLocation(tag.getString("dim"))), tag.getInt("x"), tag.getInt("y"), tag.getInt("z"));
+        return new Location(ResourceKey.create(Registries.DIMENSION, new ResourceLocation(tag.getString("dim"))), tag.getInt("x"), tag.getInt("y"), tag.getInt("z"));
     }
 
     public ResourceKey<Level> getDimension() {

@@ -8,7 +8,7 @@ import dev.itsmeow.snailmail.block.entity.SnailBoxBlockEntity;
 import dev.itsmeow.snailmail.item.EnvelopeItem;
 import dev.itsmeow.snailmail.menu.EnvelopeMenu;
 import dev.itsmeow.snailmail.menu.SnailBoxMenu;
-import net.minecraft.core.Registry;
+import net.minecraft.core.registries.Registries;
 import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.inventory.MenuType;
 
@@ -16,7 +16,7 @@ import java.util.function.Supplier;
 
 public class ModMenus {
 
-    private static final DeferredRegister<MenuType<?>> MENUS = DeferredRegister.create(SnailMail.MODID, Registry.MENU_REGISTRY);
+    private static final DeferredRegister<MenuType<?>> MENUS = DeferredRegister.create(SnailMail.MODID, Registries.MENU);
 
     public static RegistrySupplier<MenuType<SnailBoxMenu>> SNAIL_BOX = r("snail_box", () -> MenuRegistry.ofExtended(SnailBoxBlockEntity::getClientMenu));
     public static RegistrySupplier<MenuType<EnvelopeMenu>> ENVELOPE = r("envelope", () -> MenuRegistry.ofExtended(EnvelopeItem::getClientMenu));

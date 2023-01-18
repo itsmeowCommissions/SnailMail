@@ -1,9 +1,9 @@
 {
 	"textures": {
-		"0": "snailmail:blocks/snailbox",
-		"1": "snailmail:blocks/snailbox_2",
-		"2": "snailmail:blocks/snailbox_3",
-		"particle": "snailmail:blocks/snailbox"
+		"0": "snailmail:block/snailbox",
+		"1": "snailmail:block/snailbox_2",
+		"2": "snailmail:block/snailbox_3",
+		"particle": "snailmail:block/snailbox"
 	},
 	"elements": [
 		{

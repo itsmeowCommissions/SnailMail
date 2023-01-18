@@ -35,7 +35,7 @@ public class EnvelopeItem extends Item {
     public static final int SLOT_COUNT = 28;
 
     public EnvelopeItem(boolean isOpen) {
-        super(new Item.Properties().tab(SnailMail.ITEM_GROUP).stacksTo(1));
+        super(new Item.Properties().arch$tab(SnailMail.ITEM_GROUP).stacksTo(1));
         this.isOpen = isOpen;
     }
 

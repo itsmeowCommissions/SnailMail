@@ -4,14 +4,14 @@ import dev.architectury.registry.registries.DeferredRegister;
 import dev.architectury.registry.registries.RegistrySupplier;
 import dev.itsmeow.snailmail.SnailMail;
 import dev.itsmeow.snailmail.block.SnailBoxBlock;
-import net.minecraft.core.Registry;
+import net.minecraft.core.registries.Registries;
 import net.minecraft.world.level.block.Block;
 
 import java.util.function.Supplier;
 
 public class ModBlocks {
 
-    private static final DeferredRegister<Block> BLOCKS = DeferredRegister.create(SnailMail.MODID, Registry.BLOCK_REGISTRY);
+    private static final DeferredRegister<Block> BLOCKS = DeferredRegister.create(SnailMail.MODID, Registries.BLOCK);
 
     public static RegistrySupplier<SnailBoxBlock> SNAIL_BOX = r("snail_box", SnailBoxBlock::new);
 

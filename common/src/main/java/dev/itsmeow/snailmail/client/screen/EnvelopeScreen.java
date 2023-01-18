@@ -11,7 +11,7 @@ import dev.itsmeow.snailmail.network.SetEnvelopeNamePacket;
 import dev.itsmeow.snailmail.util.RandomUtil;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.components.EditBox;
-import net.minecraft.client.gui.components.Widget;
+import net.minecraft.client.gui.components.Renderable;
 import net.minecraft.client.gui.components.events.GuiEventListener;
 import net.minecraft.client.gui.narration.NarratableEntry;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
@@ -35,7 +35,6 @@ public class EnvelopeScreen extends AbstractContainerScreen<EnvelopeMenu> {
     @Override
     protected void init() {
         super.init();
-        Minecraft.getInstance().keyboardHandler.setSendRepeatsToGui(true);
         int i = (this.width - this.imageWidth) / 2;
         int j = (this.height - this.imageHeight) / 2;
         this.toField = new EditBox(this.font, i + 92, j + 10, 58, 10, Component.translatable("container.snailmail.envelope.textfield.to")) {
@@ -102,7 +101,7 @@ public class EnvelopeScreen extends AbstractContainerScreen<EnvelopeMenu> {
     }
 
     @Override
-    protected <T extends GuiEventListener & Widget & NarratableEntry> T addRenderableWidget(T guiEventListener) {
+    protected <T extends GuiEventListener & Renderable & NarratableEntry> T addRenderableWidget(T guiEventListener) {
         if(Platform.isForge() && Platform.isModLoaded("quark")) {
             if(SnailBoxScreen.checkButton(guiEventListener)) {
                 return null;
@@ -115,12 +114,6 @@ public class EnvelopeScreen extends AbstractContainerScreen<EnvelopeMenu> {
     public void containerTick() {
         this.toField.tick();
         this.fromField.tick();
-    }
-
-    @Override
-    public void removed() {
-        super.removed();
-        Minecraft.getInstance().keyboardHandler.setSendRepeatsToGui(false);
     }
 
     @Override
