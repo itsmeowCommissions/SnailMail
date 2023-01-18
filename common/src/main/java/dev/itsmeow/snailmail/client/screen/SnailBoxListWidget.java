@@ -53,7 +53,7 @@ public class SnailBoxListWidget extends ObjectSelectionList<SnailBoxListWidget.B
         BufferBuilder bufferbuilder = tessellator.getBuilder();
         int k = this.getRowLeft();
         int l = this.y0 + 4 - (int) this.getScrollAmount();
-        this.renderList(stack, k, l, p_render_1_, p_render_2_, p_render_3_);
+        this.renderList(stack, k, l, p_render_1_);
         RenderSystem.disableDepthTest();
         RenderSystem.enableBlend();
         RenderSystem.blendFuncSeparate(GlStateManager.SourceFactor.SRC_ALPHA, GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA, GlStateManager.SourceFactor.ZERO, GlStateManager.DestFactor.ONE);
