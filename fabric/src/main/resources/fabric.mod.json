@@ -1,39 +1,37 @@
 {
-    "schemaVersion": 1,
-    "id": "snailmail",
-    "version": "${version}",
-    "name": "Snail Mail",
-    "description": "Send mail to your friends, snail style.",
-    "authors": ["itsmeowdev", "Coda", "hobojoe"],
-    "contact": {
-        "homepage": "https://www.curseforge.com/minecraft/mc-mods/snail-mail",
-        "sources": "https://github.com/itsmeowCommissions/SnailMail",
-        "issues": "https://github.com/itsmeowCommissions/issues"
-    },
-    "license": "GNU LGPLv3",
-    "icon": "snailmail.png",
-    "environment": "*",
-    "accessWidener": "snailmail.accessWidener",
-    "entrypoints": {
-        "main": ["dev.itsmeow.snailmail.SnailMailFabric"],
-        "client": ["dev.itsmeow.snailmail.client.SnailMailClientFabric"],
-        "modmenu": ["dev.itsmeow.snailmail.util.ModMenuCompat"]
-    },
-    "depends": {
-        "minecraft": "1.19.x",
-        "architectury": ">=5.0.0",
-        "fabricloader": ">=0.12.0",
-        "fabric": ">=0.32.0"
-    },
-    "mixins": [
-        "snailmail.mixins.json",
-        "snailmail-fabric.mixins.json"
+  "schemaVersion": 1,
+  "id": "snailmail",
+  "version": "${version}",
+  "name": "Snail Mail",
+  "description": "Send mail to your friends, snail style.",
+  "authors": [
+    "itsmeowdev",
+    "Coda",
+    "hobojoe",
+    "ZestyBlaze"
+  ],
+  "contact": {
+    "homepage": "https://fabricmc.net/",
+    "sources": "https://github.com/FabricMC/fabric-example-mod"
+  },
+  "license": "Insert License Here",
+  "icon": "assets/snailmail/icon.png",
+  "environment": "*",
+  "entrypoints": {
+    "main": [
+      "net.examplemod.SnailMailFabric"
     ],
-    "custom": {
-        "modmenu": {
-            "links": {
-                "modmenu.discord": "https://discord.itsmeow.dev/"
-            }
-        }
-    }
+    "client": [
+      "net.examplemod.client.SnailMailClientFabric"
+    ]
+  },
+  "mixins": [
+    "snailmail.mixins.json",
+    "examplemod-common.mixins.json"
+  ],
+  "depends": {
+    "fabric": "*",
+    "minecraft": ">=1.19.2",
+    "architectury": ">=6.2.43"
+  }
 }

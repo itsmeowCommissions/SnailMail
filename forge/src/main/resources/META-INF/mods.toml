@@ -1,26 +1,35 @@
-modLoader="javafml"
-loaderVersion="[41,)"
-license="GNU LGPLv3"
-issueTrackerURL="https://github.com/itsmeowCommissions/SnailMail/issues"
-displayURL="https://www.curseforge.com/minecraft/mc-mods/snail-mail"
-logoFile="snailmail.png"
-credits="itsmeowdev for Programming, Coda for Art + Commission, hobojoe for Art"
-authors="itsmeowdev, Coda, hobojoe"
+modLoader = "javafml"
+loaderVersion = "[43,)"
+#issueTrackerURL = ""
+license = "GNU LGPLv3"
+
 [[mods]]
-modId="snailmail"
-version="${version}"
-displayName="Snail Mail"
-description='''
-Send mail to your friends, snail style.'''
+modId = "snailmail"
+version = "${version}"
+displayName = "Example Mod"
+authors = "Me!"
+description = '''
+Send mail to your friends, snail style.
+'''
+#logoFile = ""
+
 [[dependencies.snailmail]]
-    modId="forge"
-    mandatory=true
-    versionRange="[41.0.0,)"
-    ordering="NONE"
-    side="BOTH"
+modId = "forge"
+mandatory = true
+versionRange = "[43,)"
+ordering = "NONE"
+side = "BOTH"
+
 [[dependencies.snailmail]]
-    modId="architectury"
-    mandatory=true
-    versionRange="[5.0.0,)"
-    ordering="NONE"
-    side="BOTH"
+modId = "minecraft"
+mandatory = true
+versionRange = "[1.19.2,)"
+ordering = "NONE"
+side = "BOTH"
+
+[[dependencies.snailmail]]
+modId = "architectury"
+mandatory = true
+versionRange = "[6.2.43,)"
+ordering = "AFTER"
+side = "BOTH"
