@@ -88,7 +88,7 @@ public abstract class SnailBoxMenu extends AbstractContainerMenu {
 
     @Override
     public boolean stillValid(Player player) {
-        return stillValid(ContainerLevelAccess.create(player.level, pos), player, ModBlocks.SNAIL_BOX.get()) && SnailBoxBlock.canOpen(player.level, pos, player);
+        return player != null && stillValid(ContainerLevelAccess.create(player.level, pos), player, ModBlocks.SNAIL_BOX.get()) && SnailBoxBlock.canOpen(player.level, pos, player);
     }
 
     @Override
