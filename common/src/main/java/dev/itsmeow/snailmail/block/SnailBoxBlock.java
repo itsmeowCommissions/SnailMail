@@ -1,6 +1,8 @@
 package dev.itsmeow.snailmail.block;
 
+import dev.itsmeow.snailmail.SnailMail;
 import dev.itsmeow.snailmail.block.entity.SnailBoxBlockEntity;
+import dev.itsmeow.snailmail.util.Location;
 import dev.itsmeow.snailmail.util.SnailMailCommonConfig;
 import net.minecraft.ChatFormatting;
 import net.minecraft.core.BlockPos;
@@ -11,7 +13,9 @@ import net.minecraft.network.chat.Style;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
+import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.context.BlockPlaceContext;
 import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.Level;
@@ -31,8 +35,10 @@ import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.Shapes;
 import net.minecraft.world.phys.shapes.VoxelShape;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.HashMap;
+import java.util.Set;
 import java.util.UUID;
 
 @SuppressWarnings("deprecation")
@@ -126,4 +132,16 @@ public class SnailBoxBlock extends Block implements SimpleWaterloggedBlock, Enti
         return false;
     }
 
+    @Override
+    public void setPlacedBy(Level level, BlockPos blockPos, BlockState blockState, @Nullable LivingEntity livingEntity, ItemStack itemStack) {
+        if(livingEntity instanceof Player && !level.isClientSide()) {
+            UUID uuid = UUIDUtil.getOrCreatePlayerUUID(((Player) livingEntity).getGameProfile());
+            BlockEntity teB = level.getBlockEntity(blockPos);
+            if(teB != null && teB instanceof SnailBoxBlockEntity) {
+                Set<Location> box = SnailMail.SnailBoxSavedData.getOrCreate(level).getBoxes(uuid);
+                int size = box == null ? 0 : box.size();
+                ((SnailBoxBlockEntity) teB).initializeOwner(uuid, ((Player) livingEntity).getGameProfile().getName() + " Snailbox #" + (size + 1), false);
+            }
+        }
+    }
 }
