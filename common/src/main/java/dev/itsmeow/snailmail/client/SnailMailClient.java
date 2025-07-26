@@ -19,8 +19,8 @@ import net.minecraft.resources.ResourceLocation;
 
 public class SnailMailClient {
 
-    public static final ResourceLocation TEXTURE = new ResourceLocation(SnailMail.MODID, "textures/entity/snail_man.png");
-    public static final ModelLayerLocation SNAILMAN_MODEL = new ModelLayerLocation(new ResourceLocation(SnailMail.MODID, "snail_man"), "main");
+    public static final ResourceLocation TEXTURE = ResourceLocation.fromNamespaceAndPath(SnailMail.MODID, "textures/entity/snail_man.png");
+    public static final ModelLayerLocation SNAILMAN_MODEL = new ModelLayerLocation(ResourceLocation.fromNamespaceAndPath(SnailMail.MODID, "snail_man"), "main");
 
     public static void clientInit() {
         MenuRegistry.registerScreenFactory(ModMenus.SNAIL_BOX.get(), SnailBoxScreen::new);

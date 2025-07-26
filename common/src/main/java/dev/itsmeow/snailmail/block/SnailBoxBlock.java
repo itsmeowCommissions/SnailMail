@@ -13,6 +13,7 @@ import net.minecraft.network.chat.Style;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
+import net.minecraft.world.ItemInteractionResult;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
@@ -94,19 +95,20 @@ public class SnailBoxBlock extends Block implements SimpleWaterloggedBlock, Enti
     }
 
     @Override
-    public InteractionResult use(BlockState blockState, Level level, BlockPos pos, Player player, InteractionHand hand, BlockHitResult blockHitResult) {
+    protected InteractionResult useWithoutItem(BlockState blockState, Level level, BlockPos blockPos, Player player, BlockHitResult blockHitResult) {
         if(level.isClientSide) {
-            return InteractionResult.SUCCESS;
+            return InteractionResult.PASS;
         } else {
-            if (level.getBlockEntity(pos) != null) {
-                if (canOpen(level, pos, player)) {
-                    lastClickedBox.put(player.getUUID(), new BlockPos(pos));
-                    ((SnailBoxBlockEntity) level.getBlockEntity(pos)).openGUI((ServerPlayer) player);
-                } else if (hand == InteractionHand.MAIN_HAND) {
+            if (level.getBlockEntity(blockPos) != null) {
+                if (canOpen(level, blockPos, player)) {
+                    lastClickedBox.put(player.getUUID(), new BlockPos(blockPos));
+                    ((SnailBoxBlockEntity) level.getBlockEntity(blockPos)).openGUI((ServerPlayer) player);
+                    return InteractionResult.SUCCESS;
+                } else {
                     player.sendSystemMessage(Component.translatable("message.snailmail.noperm").setStyle(Style.EMPTY.withColor(ChatFormatting.RED)));
                 }
             }
-            return InteractionResult.CONSUME;
+            return InteractionResult.PASS;
         }
     }
 
@@ -120,7 +122,7 @@ public class SnailBoxBlock extends Block implements SimpleWaterloggedBlock, Enti
         if(!SnailMailCommonConfig.lockBoxes()) {
             return true;
         }
-        UUID uuid = UUIDUtil.getOrCreatePlayerUUID(player.getGameProfile());
+        UUID uuid = player.getGameProfile().getId();
         if(uuid.equals(te.getOwner()) || te.isMember(uuid)) {
             return true;
         }
@@ -133,7 +135,7 @@ public class SnailBoxBlock extends Block implements SimpleWaterloggedBlock, Enti
     @Override
     public void setPlacedBy(Level level, BlockPos blockPos, BlockState blockState, @Nullable LivingEntity livingEntity, ItemStack itemStack) {
         if(livingEntity instanceof Player player && !level.isClientSide()) {
-            UUID uuid = UUIDUtil.getOrCreatePlayerUUID(player.getGameProfile());
+            UUID uuid = player.getGameProfile().getId();
             BlockEntity teB = level.getBlockEntity(blockPos);
             if(teB != null && teB instanceof SnailBoxBlockEntity) {
                 Set<Location> box = SnailMail.SnailBoxSavedData.getOrCreate(level).getBoxes(uuid);

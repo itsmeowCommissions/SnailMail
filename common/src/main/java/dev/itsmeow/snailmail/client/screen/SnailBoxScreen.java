@@ -116,7 +116,7 @@ public class SnailBoxScreen extends AbstractContainerScreen<SnailBoxMenu> implem
 
     @Override
     protected <T extends GuiEventListener & Renderable & NarratableEntry> T addRenderableWidget(T guiEventListener) {
-        if(Platform.isForge() && Platform.isModLoaded("quark")) {
+        if(Platform.isNeoForge() && Platform.isModLoaded("quark")) {
             if(SnailBoxScreen.checkButton(guiEventListener)) {
                 return null;
             }

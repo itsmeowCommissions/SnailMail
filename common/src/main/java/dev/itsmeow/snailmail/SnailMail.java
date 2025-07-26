@@ -14,6 +14,7 @@ import dev.itsmeow.snailmail.util.BiMultiMap;
 import dev.itsmeow.snailmail.util.Location;
 import dev.itsmeow.snailmail.util.SnailMailCommonConfig;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.HolderLookup;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
@@ -207,7 +208,7 @@ public class SnailMail {
         }
 
         @Override
-        public CompoundTag save(CompoundTag compound) {
+        public CompoundTag save(CompoundTag compound, HolderLookup.Provider provider) {
             snailBoxes.getKeysToValues().keySet().forEach(key -> {
                 ListTag list = new ListTag();
                 snailBoxes.getValues(key).forEach(pos -> {
@@ -228,7 +229,7 @@ public class SnailMail {
         }
 
         public static SnailBoxSavedData getOrCreate(Level level) {
-            return level.getServer().getLevel(Level.OVERWORLD).getDataStorage().computeIfAbsent(compoundTag -> {
+            return level.getServer().getLevel(Level.OVERWORLD).getDataStorage().computeIfAbsent(new SavedData.Factory<>(SnailBoxSavedData::new, (CompoundTag compoundTag, HolderLookup.Provider holderLookup) -> {
                 BiMultiMap<UUID, Location> snailBoxes = new BiMultiMap<>();
                 BiMultiMap<UUID, Location> members = new BiMultiMap<>();
                 Map<Location, String> names = new HashMap<>();
@@ -251,7 +252,7 @@ public class SnailMail {
                     }
                 }
                 return new SnailBoxSavedData(snailBoxes, members, names, publicM);
-            }, SnailBoxSavedData::new, "SNAIL_BOXES");
+            }, null), "SNAIL_BOXES");
         }
 
     }

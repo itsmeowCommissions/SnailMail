@@ -64,7 +64,7 @@ public class Location {
     }
 
     public static Location read(FriendlyByteBuf buf) {
-        return new Location(ResourceKey.create(Registries.DIMENSION, new ResourceLocation(buf.readUtf(60))), buf.readInt(), buf.readInt(), buf.readInt());
+        return new Location(ResourceKey.create(Registries.DIMENSION, ResourceLocation.parse(buf.readUtf(60))), buf.readInt(), buf.readInt(), buf.readInt());
     }
 
     public CompoundTag write(CompoundTag tag) {
@@ -76,7 +76,7 @@ public class Location {
     }
 
     public static Location read(CompoundTag tag) {
-        return new Location(ResourceKey.create(Registries.DIMENSION, new ResourceLocation(tag.getString("dim"))), tag.getInt("x"), tag.getInt("y"), tag.getInt("z"));
+        return new Location(ResourceKey.create(Registries.DIMENSION, ResourceLocation.parse(tag.getString("dim"))), tag.getInt("x"), tag.getInt("y"), tag.getInt("z"));
     }
 
     public ResourceKey<Level> getDimension() {

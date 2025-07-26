@@ -9,6 +9,7 @@ import net.fabricmc.fabric.api.transfer.v1.item.ItemVariant;
 import net.fabricmc.fabric.api.transfer.v1.storage.StorageUtil;
 import net.fabricmc.fabric.api.transfer.v1.transaction.Transaction;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.world.Containers;
@@ -24,12 +25,12 @@ public class SnailBoxBlockEntityImpl {
 
     private static final String ITEM_TAG_KEY = "item_handler";
 
-    public static void loadStorage(SnailBoxBlockEntity blockEntity, CompoundTag compoundTag) {
-        ((SnailBoxInterfaceFabric) blockEntity).deserializeHandlerNBT(compoundTag.getCompound(ITEM_TAG_KEY));
+    public static void loadStorage(SnailBoxBlockEntity blockEntity, CompoundTag compoundTag, HolderLookup.Provider provider) {
+        ((SnailBoxInterfaceFabric) blockEntity).deserializeHandlerNBT(compoundTag.getCompound(ITEM_TAG_KEY), provider);
     }
 
-    public static void saveStorage(SnailBoxBlockEntity blockEntity, CompoundTag compoundTag) {
-        compoundTag.put(ITEM_TAG_KEY, ((SnailBoxInterfaceFabric) blockEntity).serializeHandlerNBT());
+    public static void saveStorage(SnailBoxBlockEntity blockEntity, CompoundTag compoundTag, HolderLookup.Provider provider) {
+        compoundTag.put(ITEM_TAG_KEY, ((SnailBoxInterfaceFabric) blockEntity).serializeHandlerNBT(provider));
     }
 
     public static void handleRemoved(SnailBoxBlockEntity blockEntity) {

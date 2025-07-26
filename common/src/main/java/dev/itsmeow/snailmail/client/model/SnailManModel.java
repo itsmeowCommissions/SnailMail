@@ -85,8 +85,8 @@ public class SnailManModel extends EntityModel<SnailManEntity> {
     }
 
     @Override
-    public void renderToBuffer(PoseStack poseStack, VertexConsumer vertexConsumer, int packedLight, int packedOverlay, float red, float green, float blue, float alpha) {
-        this.body1.render(poseStack, vertexConsumer, packedLight, packedOverlay, red, green, blue, opacity);
+    public void renderToBuffer(PoseStack poseStack, VertexConsumer vertexConsumer, int i, int j, int k) {
+        this.body1.render(poseStack, vertexConsumer, i, j, k);
     }
 
     @Override

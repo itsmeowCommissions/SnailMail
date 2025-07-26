@@ -30,7 +30,7 @@ jobs:
         id: create_release
         uses: meeDamian/github-release@2.0
         with:
-          files: "fabric/build/libs/${{ steps.build.outputs.modid }}-${{ steps.build.outputs.version }}-fabric.jar forge/build/libs/${{ steps.build.outputs.modid }}-${{ steps.build.outputs.version }}-forge.jar"
+          files: "fabric/build/libs/${{ steps.build.outputs.modid }}-${{ steps.build.outputs.version }}-fabric.jar neoforge/build/libs/${{ steps.build.outputs.modid }}-${{ steps.build.outputs.version }}-neoforge.jar"
           gzip: false
           name: "${{ steps.build.outputs.modid }}-${{ steps.build.outputs.version }}"
           token: "${{ secrets.GITHUB_TOKEN }}"
@@ -46,15 +46,15 @@ jobs:
           project_id: "${{ steps.build.outputs.project_id }}"
           release_type: release
           token: "${{ secrets.CF_API_TOKEN }}"
-      - name: "Upload Forge to CurseForge"
+      - name: "Upload NeoForge to CurseForge"
         uses: itsmeow/curseforge-upload@master
         with:
           changelog: "Changelog not added yet..."
-          display_name: "${{ steps.build.outputs.curse_title }} ${{ steps.build.outputs.version }} [Forge]"
-          file_path: "forge/build/libs/${{ steps.build.outputs.modid }}-${{ steps.build.outputs.version }}-forge.jar"
+          display_name: "${{ steps.build.outputs.curse_title }} ${{ steps.build.outputs.version }} [NeoForge]"
+          file_path: "neoforge/build/libs/${{ steps.build.outputs.modid }}-${{ steps.build.outputs.version }}-neoforge.jar"
           game_endpoint: minecraft
-          relations: "${{ steps.build.outputs.curse_relations_forge }}"
-          game_versions: "${{ steps.build.outputs.curse_versions_forge }}"
+          relations: "${{ steps.build.outputs.curse_relations_neoforge }}"
+          game_versions: "${{ steps.build.outputs.curse_versions_neoforge }}"
           project_id: "${{ steps.build.outputs.project_id }}"
           release_type: release
           token: "${{ secrets.CF_API_TOKEN }}"

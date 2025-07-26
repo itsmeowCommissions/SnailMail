@@ -208,7 +208,7 @@ public class SendEnvelopePacket {
         ServerLevel fromW = from.getWorld(player.getServer());
         try {
             SnailManEntity snail = new SnailManEntity(ModEntities.SNAIL_MAN.get(), fromW, location, stack, from);
-            snail.finalizeSpawn(fromW, fromW.getCurrentDifficultyAt(from.toBP()), MobSpawnType.MOB_SUMMONED, null, null);
+            snail.finalizeSpawn(fromW, fromW.getCurrentDifficultyAt(from.toBP()), MobSpawnType.MOB_SUMMONED, null);
             BlockPos pos = from.toBP().relative(fromTe.getBlockState().getValue(BlockStateProperties.HORIZONTAL_FACING));
             snail.moveTo(pos.getX() + 0.5, pos.getY(), pos.getZ() + 0.5, 0, 0);
             fromW.addFreshEntity(snail);

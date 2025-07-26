@@ -1,0 +1,51 @@
+package dev.itsmeow.snailmail.util.neoforge;
+
+import dev.itsmeow.snailmail.init.ModItems;
+import net.minecraft.core.Direction;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.Items;
+import net.neoforged.neoforge.capabilities.Capabilities;
+import net.neoforged.neoforge.items.ItemStackHandler;
+
+public class EnvelopeCapabilityProvider implements ICapabilitySerializable<CompoundTag> {
+
+    private ItemStackHandler handler;
+    public final LazyOptional<ItemStackHandler> handlerOptional;
+    private ItemStack stack;
+
+    public EnvelopeCapabilityProvider(ItemStack stack, CompoundTag compound, boolean isOpen) {
+        this.handler = new ItemStackHandler(isOpen ? 28 : 27) {
+            @Override
+            public boolean isItemValid(int slot, ItemStack stack) {
+                if(slot == 27) {
+                    return stack.getItem() == ModItems.STAMP.get();
+                }
+                return !stack.getCapability(Capabilities.ItemHandler.ITEM).isPresent() && stack.getItem() != Items.SHULKER_BOX;
+            }
+        };
+        this.handlerOptional = LazyOptional.of(() -> handler);
+        this.stack = stack;
+    }
+
+    @Override
+    public <T> LazyOptional<T> getCapability(Capability<T> cap, Direction dir) {
+        if(cap == Capabilities.ItemHandler.ITEM && !stack.isEmpty()) {
+            return handlerOptional.cast();
+        }
+        return LazyOptional.empty();
+    }
+
+    @Override
+    public CompoundTag serializeNBT() {
+        return handler.serializeNBT();
+    }
+
+    @Override
+    public void deserializeNBT(CompoundTag nbt) {
+        if(nbt != null) {
+            handler.deserializeNBT(nbt);
+        }
+    }
+
+}

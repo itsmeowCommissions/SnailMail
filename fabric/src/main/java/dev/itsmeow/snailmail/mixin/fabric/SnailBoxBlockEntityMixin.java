@@ -5,6 +5,7 @@ import dev.itsmeow.snailmail.block.entity.fabric.SnailBoxInterfaceFabric;
 import dev.itsmeow.snailmail.init.ModItems;
 import net.fabricmc.fabric.api.transfer.v1.item.InventoryStorage;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.ContainerHelper;
 import net.minecraft.world.SimpleContainer;
@@ -53,14 +54,14 @@ public abstract class SnailBoxBlockEntityMixin extends BlockEntity implements Sn
     }
 
     @Override
-    public void deserializeHandlerNBT(CompoundTag nbt) {
+    public void deserializeHandlerNBT(CompoundTag nbt, HolderLookup.Provider provider) {
         container.clearContent();
-        ContainerHelper.loadAllItems(nbt, container.items);
+        ContainerHelper.loadAllItems(nbt, container.items, provider);
     }
 
     @Override
-    public CompoundTag serializeHandlerNBT() {
-        return ContainerHelper.saveAllItems(new CompoundTag(), container.items);
+    public CompoundTag serializeHandlerNBT(HolderLookup.Provider provider) {
+        return ContainerHelper.saveAllItems(new CompoundTag(), container.items, provider);
     }
 
 }

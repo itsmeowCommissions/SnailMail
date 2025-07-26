@@ -10,6 +10,7 @@ import dev.itsmeow.snailmail.init.ModBlocks;
 import dev.itsmeow.snailmail.menu.SnailBoxMenu;
 import dev.itsmeow.snailmail.util.Location;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.HolderLookup;
 import net.minecraft.core.UUIDUtil;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.FriendlyByteBuf;
@@ -107,22 +108,22 @@ public class SnailBoxBlockEntity extends BlockEntity {
     }
 
     @Override
-    public void load(CompoundTag compoundTag) {
-        super.load(compoundTag);
-        loadStorage(this, compoundTag);
+    protected void loadAdditional(CompoundTag compoundTag, HolderLookup.Provider provider) {
+        super.loadAdditional(compoundTag, provider);
+        loadStorage(this, compoundTag, provider);
     }
 
     @Override
-    protected void saveAdditional(CompoundTag compoundTag) {
-        super.saveAdditional(compoundTag);
-        saveStorage(this, compoundTag);
+    protected void saveAdditional(CompoundTag compoundTag, HolderLookup.Provider provider) {
+        super.saveAdditional(compoundTag, provider);
+        saveStorage(this, compoundTag, provider);
     }
 
     @ExpectPlatform
-    public static void loadStorage(SnailBoxBlockEntity blockEntity, CompoundTag compoundTag) {}
+    public static void loadStorage(SnailBoxBlockEntity blockEntity, CompoundTag compoundTag, HolderLookup.Provider provider) {}
 
     @ExpectPlatform
-    public static void saveStorage(SnailBoxBlockEntity blockEntity, CompoundTag compoundTag) {}
+    public static void saveStorage(SnailBoxBlockEntity blockEntity, CompoundTag compoundTag, HolderLookup.Provider provider) {}
 
     public void openGUI(ServerPlayer player) {
         // do it on another thread so as to not block if some usernames need to be retrieved from servers
@@ -136,7 +137,7 @@ public class SnailBoxBlockEntity extends BlockEntity {
                     name = "";
                 }
                 buf.writeUtf(name, 35);
-                buf.writeBoolean(UUIDUtil.getOrCreatePlayerUUID(player.getGameProfile()).equals(this.getOwner()));
+                buf.writeBoolean(player.getGameProfile().getId().equals(this.getOwner()));
                 buf.writeBoolean(this.isPublic());
                 Set<String> usernames = new HashSet<String>();
 

@@ -7,7 +7,7 @@ import net.minecraft.resources.ResourceLocation;
 
 public class ModNetwork {
 
-    public static final NetworkChannel HANDLER = NetworkChannel.create(new ResourceLocation(SnailMail.MODID, "main_channel"));
+    public static final NetworkChannel HANDLER = NetworkChannel.create(ResourceLocation.fromNamespaceAndPath(SnailMail.MODID, "main_channel"));
 
     public static void init() {
         HANDLER.register(SetEnvelopeNamePacket.class, SetEnvelopeNamePacket::encode, SetEnvelopeNamePacket::decode, SetEnvelopeNamePacket.Handler::handle);

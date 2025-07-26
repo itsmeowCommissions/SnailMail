@@ -8,6 +8,7 @@ import dev.itsmeow.snailmail.item.EnvelopeItem;
 import dev.itsmeow.snailmail.util.Location;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
+import net.minecraft.core.registries.Registries;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.syncher.EntityDataAccessor;
 import net.minecraft.network.syncher.EntityDataSerializers;
@@ -71,10 +72,10 @@ public class SnailManEntity extends PathfinderMob {
     }
 
     @Override
-    protected void defineSynchedData() {
-        super.defineSynchedData();
-        this.entityData.define(OPACITY, 1F);
-        this.entityData.define(YAW, 0F);
+    protected void defineSynchedData(SynchedEntityData.Builder builder) {
+        super.defineSynchedData(builder);
+        builder.define(OPACITY, 1F);
+        builder.define(YAW, 0F);
     }
 
     @Override
@@ -117,7 +118,7 @@ public class SnailManEntity extends PathfinderMob {
         if(compound.contains("fromLocation") && compound.contains("targetLocation") && compound.contains("item") && compound.contains("leaving") && compound.contains("failed")) {
             this.fromMailbox = Location.read(compound.getCompound("fromLocation"));
             this.mailbox = Location.read(compound.getCompound("targetLocation"));
-            this.transport = ItemStack.of(compound.getCompound("item"));
+            this.transport = ItemStack.parseOptional(level().registryAccess(), compound.getCompound("item"));
             this.leavingDeliveryPoint = compound.getBoolean("leaving");
             this.deliveryFailed = compound.getBoolean("failed");
         } else {
@@ -137,7 +138,7 @@ public class SnailManEntity extends PathfinderMob {
         compound.put("fromLocation", tag2);
 
         CompoundTag tag = new CompoundTag();
-        transport.save(tag);
+        transport.save(level().registryAccess(), tag);
         compound.put("item", tag);
 
         compound.putBoolean("leaving", this.leavingDeliveryPoint);
