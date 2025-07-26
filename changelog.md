@@ -1,3 +1,7 @@
+# 1.1.1
+
+- Fixed bug where mail is unusable on Fabric for newer architectury versions.
+
 # 1.1.0
 
 - Ported to Architectury / Fabric, mod now depends on Architectury API
