@@ -41,18 +41,6 @@ public class SnailMail {
         ModBlockEntities.init();
         ModMenus.init();
         ModNetwork.init();
-        BlockEvent.PLACE.register((level, pos, state, entity) -> {
-            if(entity instanceof Player && !level.isClientSide()) {
-                UUID uuid = UUIDUtil.getOrCreatePlayerUUID(((Player) entity).getGameProfile());
-                BlockEntity teB = level.getBlockEntity(pos);
-                if(teB != null && teB instanceof SnailBoxBlockEntity) {
-                    Set<Location> box = SnailBoxSavedData.getOrCreate(level).getBoxes(uuid);
-                    int size = box == null ? 0 : box.size();
-                    ((SnailBoxBlockEntity) teB).initializeOwner(uuid, ((Player) entity).getGameProfile().getName() + " Snailbox #" + (size + 1), false);
-                }
-            }
-            return EventResult.pass();
-        });
         BlockEvent.BREAK.register((level, pos, state, player, xp) -> {
             if(state.getBlock() == ModBlocks.SNAIL_BOX.get()) {
                 BlockEntity teB = level.getBlockEntity(pos);
