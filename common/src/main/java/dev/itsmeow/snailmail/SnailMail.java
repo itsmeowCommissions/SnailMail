@@ -5,6 +5,8 @@ import dev.architectury.event.events.common.BlockEvent;
 import dev.architectury.event.events.common.ChunkEvent;
 import dev.architectury.event.events.common.ExplosionEvent;
 import dev.architectury.registry.CreativeTabRegistry;
+import dev.architectury.registry.registries.DeferredRegister;
+import dev.architectury.registry.registries.RegistrySupplier;
 import dev.itsmeow.snailmail.block.entity.SnailBoxBlockEntity;
 import dev.itsmeow.snailmail.init.*;
 import dev.itsmeow.snailmail.item.EnvelopeItem;
@@ -12,14 +14,14 @@ import dev.itsmeow.snailmail.util.BiMultiMap;
 import dev.itsmeow.snailmail.util.Location;
 import dev.itsmeow.snailmail.util.SnailMailCommonConfig;
 import net.minecraft.core.BlockPos;
-import net.minecraft.core.UUIDUtil;
+import net.minecraft.core.registries.Registries;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.StringTag;
 import net.minecraft.nbt.Tag;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerLevel;
-import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.CreativeModeTab;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.Level;
@@ -32,27 +34,24 @@ import java.util.*;
 public class SnailMail {
 
     public static final String MODID = "snailmail";
-    public static CreativeTabRegistry.TabSupplier ITEM_GROUP = CreativeTabRegistry.create(new ResourceLocation(MODID, "main"), () -> new ItemStack(ModItems.ENVELOPE_CLOSED.get()));
+    public static final DeferredRegister<CreativeModeTab> TABS =
+            DeferredRegister.create(MODID, Registries.CREATIVE_MODE_TAB);
+    public static RegistrySupplier<CreativeModeTab> ITEM_GROUP = TABS.register(
+            "main",
+            () -> CreativeTabRegistry.create(
+                    Component.translatable("category.snailmail.main"), // Tab Name
+                    () -> new ItemStack(ModItems.ENVELOPE_CLOSED.get()) // Icon
+            )
+    );
 
     public static void construct() {
+        TABS.register();
         ModEntities.init();
         ModBlocks.init();
         ModItems.init();
         ModBlockEntities.init();
         ModMenus.init();
         ModNetwork.init();
-        BlockEvent.PLACE.register((level, pos, state, entity) -> {
-            if(entity instanceof Player && !level.isClientSide()) {
-                UUID uuid = UUIDUtil.getOrCreatePlayerUUID(((Player) entity).getGameProfile());
-                BlockEntity teB = level.getBlockEntity(pos);
-                if(teB != null && teB instanceof SnailBoxBlockEntity) {
-                    Set<Location> box = SnailBoxSavedData.getOrCreate(level).getBoxes(uuid);
-                    int size = box == null ? 0 : box.size();
-                    ((SnailBoxBlockEntity) teB).initializeOwner(uuid, ((Player) entity).getGameProfile().getName() + " Snailbox #" + (size + 1), false);
-                }
-            }
-            return EventResult.pass();
-        });
         BlockEvent.BREAK.register((level, pos, state, player, xp) -> {
             if(state.getBlock() == ModBlocks.SNAIL_BOX.get()) {
                 BlockEntity teB = level.getBlockEntity(pos);

@@ -45,8 +45,8 @@ public class SetEnvelopeNamePacket {
                 ctx.get().queue(() -> {
                     ServerPlayer sender = (ServerPlayer) ctx.get().getPlayer();
                     BlockPos pos = SnailBoxBlock.lastClickedBox.get(sender.getUUID());
-                    if (sender.level.getBlockEntity(pos) instanceof SnailBoxBlockEntity){
-                        SnailBoxBlockEntity box = (SnailBoxBlockEntity) sender.level.getBlockEntity(pos);
+                    if (sender.level().getBlockEntity(pos) instanceof SnailBoxBlockEntity){
+                        SnailBoxBlockEntity box = (SnailBoxBlockEntity) sender.level().getBlockEntity(pos);
                         ItemStack stack = SnailBoxBlockEntity.getEnvelope(box);
                         String s = RandomUtil.filterAllowedCharacters(msg.name, false);
                         if(s.length() <= 35) {

@@ -2,16 +2,12 @@ package dev.itsmeow.snailmail.util;
 
 import java.util.Objects;
 
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
 import net.minecraft.network.FriendlyByteBuf;
 
 public class BoxData {
 
     public final String name;
-    @Nullable
     public final Location pos;
-    @Nonnull
     public final int posHash;
     public final boolean showPos;
     public final boolean member;

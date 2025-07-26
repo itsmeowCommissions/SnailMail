@@ -25,17 +25,17 @@ repositories {
 }
 
 dependencies {
-    modImplementation("com.terraformersmc:modmenu:5.0.2") {
+    modImplementation("com.terraformersmc:modmenu:7.2.2") {
         transitive = false
     }
-    modApi("curse.maven:cloth-config-348521:4147098") {
+    modApi("curse.maven:cloth-config-348521:5729104") {
         transitive = false
     }
     runtimeOnly("me.shedaniel.cloth:basic-math:0.6.1") {
         transitive = false
     }
     shadowImplementation "me.zeroeightsix:fiber:0.23.0-SNAPSHOT"
-    shadowModApi ("dev.itsmeow.cloth:fiber2cloth:3.3.0") {
+    shadowModApi ("dev.itsmeow.cloth:fiber2cloth:3.4.0") {
         transitive = false
     }
 }

@@ -1,11 +1,11 @@
 package dev.itsmeow.snailmail.client.screen;
 
-import com.mojang.blaze3d.vertex.PoseStack;
 import dev.itsmeow.snailmail.init.ModNetwork;
 import dev.itsmeow.snailmail.network.UpdateSnailBoxPacket;
 import dev.itsmeow.snailmail.util.RandomUtil;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
+import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.components.EditBox;
 import net.minecraft.client.gui.screens.Screen;
@@ -94,10 +94,10 @@ public class SnailBoxMemberScreen extends Screen {
     }
 
     @Override
-    public void render(PoseStack stack, int x, int y, float partialTicks) {
-        list.render(stack, x, y, partialTicks);
-        super.render(stack, x, y, partialTicks);
-        this.nameField.render(stack, x, y, partialTicks);
+    public void render(GuiGraphics guiGraphics, int x, int y, float partialTicks) {
+        list.render(guiGraphics, x, y, partialTicks);
+        super.render(guiGraphics, x, y, partialTicks);
+        this.nameField.render(guiGraphics, x, y, partialTicks);
     }
 
     @Override

@@ -1,7 +1,5 @@
 package dev.itsmeow.snailmail.client.screen;
 
-import com.mojang.blaze3d.systems.RenderSystem;
-import com.mojang.blaze3d.vertex.PoseStack;
 import dev.architectury.injectables.annotations.ExpectPlatform;
 import dev.architectury.platform.Platform;
 import dev.itsmeow.snailmail.init.ModItems;
@@ -14,12 +12,14 @@ import dev.itsmeow.snailmail.network.UpdateSnailBoxPacket;
 import dev.itsmeow.snailmail.util.BoxData;
 import dev.itsmeow.snailmail.util.RandomUtil;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.GuiComponent;
-import net.minecraft.client.gui.components.*;
+import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.components.Button;
+import net.minecraft.client.gui.components.Checkbox;
+import net.minecraft.client.gui.components.EditBox;
+import net.minecraft.client.gui.components.Renderable;
 import net.minecraft.client.gui.components.events.GuiEventListener;
 import net.minecraft.client.gui.narration.NarratableEntry;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
-import net.minecraft.client.renderer.GameRenderer;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.player.Inventory;
@@ -49,7 +49,7 @@ public class SnailBoxScreen extends AbstractContainerScreen<SnailBoxMenu> implem
                 this.receivePacket(packet);
                 ModNetwork.HANDLER.sendToServer(packet);
             }
-        }).pos(xStart + 84, yStart + 4).size(67, 20).build());
+        }).pos(xStart + 82, yStart + 4).size(67, 20).build());
         this.envelopeButton = Button.builder(Component.translatable("container.snailmail.snail_box.open_envelope"), (bt) -> {
             ItemStack envelope = this.menu.getSlot(27).getItem();
             if (envelope.getItem() == ModItems.ENVELOPE_OPEN.get()) {
@@ -72,15 +72,12 @@ public class SnailBoxScreen extends AbstractContainerScreen<SnailBoxMenu> implem
                 }
 
                 @Override
-                public void renderButton(PoseStack stack, int p_renderButton_1_, int p_renderButton_2_, float p_renderButton_3_) {
-                    RenderSystem.setShader(GameRenderer::getPositionTexShader);
-                    RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
-                    RenderSystem.setShaderTexture(0, CHECK_TEXTURE);
-                    GuiComponent.blit(stack, this.getX(), this.getY(), this.selected() ? 14 : 0, 0, 14, 14, 28, 14);
-                    stack.pushPose();
-                    stack.scale(0.8F, 0.8F, 1F);
-                    SnailBoxScreen.this.font.draw(stack, this.getMessage(), (this.getX() + 14 + 4) * 1.25F, (this.getY() + 4) * 1.25F, 0xFF404040);
-                    stack.popPose();
+                public void renderWidget(GuiGraphics guiGraphics, int i, int j, float f) {
+                    guiGraphics.blit(CHECK_TEXTURE, this.getX(), this.getY(), this.selected() ? 14 : 0, 0, 14, 14, 28, 14);
+                    guiGraphics.pose().pushPose();
+                    guiGraphics.pose().scale(0.8F, 0.8F, 1F);
+                    guiGraphics.drawString(SnailBoxScreen.this.font, this.getMessage(), Math.round((this.getX() + 14 + 4) * 1.25F), Math.round((this.getY() + 4) * 1.25F), 0xFF404040, false);
+                    guiGraphics.pose().popPose();
                 }
 
             };
@@ -161,27 +158,24 @@ public class SnailBoxScreen extends AbstractContainerScreen<SnailBoxMenu> implem
     }
 
     @Override
-    public void render(PoseStack stack, int x, int y, float partialTicks) {
-        this.renderBackground(stack);
-        super.render(stack, x, y, partialTicks);
-        this.nameField.render(stack, x, y, partialTicks);
-        this.renderTooltip(stack, x, y);
+    public void render(GuiGraphics guiGraphics, int x, int y, float partialTicks) {
+        this.renderBackground(guiGraphics);
+        super.render(guiGraphics, x, y, partialTicks);
+        this.nameField.render(guiGraphics, x, y, partialTicks);
+        this.renderTooltip(guiGraphics, x, y);
     }
 
     @Override
-    protected void renderBg(PoseStack stack, float partialTicks, int mouseX, int mouseY) {
-        RenderSystem.setShader(GameRenderer::getPositionTexShader);
-        RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
-        RenderSystem.setShaderTexture(0, GUI_TEXTURE);
+    protected void renderBg(GuiGraphics guiGraphics, float partialTicks, int mouseX, int mouseY) {
         int xStart = (this.width - this.imageWidth) / 2;
         int yStart = (this.height - this.imageHeight) / 2;
-        this.blit(stack, xStart, yStart, 0, 0, this.imageWidth, this.imageHeight);
+        guiGraphics.blit(GUI_TEXTURE, xStart, yStart, 0, 0, this.imageWidth, this.imageHeight);
     }
 
     @Override
-    protected void renderLabels(PoseStack stack, int mouseX, int mouseY) {
-        this.font.draw(stack, this.title, 8, 11, 0x404040);
-        this.font.draw(stack, this.playerInventoryTitle, 8, 104, 0x404040);
+    protected void renderLabels(GuiGraphics guiGraphics, int mouseX, int mouseY) {
+        guiGraphics.drawString(this.font, this.title, 8, 11, 0x404040, false);
+        guiGraphics.drawString(this.font, this.playerInventoryTitle, 8, 104, 0x404040, false);
     }
 
     @Override

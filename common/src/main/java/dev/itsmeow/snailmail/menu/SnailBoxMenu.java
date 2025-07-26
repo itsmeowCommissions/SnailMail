@@ -88,14 +88,14 @@ public abstract class SnailBoxMenu extends AbstractContainerMenu {
 
     @Override
     public boolean stillValid(Player player) {
-        return player != null && stillValid(ContainerLevelAccess.create(player.level, pos), player, ModBlocks.SNAIL_BOX.get()) && SnailBoxBlock.canOpen(player.level, pos, player);
+        return player != null && stillValid(ContainerLevelAccess.create(player.level(), pos), player, ModBlocks.SNAIL_BOX.get()) && SnailBoxBlock.canOpen(player.level(), pos, player);
     }
 
     @Override
     public void removed(Player playerIn) {
         super.removed(playerIn);
         // the player might have filled the envelope then moved it to their inventory - in this case, dump out all the items in the envelope
-        if (!playerIn.level.isClientSide()) {
+        if (!playerIn.level().isClientSide()) {
             playerIn.getServer().execute(() -> {
                 for (int i = 0; i < playerIn.getInventory().getContainerSize(); i++) {
                     ItemStack stack = playerIn.getInventory().getItem(i);
@@ -109,8 +109,8 @@ public abstract class SnailBoxMenu extends AbstractContainerMenu {
     }
 
     public SnailBoxBlockEntity getTile(Player player) {
-        BlockEntity te = player.level.getBlockEntity(pos);
-        if(te != null && stillValid(player) && player.level.getBlockState(pos).getBlock() == ModBlocks.SNAIL_BOX.get() && te instanceof SnailBoxBlockEntity) {
+        BlockEntity te = player.level().getBlockEntity(pos);
+        if(te != null && stillValid(player) && player.level().getBlockState(pos).getBlock() == ModBlocks.SNAIL_BOX.get() && te instanceof SnailBoxBlockEntity) {
             return ((SnailBoxBlockEntity) te);
         }
         return null;

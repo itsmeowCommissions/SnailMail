@@ -1,16 +1,13 @@
 package dev.itsmeow.snailmail.client.screen;
 
-import com.mojang.blaze3d.systems.RenderSystem;
-import com.mojang.blaze3d.vertex.PoseStack;
 import dev.itsmeow.snailmail.init.ModItems;
 import dev.itsmeow.snailmail.item.EnvelopeItem;
 import dev.itsmeow.snailmail.network.SendEnvelopePacket;
 import dev.itsmeow.snailmail.network.SendEnvelopePacket.Type;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.GuiComponent;
+import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.screens.Screen;
-import net.minecraft.client.renderer.GameRenderer;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.FormattedCharSequence;
@@ -40,16 +37,13 @@ public class SnailBoxModalScreen extends Screen implements IEnvelopePacketReceiv
     }
 
     @Override
-    public void render(PoseStack stack, int x, int y, float partialTicks) {
-        this.renderBackground(stack);
+    public void render(GuiGraphics guiGraphics, int x, int y, float partialTicks) {
+        this.renderBackground(guiGraphics);
         int modalXSize = 256;
         int modalYSize = 88;
         int modalXStart = (this.width - modalXSize) / 2;
         int modalYStart = (this.height - modalYSize) / 2;
-        RenderSystem.setShader(GameRenderer::getPositionTexShader);
-        RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
-        RenderSystem.setShaderTexture(0, MODAL_TEXTURE);
-        this.blit(stack, modalXStart, modalYStart, 0, 0, modalXSize, modalYSize);
+        guiGraphics.blit(MODAL_TEXTURE, modalXStart, modalYStart, 0, 0, modalXSize, modalYSize);
         if(type != Type.TO_SERVER && type != Type.WAIT) {
             String arg = "";
             if(type == Type.INVALID_ADDRESS || type == Type.NO_BOXES) {
@@ -60,16 +54,16 @@ public class SnailBoxModalScreen extends Screen implements IEnvelopePacketReceiv
             }
             List<FormattedCharSequence> text = this.font.split(Component.translatable("modal.snailmail." + type.name().toLowerCase(), arg), 240);
             for(int i = 0; i < text.size(); i++) {
-                this.font.draw(stack, text.get(i), modalXStart + (modalXSize / 2) - (this.font.width(text.get(i)) / 2), modalYStart + (modalYSize / 2) - (this.font.lineHeight * (text.size() - i)), 0xFFFFFF);
+                guiGraphics.drawString(this.font, text.get(i), modalXStart + (modalXSize / 2) - (this.font.width(text.get(i)) / 2), modalYStart + (modalYSize / 2) - (this.font.lineHeight * (text.size() - i)), 0xFFFFFF, false);
             }
-            super.render(stack, x, y, partialTicks);
+            super.render(guiGraphics, x, y, partialTicks);
         } else {
             int dotAmount = (int) ((System.currentTimeMillis() / 333L) % 4L);
             String dots = "";
             for(int i = 0; i < dotAmount; i++) {
                 dots += ".";
             }
-            GuiComponent.drawCenteredString(stack, this.font, Component.translatable("modal.snailmail.sending").append(Component.literal(dots)).getString(), modalXStart + (modalXSize / 2), modalYStart + (modalYSize / 2), 0xFFFFFF);
+            guiGraphics.drawCenteredString(this.font, Component.translatable("modal.snailmail.sending").append(Component.literal(dots)).getString(), modalXStart + (modalXSize / 2), modalYStart + (modalYSize / 2), 0xFFFFFF);
         }
     }
 

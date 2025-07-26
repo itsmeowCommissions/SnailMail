@@ -42,11 +42,11 @@ public class EnvelopeMenuFabric extends EnvelopeMenu {
     @Override
     public void removed(Player player) {
         super.removed(player);
-        if (!player.level.isClientSide()){
+        if (!player.level().isClientSide()){
             player.getServer().execute(() -> {
-                BlockEntity blockEntity = player.level.getBlockEntity(returnPos);
+                BlockEntity blockEntity = player.level().getBlockEntity(returnPos);
                 if (!(blockEntity instanceof SnailBoxBlockEntity)) {
-                    blockEntity = player.level.getBlockEntity(SnailBoxBlock.lastClickedBox.get(player.getUUID()));
+                    blockEntity = player.level().getBlockEntity(SnailBoxBlock.lastClickedBox.get(player.getUUID()));
                 }
                 if (blockEntity instanceof SnailBoxBlockEntity) {
                     SnailBoxBlockEntity b = (SnailBoxBlockEntity) blockEntity;

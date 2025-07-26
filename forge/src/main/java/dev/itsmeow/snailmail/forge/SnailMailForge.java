@@ -17,11 +17,10 @@ import java.util.function.Supplier;
 @Mod(value = SnailMail.MODID)
 public class SnailMailForge {
 
-    public SnailMailForge() {
-        IEventBus modBus = FMLJavaModLoadingContext.get().getModEventBus();
-        EventBuses.registerModEventBus(SnailMail.MODID, modBus);
+    public SnailMailForge(FMLJavaModLoadingContext context) {
+        EventBuses.registerModEventBus(SnailMail.MODID, context.getModEventBus());
         SnailMail.construct();
-        ModLoadingContext.get().registerConfig(ModConfig.Type.COMMON, SnailMailCommonConfigImpl.Configuration.initSpec());
+        context.registerConfig(ModConfig.Type.COMMON, SnailMailCommonConfigImpl.Configuration.initSpec());
         if(Platform.getEnv() == Dist.CLIENT) {
             Supplier<Runnable> target = () -> SnailMailClient::registerEntityRenders;
             target.get().run();

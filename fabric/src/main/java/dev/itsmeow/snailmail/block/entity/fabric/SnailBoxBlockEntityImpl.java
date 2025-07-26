@@ -6,6 +6,7 @@ import dev.itsmeow.snailmail.menu.SnailBoxMenu;
 import dev.itsmeow.snailmail.menu.SnailBoxMenuFabric;
 import net.fabricmc.fabric.api.transfer.v1.item.InventoryStorage;
 import net.fabricmc.fabric.api.transfer.v1.item.ItemVariant;
+import net.fabricmc.fabric.api.transfer.v1.storage.StorageUtil;
 import net.fabricmc.fabric.api.transfer.v1.transaction.Transaction;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
@@ -105,7 +106,7 @@ public class SnailBoxBlockEntityImpl {
         try(Transaction transaction = Transaction.openOuter()) {
             long inserted = 0;
             for (int i = 0; i < 27 && inserted < newEnvelope.getCount(); i++) {
-                inserted += handler.getSlot(i).simulateInsert(ItemVariant.of(newEnvelope), newEnvelope.getCount(), transaction);
+                inserted += StorageUtil.simulateInsert(handler.getSlot(i), ItemVariant.of(newEnvelope), newEnvelope.getCount(), transaction);
             }
             if (inserted == newEnvelope.getCount()) {
                 inserted = 0;

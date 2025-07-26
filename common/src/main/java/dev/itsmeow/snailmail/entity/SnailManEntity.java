@@ -13,7 +13,10 @@ import net.minecraft.network.syncher.EntityDataAccessor;
 import net.minecraft.network.syncher.EntityDataSerializers;
 import net.minecraft.network.syncher.SynchedEntityData;
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.tags.DamageTypeTags;
 import net.minecraft.world.damagesource.DamageSource;
+import net.minecraft.world.damagesource.DamageSources;
+import net.minecraft.world.damagesource.DamageTypes;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.PathfinderMob;
@@ -105,7 +108,7 @@ public class SnailManEntity extends PathfinderMob {
 
     @Override
     public boolean isInvulnerableTo(DamageSource source) {
-        return source != DamageSource.OUT_OF_WORLD;
+        return !source.is(DamageTypeTags.BYPASSES_INVULNERABILITY);
     }
 
     @Override
@@ -194,8 +197,8 @@ public class SnailManEntity extends PathfinderMob {
 
         private Direction getDirection() {
             Direction dir = Direction.NORTH;
-            if(snail.level.isLoaded(snail.fromMailbox.toBP())) {
-                BlockState state = snail.level.getBlockState(snail.fromMailbox.toBP());
+            if(snail.level().isLoaded(snail.fromMailbox.toBP())) {
+                BlockState state = snail.level().getBlockState(snail.fromMailbox.toBP());
                 if(state != null && state.getBlock() == ModBlocks.SNAIL_BOX.get()) {
                     dir = state.getValue(BlockStateProperties.HORIZONTAL_FACING);
                 }
@@ -232,7 +235,7 @@ public class SnailManEntity extends PathfinderMob {
             if(taskReset) {
                 return false;
             }
-            return !snail.deliveryFailed && snail.position().distanceTo(to) > 1 || !snail.level.dimension().equals(snail.mailbox.getDimension());
+            return !snail.deliveryFailed && snail.position().distanceTo(to) > 1 || !snail.level().dimension().equals(snail.mailbox.getDimension());
         }
 
         @Override
@@ -247,7 +250,7 @@ public class SnailManEntity extends PathfinderMob {
                 snail.deliveryFailed = true;
                 SnailMail.forceArea(snail.fromMailbox.getWorld(snail.getServer()), snail.fromMailbox.toBP(), true);
                 if(isInvalid) {
-                    SnailBoxSavedData.getOrCreate(snail.level).removeBoxRaw(snail.mailbox);
+                    SnailBoxSavedData.getOrCreate(snail.level()).removeBoxRaw(snail.mailbox);
                 }
                 // return to deliverer
             } else {
@@ -291,8 +294,8 @@ public class SnailManEntity extends PathfinderMob {
 
         private Direction getDirection() {
             Direction dir = Direction.NORTH;
-            if(snail.level.isLoaded(snail.mailbox.toBP())) {
-                BlockState state = snail.level.getBlockState(snail.mailbox.toBP());
+            if(snail.level().isLoaded(snail.mailbox.toBP())) {
+                BlockState state = snail.level().getBlockState(snail.mailbox.toBP());
                 if(state != null && state.getBlock() == ModBlocks.SNAIL_BOX.get()) {
                     dir = state.getValue(BlockStateProperties.HORIZONTAL_FACING);
                 }
@@ -327,7 +330,7 @@ public class SnailManEntity extends PathfinderMob {
 
         @Override
         public boolean canContinueToUse() {
-            return !taskReset && snail.position().distanceTo(to) > 1 || !snail.level.dimension().equals(snail.fromMailbox.getDimension());
+            return !taskReset && snail.position().distanceTo(to) > 1 || !snail.level().dimension().equals(snail.fromMailbox.getDimension());
         }
 
         @Override
@@ -335,11 +338,11 @@ public class SnailManEntity extends PathfinderMob {
             totalTicks = 0;
             snail.setDeltaMovement(0, 0, 0);
             BlockPos pos = snail.fromMailbox.toBP();
-            BlockEntity teB = snail.level.getBlockEntity(pos);
-            boolean isInvalid = snail.level.getBlockState(pos).getBlock() != ModBlocks.SNAIL_BOX.get() || teB == null || !(teB instanceof SnailBoxBlockEntity);
+            BlockEntity teB = snail.level().getBlockEntity(pos);
+            boolean isInvalid = snail.level().getBlockState(pos).getBlock() != ModBlocks.SNAIL_BOX.get() || teB == null || !(teB instanceof SnailBoxBlockEntity);
             if(isInvalid || !SnailMail.deliverTo((SnailBoxBlockEntity) teB, snail.transport, true)) {
                 if(isInvalid) {
-                    SnailBoxSavedData.getOrCreate(snail.level).removeBoxRaw(snail.fromMailbox);
+                    SnailBoxSavedData.getOrCreate(snail.level()).removeBoxRaw(snail.fromMailbox);
                 }
                 ItemStack stack = snail.transport;
                 Optional<ItemStack> iOpt = EnvelopeItem.convert(snail.transport);
@@ -389,8 +392,8 @@ public class SnailManEntity extends PathfinderMob {
 
         private Direction getDirection() {
             Direction dir = Direction.NORTH;
-            if(snail.level.isLoaded(snail.fromMailbox.toBP())) {
-                BlockState state = snail.level.getBlockState(snail.fromMailbox.toBP());
+            if(snail.level().isLoaded(snail.fromMailbox.toBP())) {
+                BlockState state = snail.level().getBlockState(snail.fromMailbox.toBP());
                 if(state != null && state.getBlock() == ModBlocks.SNAIL_BOX.get()) {
                     dir = state.getValue(BlockStateProperties.HORIZONTAL_FACING);
                 }
@@ -405,7 +408,7 @@ public class SnailManEntity extends PathfinderMob {
     }
 
     private static void transportTo(SnailManEntity snail, BlockPos newPos, float yaw) {
-        if(!snail.level.dimension().equals(snail.mailbox.getDimension())) {
+        if(!snail.level().dimension().equals(snail.mailbox.getDimension())) {
             ServerLevel serverLevel = snail.getServer().getLevel(snail.mailbox.getDimension());
             Entity entity = snail.getType().create(serverLevel);
             if (entity != null) {
@@ -415,7 +418,7 @@ public class SnailManEntity extends PathfinderMob {
                 serverLevel.addDuringTeleport(entity);
             }
             snail.removeAfterChangingDimensions();
-            ((ServerLevel)snail.level).resetEmptyTime();
+            ((ServerLevel)snail.level()).resetEmptyTime();
             serverLevel.resetEmptyTime();
         } else {
             snail.setDeltaMovement(0, 0, 0);

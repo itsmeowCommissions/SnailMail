@@ -1,9 +1,9 @@
 package dev.itsmeow.snailmail.client.screen;
 
-import com.mojang.blaze3d.vertex.PoseStack;
 import dev.itsmeow.snailmail.util.BoxData;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
+import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.Component;
@@ -34,9 +34,9 @@ public class SnailBoxSelectionScreen extends Screen {
     }
 
     @Override
-    public void render(PoseStack stack, int x, int y, float partialTicks) {
-        list.render(stack, x, y, partialTicks);
-        super.render(stack, x, y, partialTicks);
+    public void render(GuiGraphics guiGraphics, int x, int y, float partialTicks) {
+        list.render(guiGraphics, x, y, partialTicks);
+        super.render(guiGraphics, x, y, partialTicks);
     }
 
     @Override

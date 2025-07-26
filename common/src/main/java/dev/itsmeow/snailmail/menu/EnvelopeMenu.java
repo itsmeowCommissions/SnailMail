@@ -72,17 +72,17 @@ public abstract class EnvelopeMenu extends AbstractContainerMenu {
     @Override
     public void removed(Player player) {
         super.removed(player);
-        if (!player.level.isClientSide()) {
+        if (!player.level().isClientSide()) {
             player.getServer().execute(() -> {
                 BlockPos pos = returnPos;
-                BlockEntity blockEntity = player.level.getBlockEntity(pos);
+                BlockEntity blockEntity = player.level().getBlockEntity(pos);
                 if(!(blockEntity instanceof SnailBoxBlockEntity)) {
                     pos = SnailBoxBlock.lastClickedBox.get(player.getUUID());
-                    blockEntity = player.level.getBlockEntity(pos);
+                    blockEntity = player.level().getBlockEntity(pos);
                 }
                 if (blockEntity instanceof SnailBoxBlockEntity){
-                    if (SnailBoxBlock.canOpen(player.level, pos, player)){
-                        ((SnailBoxBlockEntity) player.level.getBlockEntity(pos)).openGUI((ServerPlayer) player);
+                    if (SnailBoxBlock.canOpen(player.level(), pos, player)){
+                        ((SnailBoxBlockEntity) player.level().getBlockEntity(pos)).openGUI((ServerPlayer) player);
                     }
                 }
             });

@@ -1,6 +1,8 @@
 package dev.itsmeow.snailmail.block;
 
+import dev.itsmeow.snailmail.SnailMail;
 import dev.itsmeow.snailmail.block.entity.SnailBoxBlockEntity;
+import dev.itsmeow.snailmail.util.Location;
 import dev.itsmeow.snailmail.util.SnailMailCommonConfig;
 import net.minecraft.ChatFormatting;
 import net.minecraft.core.BlockPos;
@@ -11,7 +13,9 @@ import net.minecraft.network.chat.Style;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
+import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.context.BlockPlaceContext;
 import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.Level;
@@ -25,14 +29,14 @@ import net.minecraft.world.level.block.state.StateDefinition;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 import net.minecraft.world.level.material.FluidState;
 import net.minecraft.world.level.material.Fluids;
-import net.minecraft.world.level.material.Material;
-import net.minecraft.world.level.material.MaterialColor;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.Shapes;
 import net.minecraft.world.phys.shapes.VoxelShape;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.HashMap;
+import java.util.Set;
 import java.util.UUID;
 
 @SuppressWarnings("deprecation")
@@ -49,7 +53,7 @@ public class SnailBoxBlock extends Block implements SimpleWaterloggedBlock, Enti
     }
 
     public SnailBoxBlock() {
-        super(Block.Properties.of(Material.WOOD, MaterialColor.WOOD).strength(2.0F, 1200.0F).sound(SoundType.WOOD));
+        super(Block.Properties.of().strength(2.0F, 1200.0F).sound(SoundType.WOOD));
         this.registerDefaultState(this.defaultBlockState().setValue(BlockStateProperties.HORIZONTAL_FACING, Direction.NORTH).setValue(BlockStateProperties.WATERLOGGED, false));
     }
 
@@ -126,4 +130,16 @@ public class SnailBoxBlock extends Block implements SimpleWaterloggedBlock, Enti
         return false;
     }
 
+    @Override
+    public void setPlacedBy(Level level, BlockPos blockPos, BlockState blockState, @Nullable LivingEntity livingEntity, ItemStack itemStack) {
+        if(livingEntity instanceof Player player && !level.isClientSide()) {
+            UUID uuid = UUIDUtil.getOrCreatePlayerUUID(player.getGameProfile());
+            BlockEntity teB = level.getBlockEntity(blockPos);
+            if(teB != null && teB instanceof SnailBoxBlockEntity) {
+                Set<Location> box = SnailMail.SnailBoxSavedData.getOrCreate(level).getBoxes(uuid);
+                int size = box == null ? 0 : box.size();
+                ((SnailBoxBlockEntity) teB).initializeOwner(uuid, player.getGameProfile().getName() + " Snailbox #" + (size + 1), false);
+            }
+        }
+    }
 }

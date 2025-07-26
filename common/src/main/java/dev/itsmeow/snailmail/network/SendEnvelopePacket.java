@@ -100,7 +100,7 @@ public class SendEnvelopePacket {
                                         ctx.get().queue(() -> {
                                             if(prof.isPresent() && prof.get().getId() != null) {
                                                 UUID uuid = prof.get().getId();
-                                                SnailBoxSavedData data = SnailBoxSavedData.getOrCreate(sender.getLevel());
+                                                SnailBoxSavedData data = SnailBoxSavedData.getOrCreate(sender.level());
                                                 Set<Location> boxPos = data.getBoxes(uuid);
                                                 Set<BoxData> boxes = new HashSet<BoxData>();
                                                 for(Location pos : boxPos) {
@@ -148,7 +148,7 @@ public class SendEnvelopePacket {
                                                                             reply(ctx, Type.SUCCESS);
                                                                         } else {
                                                                             reply(ctx, Type.BOX_NO_EXIST);
-                                                                            SnailBoxSavedData.getOrCreate(sender.getLevel()).removeBoxRaw(selectFinal);
+                                                                            SnailBoxSavedData.getOrCreate(sender.level()).removeBoxRaw(selectFinal);
                                                                         }
                                                                     }
                                                                 });

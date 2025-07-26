@@ -33,7 +33,7 @@ public class OpenSnailBoxGUIPacket {
                 ctx.get().queue(() -> {
                     ServerPlayer sender = (ServerPlayer) ctx.get().getPlayer();
                     if (sender.distanceToSqr(msg.pos.getX(), msg.pos.getY(), msg.pos.getZ()) <= 25D) {
-                        BlockEntity target = sender.level.getBlockEntity(msg.pos);
+                        BlockEntity target = sender.level().getBlockEntity(msg.pos);
                         if(target instanceof SnailBoxBlockEntity && SnailBoxBlockEntity.getEnvelope((SnailBoxBlockEntity) target).getItem() == ModItems.ENVELOPE_OPEN.get() && ((SnailBoxBlockEntity) target).canAccess(sender)) {
                             ((SnailBoxBlockEntity) target).openGUI(sender);
                         } else {

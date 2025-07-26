@@ -1,30 +1,33 @@
 package dev.itsmeow.snailmail.client.screen;
 
-import com.mojang.blaze3d.systems.RenderSystem;
-import com.mojang.blaze3d.vertex.PoseStack;
 import dev.architectury.platform.Platform;
 import dev.itsmeow.snailmail.block.entity.SnailBoxBlockEntity;
+import dev.itsmeow.snailmail.init.ModItems;
 import dev.itsmeow.snailmail.init.ModNetwork;
 import dev.itsmeow.snailmail.menu.EnvelopeMenu;
+import dev.itsmeow.snailmail.network.OpenEnvelopeGUIPacket;
 import dev.itsmeow.snailmail.network.OpenSnailBoxGUIPacket;
 import dev.itsmeow.snailmail.network.SetEnvelopeNamePacket;
 import dev.itsmeow.snailmail.util.RandomUtil;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.components.EditBox;
 import net.minecraft.client.gui.components.Renderable;
 import net.minecraft.client.gui.components.events.GuiEventListener;
 import net.minecraft.client.gui.narration.NarratableEntry;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
-import net.minecraft.client.renderer.GameRenderer;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.player.Inventory;
+import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.entity.BlockEntity;
 
 public class EnvelopeScreen extends AbstractContainerScreen<EnvelopeMenu> {
     private static final ResourceLocation GUI_TEXTURE = new ResourceLocation("snailmail:textures/gui/envelope_open.png");
     private EditBox toField;
     private EditBox fromField;
+    private Button closeButton;
 
     public EnvelopeScreen(EnvelopeMenu screenContainer, Inventory inv, Component titleIn) {
         super(screenContainer, inv, titleIn);
@@ -37,6 +40,10 @@ public class EnvelopeScreen extends AbstractContainerScreen<EnvelopeMenu> {
         super.init();
         int i = (this.width - this.imageWidth) / 2;
         int j = (this.height - this.imageHeight) / 2;
+        this.closeButton = Button.builder(Component.translatable("container.snailmail.envelope.close"), (bt) -> {
+            EnvelopeScreen.this.onClose();
+        }).pos(i + this.imageWidth - 80, j - 20).size(80, 20).build();
+        this.addRenderableWidget(closeButton);
         this.toField = new EditBox(this.font, i + 92, j + 10, 58, 10, Component.translatable("container.snailmail.envelope.textfield.to")) {
 
             @Override
@@ -138,33 +145,30 @@ public class EnvelopeScreen extends AbstractContainerScreen<EnvelopeMenu> {
     }
 
     @Override
-    public void render(PoseStack stack, int x, int y, float partialTicks) {
-        this.renderBackground(stack);
-        super.render(stack, x, y, partialTicks);
-        this.toField.render(stack, x, y, partialTicks);
-        this.fromField.render(stack, x, y, partialTicks);
-        this.renderTooltip(stack, x, y);
+    public void render(GuiGraphics guiGraphics, int x, int y, float partialTicks) {
+        this.renderBackground(guiGraphics);
+        super.render(guiGraphics, x, y, partialTicks);
+        this.toField.render(guiGraphics, x, y, partialTicks);
+        this.fromField.render(guiGraphics, x, y, partialTicks);
+        this.renderTooltip(guiGraphics, x, y);
     }
 
     @Override
-    protected void renderBg(PoseStack stack, float partialTicks, int x, int y) {
-        RenderSystem.setShader(GameRenderer::getPositionTexShader);
-        RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
-        RenderSystem.setShaderTexture(0, GUI_TEXTURE);
+    protected void renderBg(GuiGraphics guiGraphics, float partialTicks, int x, int y) {
         int xStart = (this.width - this.imageWidth) / 2;
         int yStart = (this.height - this.imageHeight) / 2;
-        this.blit(stack, xStart, yStart, 0, 0, this.imageWidth, this.imageHeight);
+        guiGraphics.blit(GUI_TEXTURE, xStart, yStart, 0, 0, this.imageWidth, this.imageHeight);
     }
 
     @Override
-    protected void renderLabels(PoseStack stack, int x, int y) {
-        this.font.draw(stack, this.title, 8, 11, 0x404040);
-        this.font.draw(stack, this.playerInventoryTitle, 8, 84, 0x404040);
+    protected void renderLabels(GuiGraphics guiGraphics, int x, int y) {
+        guiGraphics.drawString(this.font, this.title, 8, 11, 0x404040, false);
+        guiGraphics.drawString(this.font, this.playerInventoryTitle, 8, 84, 0x404040, false);
     }
 
     @Override
     public void onClose() {
-        BlockEntity target = Minecraft.getInstance().player.level.getBlockEntity(menu.returnPos);
+        BlockEntity target = Minecraft.getInstance().player.level().getBlockEntity(menu.returnPos);
         if (target instanceof SnailBoxBlockEntity) {
             ModNetwork.HANDLER.sendToServer(new OpenSnailBoxGUIPacket(menu.returnPos));
         } else {

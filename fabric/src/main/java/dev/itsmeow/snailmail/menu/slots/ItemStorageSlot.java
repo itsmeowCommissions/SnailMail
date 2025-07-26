@@ -2,6 +2,7 @@ package dev.itsmeow.snailmail.menu.slots;
 
 import net.fabricmc.fabric.api.transfer.v1.item.InventoryStorage;
 import net.fabricmc.fabric.api.transfer.v1.item.ItemVariant;
+import net.fabricmc.fabric.api.transfer.v1.storage.StorageUtil;
 import net.fabricmc.fabric.api.transfer.v1.transaction.Transaction;
 import net.minecraft.world.Container;
 import net.minecraft.world.SimpleContainer;
@@ -64,7 +65,7 @@ public class ItemStorageSlot extends Slot {
         int maxInput = stack.getMaxStackSize();
         ItemStack currentStack = this.getItem();
         this.set(ItemStack.EMPTY);
-        int insertable = (int) itemHandler.simulateInsert(ItemVariant.of(maxAdd), maxInput, null);
+        int insertable = (int) StorageUtil.simulateInsert(itemHandler, ItemVariant.of(maxAdd), maxInput, null);
         this.set(currentStack);
         return insertable;
     }
